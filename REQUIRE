@@ -1,5 +1,11 @@
-julia 0.5
+ujlia 0.5
 SymmetricTensors
 Cumulants
 FactCheck
+Distributions
+StatsBase
+JLD
+ArgParse
+PyCall
+PyPlot
 
