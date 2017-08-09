@@ -17,7 +17,8 @@ facts("axiliary functions") do
   end
   context("vecnorm") do
     @fact vecnorm(st) --> roughly(0.5273572868359742)
-    @fact vecnorm(st; k = 1) --> roughly(1.339089)
+    @fact vecnorm(st, 1) --> roughly(1.339089)
+    @fact vecnorm(st, 2.5) --> roughly(vecnorm(te, 2.5)
   end
 end
 

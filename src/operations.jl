@@ -32,7 +32,7 @@ julia> vecnorm(st ;k=1)
 1.339089
 ```
 """
-function vecnorm{T <: AbstractFloat, N}(bt::SymmetricTensor{T, N}; k=2)
+function vecnorm{T <: AbstractFloat, N}(bt::SymmetricTensor{T, N}, k::Union{Float64, Int}=2)
   ret = 0.
   for i in indices(N, bt.bln)
     ret += rep(i) * vecnorm(bt[i...], k)^k
