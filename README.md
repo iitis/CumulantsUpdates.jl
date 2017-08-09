@@ -15,7 +15,7 @@ Requires [Cumulants.jl](https://github.com/ZKSI/Cumulants.jl). Advised to comput
 
 As of 01/01/2017 [kdomino](https://github.com/kdomino) is the lead maintainer of this package.
 
-## Instalation
+## Installation
 
 Within Julia, run
 
@@ -96,7 +96,7 @@ julia> cumulants(vcat(x,y)[3:end, :], 3)
 julia> vecnorm{T <: AbstractFloat, m}(st::SymmetricTensor{T, m}; k::Union{Float64, Int})
 ```
 
-Returns a vector norm of the `SymmetricTensors` type, `vecnorm(st, k) = vecnorn(convert(Array, st),k)`, for `k \neq 0`
+Returns a vector norm of the `SymmetricTensors` type, `vecnorm(st, k) = vecnorn(convert(Array, st),k)`, for `k != 0`
 
 ```julia
 julia> te = [-0.112639 0.124715 0.124715 0.268717 0.124715 0.268717 0.268717 0.046154];
@@ -116,19 +116,20 @@ julia> vecnorm(st, 1)
 
 # Performance analysis
 
-To analyse the computional time of moments and cumulants updates vs a naive recalculation that uses `Cumulants.jl`, we supply the executable script `comptimes.jl`.
-This script returns to a .jld file computional times, given folowing parameters:
+To analyse the computational time of moments and cumulants updates vs a naive recalculation that uses `Cumulants.jl`, we supply the executable script `comptimes.jl`.
+This script returns to a .jld file computational times, given following parameters:
 * `-m (Int)`: cumulant's order, by default `m = 4`,
 * `-n (vararg Int)`: numbers of marginal variables, by default `m = 30`,
-* `-t (Int)`: number of realistations of random variable, by defalut `t = 2500000`,
-* `-u (vararg Int)`: number of realistations of update, by defalut `u = 25000, 30000, 35000, 40000`,
-* `-b (Int)`: blocks size, by defalt `b = 3`.
+* `-t (Int)`: number of realisations of random variable, by default `t = 2500000`,
+* `-u (vararg Int)`: number of realisations of update, by default `u = 25000, 30000, 35000, 40000`,
+* `-b (Int)`: blocks size, by default `b = 3`.
 All comparisons performed by this script use one core.
 
-To analyse the computional time of cumulants updates for diferent block sizes `1 < b =< Int(sqrt(n))`, we supply the executable script `comptimesblocks.jl`.
-This script returns to a .jld file computional times, given folowing parameters:
+To analyse the computational time of cumulants updates for different block sizes `1 < b =< Int(sqrt(n))`, we supply the executable script `comptimesblocks.jl`.
+This script returns to a .jld file computational times, given following parameters:
 * `-m (Int)`: cumulant's order, by default `m = 4`,
 * `-n (Int)`: numbers of marginal variables, by default `m = 48`,
-* `-u (vararg Int)`: number of realistations of the update, by defalut `u = 20000, 40000`.
+* `-u (vararg Int)`: number of realisations of the update, by default `u = 20000, 40000`.
 
-Computional times and parameters are saved in the .jld file in /res directory. All comparisons performed by this script use one core.
+Computational times and parameters are saved in the .jld file in /res directory. All comparisons performed by this script use one core.
+
