@@ -2,7 +2,7 @@ using FactCheck
 using Cumulants
 using SymmetricTensors
 using Cumupdates
-import Cumupdates: rep, vecnorm
+import Cumupdates: rep, momentarray, moms2cums!, cums2moms
 
 srand(43)
 
@@ -94,6 +94,16 @@ facts("moments to cumulants") do
 end
 
 facts("cumulants update") do
+  context("simple test") do
+    x = ones(6, 2)
+    y = 2*ones(2,2)
+    c = cumulants(x, 3)
+    cup = cumulantsupdat(c, x, y)
+    cprim = cumulants(vcat(x,y)[3:end,:],3)
+    @fact convert(Array, cup[1]) --> roughly(convert(Array, cprim[1]))
+    @fact convert(Array, cup[2]) --> roughly(convert(Array, cprim[2]))
+    @fact convert(Array, cup[3]) --> roughly(convert(Array, cprim[3]))
+  end
   c = cumulants(X, 5)
   cc = cumulants(Xprim, 5)
   cup = cumulantsupdat(c, X, Xup)
@@ -102,4 +112,20 @@ facts("cumulants update") do
   @fact convert(Array, cc[3]) --> roughly(convert(Array, cup[3]))
   @fact convert(Array, cc[4]) --> roughly(convert(Array, cup[4]))
   @fact convert(Array, cc[5]) --> roughly(convert(Array, cup[5]))
+end
+
+facts("cumulants exceptions") do
+  x = ones(10,4);
+  y = 2*ones(5,3);
+  c = cumulants(x, 4);
+  @fact_throws DimensionMismatch cumulantsupdat(c, x, y)
+  y = 2*ones(5,4)
+  @fact_throws DimensionMismatch cumulantsupdat(c, x[:, 1:3], y)
+  @fact_throws MethodError cumulantsupdat([c[1], c[3], c[4]], x, y)
+  @fact_throws MethodError cumulantsupdat([c[1], c[2], c[4], c[4]], x, y)
+  @fact_throws MethodError cumulantsupdat([c[1], c[2], c[4], c[3]], x, y)
+  @fact_throws UndefRefError cumulantsupdat([c[2], c[3], c[4]], x, y)
+  @fact_throws UndefRefError cumulantsupdat([c[2], c[4]], x, y)
+  y = 2*ones(15,4)
+  @fact_throws BoundsError cumulantsupdat(c, x, y)
 end

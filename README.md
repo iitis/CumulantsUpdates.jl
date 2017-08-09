@@ -65,8 +65,30 @@ SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 
 julia> cumulantsupdat{T<:AbstractFloat}(cum::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xup::Matrix{T})
 ```
 Returns a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,2,...,m` of updated multivariate data in the observation window of size `t`: `X' = vcat(X,Xup)[1+size(Xup,1):end, :]` such that `size(X') = (t, n)`.
-Input: a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,2,...,m`, calculated for `X::Matrix{T}` such that `size(X) = (t, n)`, i.e. data with `n` marginal variables and `t` realisations; the update `Xup::Matrix{T}` such that `size(X) = (tup, n)` and `tup < t`.
+Input: a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,2,...,m`, calculated for `X::Matrix{T}` such that `size(X) = (t, n)`, i.e. data with `n` marginal variables and `t` realisations; the update `Xup::Matrix{T}` such that `size(X) = (tup, n)` and `tup < t`. The input vector of cumulant tensors must by of sequent orders starting form `1`, otherwise error will be return. If cumulants in input vector are not computed for the same data, results are meaningless.
+
+```julia
+julia> x = ones(10,2);
+
+julia> y = 2*ones(2,2);
+
+julia> c = cumulants(x, 3);
+
+julia> cumulantsupdat(c, x, y)
+3-element Array{SymmetricTensors.SymmetricTensor{Float64,N},1}:
+ SymmetricTensors.SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2,1.2]],2,1,2,true)                                             
+ SymmetricTensors.SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]],2,1,2,true)                                
+ SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096] 
+[0.096 0.096; 0.096 0.096]],2,1,2,true)
  
+julia> cumulants(vcat(x,y)[3:end, :], 3)
+3-element Array{SymmetricTensors.SymmetricTensor{Float64,N},1}:
+ SymmetricTensors.SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2,1.2]],2,1,2,true)                                             
+ SymmetricTensors.SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]],2,1,2,true)                                
+ SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096]
+[0.096 0.096; 0.096 0.096]],2,1,2,true)
+
+```
  
 ### Vector norm
 
@@ -74,7 +96,7 @@ Input: a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTen
 julia> vecnorm{T <: AbstractFloat, m}(st::SymmetricTensor{T, m}; k::Union{Float64, Int})
 ```
 
-Returns a vector norm of the `SymmetricTensors` type, `vecnorm(st; k=k) = vecnorn(convert(Array, st),k)`, for `k \neq 0`
+Returns a vector norm of the `SymmetricTensors` type, `vecnorm(st, k) = vecnorn(convert(Array, st),k)`, for `k \neq 0`
 
 ```julia
 julia> te = [-0.112639 0.124715 0.124715 0.268717 0.124715 0.268717 0.268717 0.046154];
@@ -89,5 +111,6 @@ julia> vecnorm(st, 2.5)
 
 julia> vecnorm(st, 1)
 1.339089
-
 ```
+
+
