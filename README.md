@@ -34,11 +34,40 @@ to install the files.  Julia 0.5 is required.
 julia> momentupdat{T<:AbstractFloat, m}(M::SymmetricTensor{T, m}, X::Matrix{T}, Xup::Matrix{T})
 ```
 
-Returns a `SymmetricTensor{T, m}` of the moment of order `m` of updated multivariate data in the observation window: `X' = vcat(X,Xup)[1+size(Xup,1):end, :]` such that `size(X') = (t, n)`. Input: moment tensor `M` in the `SymmetricTensors` type with `M` modes and size `M.dats = n`, calculated for `X::Matrix{T}` such that `size(X) = (t, n)`, i.e. data with `n` marginal variables and `t` realisations; the update `Xup::Matrix{T}` such that `size(X) = (tup, n)` and `tup < t`
+Returns a `SymmetricTensor{T, m}` of the moment tensor of order `m` of updated multivariate data in the observation window of size `t`: `X' = vcat(X,Xup)[1+size(Xup,1):end, :]` such that `size(X') = (t, n)`. Input: moment tensor `M` in the `SymmetricTensors` type with `m` modes and size `M.dats = n`, calculated for `X::Matrix{T}` such that `size(X) = (t, n)`, i.e. data with `n` marginal variables and `t` realisations; the update `Xup::Matrix{T}` such that `size(X) = (tup, n)` and `tup < t`
+
+```julia
+julia> x = ones(6, 2);
+
+julia> m = moment(x, 3)
+SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
+
+[1.0 1.0; 1.0 1.0]],2,1,2,true)
+
+julia> y = 2*ones(2,2);
+
+julia> momentupdat(m, x, y)
+SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
+
+[3.33333 3.33333; 3.33333 3.33333]],2,1,2,true)
+
+julia> moment(vcat(x,y)[3:end,:],3)
+SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
+
+[3.33333 3.33333; 3.33333 3.33333]],2,1,2,true)
+
+```
+
+### Cumulants update
 
 
-
-
+```julia
+julia> cumulantsupdat{T<:AbstractFloat}(cum::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xup::Matrix{T})
+```
+Returns a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,2,...,m` of updated multivariate data in the observation window of size `t`: `X' = vcat(X,Xup)[1+size(Xup,1):end, :]` such that `size(X') = (t, n)`.
+Input: a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,2,...,m`, calculated for `X::Matrix{T}` such that `size(X) = (t, n)`, i.e. data with `n` marginal variables and `t` realisations; the update `Xup::Matrix{T}` such that `size(X) = (tup, n)` and `tup < t`.
+ 
+ 
 ### Vector norm
 
 ```julia

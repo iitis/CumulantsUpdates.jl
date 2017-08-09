@@ -7,7 +7,7 @@ module Cumupdates
   import SymmetricTensors: indices
   import Base: vecnorm
 
-  include("momentupdate.jl")
+  include("updates.jl")
 
   include("gendata.jl")
 

@@ -20,22 +20,23 @@ function rep(ind::Tuple)
 end
 
 """
-vecnorm(bt::SymmetricTensor{N}; k=2)
+vecnorm(bt::SymmetricTensor{N}, k=2)
 
-Returns float, a k-norm of bt
+Returns float, a k-norm of bt, for k != 0
 
 ```jldoctest
 julia> vecnorm(st)
 0.5273572868359742
 
-julia> vecnorm(st ;k=1)
+julia> vecnorm(st, k=1)
 1.339089
 ```
 """
 function vecnorm{T <: AbstractFloat, N}(bt::SymmetricTensor{T, N}, k::Union{Float64, Int}=2)
+  k != 0 || throw(AssertionError("0' th norm not supported"))
   ret = 0.
   for i in indices(N, bt.bln)
-    ret += rep(i) * vecnorm(bt[i...], k)^k
+    @inbounds ret += rep(i) * vecnorm(bt[i...], k)^k
   end
   ret^(1/k)
 end

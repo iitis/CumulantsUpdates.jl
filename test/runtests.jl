@@ -18,7 +18,7 @@ facts("axiliary functions") do
   context("vecnorm") do
     @fact vecnorm(st) --> roughly(0.5273572868359742)
     @fact vecnorm(st, 1) --> roughly(1.339089)
-    @fact vecnorm(st, 2.5) --> roughly(vecnorm(te, 2.5)
+    @fact vecnorm(st, 2.5) --> roughly(vecnorm(te, 2.5))
   end
 end
 
@@ -28,6 +28,12 @@ l = size(Xup, 1) + 1
 Xprim = vcat(X, Xup)[l:end,:]
 
 facts("moment updates") do
+  context("simple test") do
+    x = ones(6, 2)
+    y = 2*ones(2,2)
+    m = moment(x, 3)
+    @fact convert(Array, moment(vcat(x,y)[3:end,:],3)) --> roughly(convert(Array, momentupdat(m, x, y)))
+  end
   m4 = moment(X, 4)
   m5 = moment(X, 5)
   context("block size = 2") do
@@ -41,6 +47,17 @@ facts("moment updates") do
     aa = momentupdat(m, X, Xup)
     @fact convert(Array, aa) --> roughly(convert(Array, moment(Xprim, 4)))
   end
+end
+
+facts("moment exceptions") do
+  x = ones(10,4);
+  y = 2*ones(5,3);
+  m = moment(x, 3);
+  @fact_throws DimensionMismatch momentupdat(m, x, y)
+  y = 2*ones(5,4)
+  @fact_throws DimensionMismatch momentupdat(m, x[:, 1:3], y)
+  y = 2*ones(15,4)
+  @fact_throws BoundsError momentupdat(m, x, y)
 end
 
 facts("moments to cumulants") do
