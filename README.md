@@ -123,7 +123,8 @@ This script returns to a .jld file computational times, given following paramete
 * `-t (Int)`: number of realisations of random variable, by default `t = 2500000`,
 * `-u (vararg Int)`: number of realisations of update, by default `u = 25000, 30000, 35000, 40000`,
 * `-b (Int)`: blocks size, by default `b = 3`.
-All comparisons performed by this script use one core.
+
+Computational times and parameters are saved in the .jld file in /res directory. All comparisons performed by this script use one core.
 
 To analyse the computational time of cumulants updates for different block sizes `1 < b =< Int(sqrt(n))`, we supply the executable script `comptimesblocks.jl`.
 This script returns to a .jld file computational times, given following parameters:
@@ -131,5 +132,13 @@ This script returns to a .jld file computational times, given following paramete
 * `-n (Int)`: numbers of marginal variables, by default `m = 48`,
 * `-u (vararg Int)`: number of realisations of the update, by default `u = 20000, 40000`.
 
-Computational times and parameters are saved in the .jld file in /res directory. All comparisons performed by this script use one core.
+Computational times and parameters are saved in the .jld file in /res directory. All comparisons performed by this script use one core. 
+
+To plot a graph run /res/plotcomptimes.jl followed by a `*.jld` file name
+
+
+# Citing this work
+
+
+Krzysztof Domino, Piotr Gawron, *On updates of high order cumulant tensors*, [arXiv:1701.06446](https://arxiv.org/abs/1701.06446)
 
