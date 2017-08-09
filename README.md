@@ -114,3 +114,21 @@ julia> vecnorm(st, 1)
 ```
 
 
+# Performance analysis
+
+To analyse the computional time of moments and cumulants updates vs a naive recalculation that uses `Cumulants.jl`, we supply the executable script `comptimes.jl`.
+This script returns to a .jld file computional times, given folowing parameters:
+* `-m (Int)`: cumulant's order, by default `m = 4`,
+* `-n (vararg Int)`: numbers of marginal variables, by default `m = 30`,
+* `-t (Int)`: number of realistations of random variable, by defalut `t = 2500000`,
+* `-u (vararg Int)`: number of realistations of update, by defalut `u = 25000, 30000, 35000, 40000`,
+* `-b (Int)`: blocks size, by defalt `b = 3`.
+All comparisons performed by this script use one core.
+
+To analyse the computional time of cumulants updates for diferent block sizes `1 < b =< Int(sqrt(n))`, we supply the executable script `comptimesblocks.jl`.
+This script returns to a .jld file computional times, given folowing parameters:
+* `-m (Int)`: cumulant's order, by default `m = 4`,
+* `-n (Int)`: numbers of marginal variables, by default `m = 48`,
+* `-u (vararg Int)`: number of realistations of the update, by defalut `u = 20000, 40000`.
+
+Computional times and parameters are saved in the .jld file in /res directory. All comparisons performed by this script use one core.

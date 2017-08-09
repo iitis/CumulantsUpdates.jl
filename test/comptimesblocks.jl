@@ -56,7 +56,7 @@ function main(args)
       "--tup", "-u"
         help = "u, numbers of data updates"
         nargs = '*'
-        default = [20000, 50000]
+        default = [20000, 40000]
         arg_type = Int
     end
   parsed_args = parse_args(s)
