@@ -47,6 +47,8 @@ function main(args)
   push!(stsdict, "k" => k)
   push!(stsdict, "stats" => stats)
   push!(stsdict, "y" => y)
+  push!(stsdict, "mu" => mu)
+  push!(stsdict, "n" => n)
   save(str, stsdict)
 end
 

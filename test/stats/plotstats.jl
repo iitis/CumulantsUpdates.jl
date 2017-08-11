@@ -1,9 +1,6 @@
 #!/usr/bin/env julia
 
-using Cumupdates
-using Cumulants
-using Distributions
-import Cumupdates: gendata, cormatgen, getstats
+using JLD
 using PyCall
 @pyimport matplotlib as mpl
 mpl.rc("text", usetex=true)
@@ -31,8 +28,24 @@ function plotstats(st, y, s, ylab, fname, legloc)
   fig[:savefig](fname)
 end
 
-
 function main(args)
+  s = ArgParseSettings("description")
+  @add_arg_table s begin
+    "file"
+    help = "the file name"
+    arg_type = String
+  end
+  parsed_args = parse_args(s)
+  d = load(parsed_args["file"])
+  str = string(d["mu"])*string(d["n"])
+  plotstats(d["st"], d["y"], ["m = 1" "m = 2" "m = 3" "m = 4"], "\$ ||C_{m}|| \$", "normcums"*str*".eps", 2)
+  plotstats(hcat(d["sk"], d["k"]), d["y"], ["1d assymetry", "1d curtosis"], " ", "1dstats"*str*".eps", 1)
+  plotstats(d["stats"], d["y"], ["mean", "var", "assymetry", "curtosis"], " ", "chstats"*str*".eps", 6)
+end
+
+main(ARGS)
+
+function moin(args)
   s = ArgParseSettings("description")
   @add_arg_table s begin
       "--order", "-m"
@@ -68,5 +81,3 @@ function main(args)
   plotstats(hcat(sk, k), y, ["1d assymetry", "1d curtosis"], " ", str*"1dstats.eps", 1)
   plotstats(stats, y, ["mean", "var", "assymetry", "curtosis"], " ", str*"chstats.eps", 6)
 end
-
-main(ARGS)
