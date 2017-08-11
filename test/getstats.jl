@@ -29,7 +29,7 @@ function main(args)
         default = 50000
         arg_type = Int
       "--mu", "-d"
-        help = "number of degree of freedom for student copula"
+        help = "number of degree of freedom for t-Student copula"
         default = 8
         arg_type = Int
     end
