@@ -63,7 +63,7 @@ function main(args)
   tup = parsed_args["updates"]
   mu = parsed_args["mu"]
   st, sk, k, stats, y = getstats(t, n, tup, mu, m)
-  str = "pics/"*string(mu)*string(n)
+  str = "stats/"*string(mu)*string(n)
   plotstats(st, y, ["m = 1" "m = 2" "m = 3" "m = 4"], "\$ ||C_{m}|| \$", str*"normcums.eps", 2)
   plotstats(hcat(sk, k), y, ["1d assymetry", "1d curtosis"], " ", str*"1dstats.eps", 1)
   plotstats(stats, y, ["mean", "var", "assymetry", "curtosis"], " ", str*"chstats.eps", 6)
