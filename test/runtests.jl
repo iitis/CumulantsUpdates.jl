@@ -2,7 +2,8 @@ using FactCheck
 using Cumulants
 using SymmetricTensors
 using Cumupdates
-import Cumupdates: rep, momentarray, moms2cums!, cums2moms
+using JLD
+import Cumupdates: rep, momentarray, moms2cums!, cums2moms, cnorms
 
 srand(43)
 
@@ -128,4 +129,36 @@ facts("cumulants exceptions") do
   @fact_throws UndefRefError cumulantsupdat([c[2], c[4]], x, y)
   y = 2*ones(15,4)
   @fact_throws BoundsError cumulantsupdat(c, x, y)
+end
+
+
+facts("norms of arrys of cumulants") do
+  c = cumulants(X, 4)
+  v = [vecnorm(c[i])/(c[i].dats^i) for i in 1:length(c)]
+  context("vector of norms") do
+    @fact cnorms(c, false) --> roughly([vecnorm(cum) for cum in c])
+    @fact cnorms(c, false, 1.5) --> roughly([vecnorm(cum, 1.5) for cum in c])
+    @fact cnorms(c, true) --> roughly(v)
+  end
+  context("cumulants norms") do
+    @fact cumnorms(X) --> roughly(v)
+    @fact load("/tmp/cumdata.jld", "x") --> roughly(X)
+    cload = load("/tmp/cumdata.jld", "c")
+    @fact convert(Array, cload[4]) -->  roughly(convert(Array, c[4]))
+  end
+  context("updated cumulants norms") do
+    Xprim = vcat(X, Xup)[(size(Xup, 1)+1):end,:]
+    cup = cumulants(Xprim, 4)
+    @fact cumupdatnorms(Xup, false) --> roughly([vecnorm(cum) for cum in cup])
+    @fact load("/tmp/cumdata.jld", "x") --> roughly(Xprim)
+    cload = load("/tmp/cumdata.jld", "c")
+    @fact convert(Array, cload[1]) -->  roughly(convert(Array, cup[1]))
+    @fact convert(Array, cload[2]) -->  roughly(convert(Array, cup[2]))
+    @fact convert(Array, cload[3]) -->  roughly(convert(Array, cup[3]))
+    @fact convert(Array, cload[4]) -->  roughly(convert(Array, cup[4]))
+  end
+  context("load exception") do
+    save("/tmp/cumdata.jld", "t", 0.0)
+    @fact_throws ErrorException cumupdatnorms(Xup, false)
+  end
 end

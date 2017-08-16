@@ -40,3 +40,54 @@ function vecnorm{T <: AbstractFloat, N}(bt::SymmetricTensor{T, N}, k::Union{Floa
   end
   ret^(1/k)
 end
+
+"""
+  cnorms{T <: AbstractFloat}(c::Vector{SymmetricTensor{T}}, norm::Bool, k::Union{Float64, Int})
+
+Returns vector of Floats of k norms of cumulants of order 1, ..., m. If norm = true
+each value is normalised (divided by a number of elements in a given cumulant's tensor)
+
+"""
+function cnorms{T <: AbstractFloat}(c::Vector{SymmetricTensor{T}}, norm::Bool = true,
+                                                                      k::Union{Float64, Int}=2)
+  if norm
+    return [vecnorm(c[i], k)/(c[i].dats)^i for i in 1:length(c)]
+  else
+    return [vecnorm(cum, k) for cum in c]
+  end
+end
+
+"""
+  cumnorms{T <: AbstractFloat}(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2)
+
+Given multivariate data X computes a vector of cumulants of order 1,...,m cash them and data
+in /tmp/cumdata.jld and returns a vector of Floats of k norm of those cumulants.
+If norm = true each value is normalised (divided by a number of elements in a given cumulant's tensor)
+"""
+
+function cumnorms{T <: AbstractFloat}(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2)
+  c = cumulants(X, m)
+  cpath = "/tmp/cumdata.jld"
+  save(cpath, "c", c, "x", X)
+  cnorms(c, norm, k)
+end
+
+"""
+  cumupdatnorms{T <: AbstractFloat}(X::Matrix{T}, norm::Bool = true, k::Union{Float64, Int}=2)
+
+Given multivariate data X and vector of cumulants of order 1,...,m stored in /tmp/cumdata.jld
+updates data by Xup and cumulants, store them in "/tmp/cumdata.jld"
+and returns a vector of Floats of k norm of updated cumulants.
+If norm = true each value is normalised (divided by a number of elements in a given cumulant's tensor)
+"""
+
+function cumupdatnorms{T <: AbstractFloat}(Xup::Matrix{T}, norm::Bool = true, k::Union{Float64, Int}=2)
+  cpath = "/tmp/cumdata.jld"
+  isfile(cpath) || throw(AssertionError("no cumulants cashed please run cumnorms first"))
+  c = load(cpath, "c")
+  X = load(cpath, "x")
+  Xprim = vcat(X, Xup)[(size(Xup, 1)+1):end,:]
+  cup = cumulantsupdat(c, X, Xup)
+  save(cpath, "c", cup, "x", Xprim)
+  cnorms(cup, norm, k)
+end

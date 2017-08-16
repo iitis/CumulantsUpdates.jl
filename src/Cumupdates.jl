@@ -3,6 +3,7 @@ module Cumupdates
   using SymmetricTensors
   using Distributions
   using StatsBase
+  using JLD
   import Cumulants: outerprodcum
   import SymmetricTensors: indices
   import Base: vecnorm
@@ -13,5 +14,5 @@ module Cumupdates
 
   include("operations.jl")
 
-  export momentupdat, cumulantsupdat, vecnorm
+  export momentupdat, cumulantsupdat, vecnorm, cumnorms, cumupdatnorms
 end
