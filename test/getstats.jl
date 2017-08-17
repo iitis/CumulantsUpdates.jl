@@ -2,7 +2,7 @@
 
 using Cumupdates
 using Distributions
-import Cumupdates: gendata, cormatgen, cumulants
+import Cumupdates: cormatgen, cumulants, tcopulagmarg, gcopulatmarg, tdistdat, normdist
 using JLD
 using ArgParse
 
@@ -14,28 +14,39 @@ Returns statistics for randmly generfated data with gaussian marginals and diffe
 """
 
 
-function getstats(t::Int = 200000, n::Int = 20, wsize::Int = 10000, mu::Int = 10,
-                                                                    m::Int = 4)
-  cormat = cormatgen(n);
-  x = transpose(rand(MvNormal(cormat),t));
-  k = div(t, wsize)
+function getstats(f::Function, fup::Function, t::Int, nv::Vector{Int}, u::Int, mu::Int, m::Int)
+  k = div(t, u)
+  tup = [u*i/t for i in 0:k]
+  cormat = cormatgen(nv[1]);
+  x = f(cormat, t, mu)
   cn = cumnorms(x, m, true, 1)
-  tup = [wsize*i/t for i in 0:k]
-  skmax = maximum([skewness(x[:,p]) for p in 1:n])
-  kumax = maximum([kurtosis(x[:,p]) for p in 1:n])
-  skmin = minimum([skewness(x[:,p]) for p in 1:n])
-  kumin = minimum([kurtosis(x[:,p]) for p in 1:n])
+  skmax = maximum([skewness(x[:,p]) for p in 1:nv[1]])
+  kumax = maximum([kurtosis(x[:,p]) for p in 1:nv[1]])
+  skmin = minimum([skewness(x[:,p]) for p in 1:nv[1]])
+  kumin = minimum([kurtosis(x[:,p]) for p in 1:nv[1]])
+  println(nv[1])
   for i in 1:k
-    xup = gendata(cormat, wsize, mu)
+    xup = fup(cormat, u, mu)
     x = vcat(x, xup)[(size(xup, 1)+1):end,:]
-    skmax = hcat(skmax, maximum([skewness(x[:,p]) for p in 1:n]))
-    kumax = hcat(kumax, maximum([kurtosis(x[:,p]) for p in 1:n]))
-    skmin = hcat(skmin, minimum([skewness(x[:,p]) for p in 1:n]))
-    kumin = hcat(kumin, minimum([kurtosis(x[:,p]) for p in 1:n]))
+    skmax = vcat(skmax, maximum([skewness(x[:,p]) for p in 1:nv[1]]))
+    kumax = vcat(kumax, maximum([kurtosis(x[:,p]) for p in 1:nv[1]]))
+    skmin = vcat(skmin, minimum([skewness(x[:,p]) for p in 1:nv[1]]))
+    kumin = vcat(kumin, minimum([kurtosis(x[:,p]) for p in 1:nv[1]]))
     cn = hcat(cn, cumupdatnorms(xup, true, 1))
     println(tup[i])
   end
-  cn', tup, skmax', skmin', kumax', kumin'
+  for n in nv[2:end]
+    cormat = cormatgen(n);
+    x = f(cormat, t, mu)
+    cn = hcat(cn, cumnorms(x, m, true, 1))
+    println(n)
+    for i in 1:k
+      xup = fup(cormat, u, mu)
+      cn = hcat(cn, cumupdatnorms(xup, true, 1))
+      println(tup[i])
+    end
+  end
+  cn', tup, skmax, skmin, kumax, kumin
 end
 
 
@@ -47,7 +58,8 @@ function main(args)
         default = 4
         arg_type = Int
       "--nvar", "-n"
-        default = 20
+        nargs = '*'
+        default = [20, 24]
         help = "n, numbers of marginal variables"
         arg_type = Int
       "--dats", "-t"
@@ -70,17 +82,22 @@ function main(args)
   tup = parsed_args["updates"]
   mu = parsed_args["mu"]
   stsdict = Dict{String, Any}()
-  st, y, skmax, skmin, kumax, kumin = getstats(t, n, tup, mu, m)
-  str = "stats/stats"*string(mu)*string(n)*".jld"
-  push!(stsdict, "st" => st)
-  push!(stsdict, "skmax" => skmax)
-  push!(stsdict, "skmin" => skmin)
-  push!(stsdict, "kumax" => kumax)
-  push!(stsdict, "kumin" => kumin)
-  push!(stsdict, "y" => y)
-  push!(stsdict, "mu" => mu)
-  push!(stsdict, "n" => n)
-  save(str, stsdict)
+  f = [normdist, gcopulatmarg, normdist]
+  fup = [tcopulagmarg, tdistdat, tdistdat]
+  for i in 1:3
+    st, y, skmax, skmin, kumax, kumin = getstats(f[i], fup[i], t, n, tup, mu, m)
+    str = "stats/stats"*string(i)*replace(string(t)*"_"*string(mu)*string(n)*".jld", "[", "_")
+    str = replace(str, "]", "")
+    push!(stsdict, "st" => st)
+    push!(stsdict, "skmax" => skmax)
+    push!(stsdict, "skmin" => skmin)
+    push!(stsdict, "kumax" => kumax)
+    push!(stsdict, "kumin" => kumin)
+    push!(stsdict, "y" => y)
+    push!(stsdict, "mu" => mu)
+    push!(stsdict, "n" => n)
+    save(str, stsdict)
+  end
 end
 
 main(ARGS)

@@ -20,10 +20,10 @@ function plotstats(st, y, s, ylab, fname, legloc)
   end
   PyPlot.ylabel(ylab, labelpad = -2.3)
   PyPlot.xlabel("\$ t_{up} / t \$", labelpad = -2)
-  ax[:legend](fontsize = 6, loc = legloc, ncol = 1)
+  ax[:legend](fontsize = 5, loc = legloc, ncol = 1)
   subplots_adjust(bottom = 0.12,top=0.92)
   f = matplotlib[:ticker][:ScalarFormatter]()
-  f[:set_powerlimits]((-2, 3))
+  f[:set_powerlimits]((-2, 2))
   ax[:yaxis][:set_major_formatter](f)
   fig[:savefig](fname)
 end
@@ -37,47 +37,22 @@ function main(args)
   end
   parsed_args = parse_args(s)
   d = load(parsed_args["file"])
-  str = string(d["mu"])*string(d["n"])
-  plotstats(d["st"][:,1:2], d["y"], ["m = 1" "m = 2"], "\$ ||C_{m}|| \$", "c1c2"*str*".eps", 5)
-  plotstats(d["st"][:,3:4], d["y"], ["m = 3" "m = 4"], "\$ ||C_{m}|| \$", "c3c4"*str*".eps", 2)
-  plotstats(hcat(d["skmax"], d["skmin"], d["kumax"], d["kumin"]), d["y"], ["max assymetry", "min assymetry", "max kurtosis", "min kurtosis"], " ", "1dstats"*str*".eps", 1)
+  str = replace(string(d["mu"])*string(d["n"]), "[", "_")
+  str = replace(str, "]", "")
+  l = length(d["y"])
+  c12 = d["st"][1:l,1:2]
+  c34 = d["st"][1:l,3:4]
+  leg12 = ["m = 1 n = $(d["n"][1])" "m = 2 n = $(d["n"][1])"]
+  leg34 = ["m = 3 n = $(d["n"][1])" "m = 4 n = $(d["n"][1])"]
+  for j in 2:div(length(d["st"][:,1]), l)
+    c12 = hcat(c12, d["st"][(l*(j-1)+1):j*l,1:2])
+    c34 = hcat(c34, d["st"][(l*(j-1)+1):j*l,3:4])
+    leg12 = hcat(leg12, ["m = 1 n = $(d["n"][j])" "m = 2 n = $(d["n"][j])"])
+    leg34 = hcat(leg34, ["m = 3 n = $(d["n"][j])" "m = 4 n = $(d["n"][j])"])
+  end
+  plotstats(c12, d["y"], leg12, "\$ ||C_{m}|| \$", "c1c2"*str*".eps", 5)
+  plotstats(c34, d["y"], leg34, "\$ ||C_{m}|| \$", "c3c4"*str*".eps", 2)
+  plotstats(hcat(d["skmax"], d["skmin"], d["kumax"], d["kumin"]), d["y"], ["max assym.", "min assym.", "max kurt.", "min kurt."], " ", "1dstats"*str*".eps", 5)
 end
 
 main(ARGS)
-
-function moin(args)
-  s = ArgParseSettings("description")
-  @add_arg_table s begin
-      "--order", "-m"
-        help = "m, the order of cumulant, ndims of cumulant's tensor"
-        default = 4
-        arg_type = Int
-      "--nvar", "-n"
-        default = 20
-        help = "n, numbers of marginal variables"
-        arg_type = Int
-      "--dats", "-t"
-        help = "t, numbers of data records"
-        default = 200000
-        arg_type = Int
-      "--updates", "-u"
-        help = "u, size of the update"
-        default = 50000
-        arg_type = Int
-      "--mu", "-d"
-        help = "number of degree of freedom for student copula"
-        default = 8
-        arg_type = Int
-    end
-  parsed_args = parse_args(s)
-  m = parsed_args["order"]
-  n = parsed_args["nvar"]
-  t = parsed_args["dats"]
-  tup = parsed_args["updates"]
-  mu = parsed_args["mu"]
-  st, sk, k, stats, y = getstats(t, n, tup, mu, m)
-  str = "stats/"*string(mu)*string(n)
-  plotstats(st, y, ["m = 1" "m = 2" "m = 3" "m = 4"], "\$ ||C_{m}|| \$", str*"normcums.eps", 2)
-  plotstats(hcat(sk, k), y, ["1d assymetry", "1d curtosis"], " ", str*"1dstats.eps", 1)
-  plotstats(stats, y, ["mean", "var", "assymetry", "curtosis"], " ", str*"chstats.eps", 6)
-end

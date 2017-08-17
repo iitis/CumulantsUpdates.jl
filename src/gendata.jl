@@ -75,5 +75,39 @@ function u2normal(y::Matrix{Float64}, cormat::Matrix{Float64})
 end
 
 
-gendata(cormat::Matrix{Float64} = [[1. 0.5];[0.5 1.]], t::Int = 10000, nu::Int = 10) =
+tcopulagmarg(cormat::Matrix{Float64} = [[1. 0.5];[0.5 1.]], t::Int = 10000, nu::Int = 10) =
   u2normal(tcopulagen(cormat, t, nu) , cormat)
+
+
+function gcopulagen(cormat::Matrix{Float64}, t::Int)
+  y = rand(MvNormal(cormat),t)'
+  z = copy(y)
+  for i in 1:size(cormat, 1)
+    d = Normal(0, sqrt(cormat[i,i]))
+    z[:,i] = cdf(d, y[:,i])
+  end
+  z
+end
+
+function u2tdist(y::Matrix{Float64}, nu::Int = 10)
+    x = copy(y)
+    for i in 1:size(y, 2)
+      d = TDist(nu)
+      x[:,i] = quantile(d, y[:,i])
+    end
+    x
+  end
+
+
+gcopulatmarg(cormat::Matrix{Float64} = [[1. 0.5];[0.5 1.]], t::Int = 10000, nu::Int = 10) =
+  u2tdist(gcopulagen(cormat, t), nu)
+
+
+function tdistdat(cormat::Matrix{Float64} = [[1. 0.5];[0.5 1.]], t::Int = 10000, nu::Int = 10)
+  d = MvTDist(nu, zeros(cormat[1,:]), cormat)
+  transpose(rand(d, t))
+end
+
+
+normdist(cormat::Matrix{Float64} = [[1. 0.5];[0.5 1.]], t::Int = 10000, nu::Int = 10) =
+  transpose(rand(MvNormal(cormat),t))
