@@ -3,7 +3,7 @@ using Cumulants
 using SymmetricTensors
 using Cumupdates
 using JLD
-import Cumupdates: rep, momentarray, moms2cums!, cums2moms, cnorms
+import Cumupdates: rep, momentarray, moms2cums!, cums2moms, cnorms, normperelement
 
 srand(43)
 
@@ -135,13 +135,14 @@ end
 facts("norms of arrys of cumulants") do
   c = cumulants(X, 4)
   v = [vecnorm(c[i])/(c[i].dats^i) for i in 1:length(c)]
+  v1 = hcat([vecnorm(c[i]) for i in 1:2], [vecnorm(c[i])/(vecnorm(c[2])^(i/2)) for i in 3:length(c)])
   context("vector of norms") do
     @fact cnorms(c, false) --> roughly([vecnorm(cum) for cum in c])
     @fact cnorms(c, false, 1.5) --> roughly([vecnorm(cum, 1.5) for cum in c])
-    @fact cnorms(c, true) --> roughly(v)
+    @fact normperelement(c) --> roughly(v)
   end
   context("cumulants norms") do
-    @fact cumnorms(X) --> roughly(v)
+    @fact cumnorms(X) --> roughly(v1)
     @fact load("/tmp/cumdata.jld", "x") --> roughly(X)
     cload = load("/tmp/cumdata.jld", "c")
     @fact convert(Array, cload[4]) -->  roughly(convert(Array, c[4]))

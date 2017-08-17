@@ -45,17 +45,28 @@ end
   cnorms{T <: AbstractFloat}(c::Vector{SymmetricTensor{T}}, norm::Bool, k::Union{Float64, Int})
 
 Returns vector of Floats of k norms of cumulants of order 1, ..., m. If norm = true
-each value is normalised (divided by a number of elements in a given cumulant's tensor)
+.....
 
 """
 function cnorms{T <: AbstractFloat}(c::Vector{SymmetricTensor{T}}, norm::Bool = true,
                                                                       k::Union{Float64, Int}=2)
   if norm
-    return [vecnorm(c[i], k)/(c[i].dats)^i for i in 1:length(c)]
+    mcov = [vecnorm(cum, k) for cum in c[1:2]]
+    return [mcov..., [vecnorm(c[i], k)/(mcov[2])^(i/2) for i in 3:length(c)]...]
   else
     return [vecnorm(cum, k) for cum in c]
   end
 end
+
+"""
+  normperelementT <: AbstractFloat}(c::Vector{SymmetricTensor{T}}, norm::Bool, k::Union{Float64, Int})
+
+Returns vector of Floats of k norms of cumulants of order 1, ..., m, each value is divided by a number of elements in a given cumulant's tensor)
+
+"""
+
+normperelement{T <: AbstractFloat}(c::Vector{SymmetricTensor{T}}, norm::Bool = true, k::Union{Float64, Int}=2) =
+ [vecnorm(c[i], k)/(c[i].dats)^i for i in 1:length(c)]
 
 """
   cumnorms{T <: AbstractFloat}(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2)

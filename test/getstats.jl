@@ -14,35 +14,34 @@ Returns statistics for randmly generfated data with gaussian marginals and diffe
 """
 
 
-function getstats(f::Function, fup::Function, t::Int, nv::Vector{Int}, u::Int, mu::Int, m::Int)
+function getstats(f::Function, fup::Function, t::Int, cormats::Vector{Matrix{Float64}}, u::Int, mu::Int, norm = 1, m::Int = 4)
   k = div(t, u)
   tup = [u*i/t for i in 0:k]
-  cormat = cormatgen(nv[1]);
-  x = f(cormat, t, mu)
-  cn = cumnorms(x, m, true, 1)
-  skmax = maximum([skewness(x[:,p]) for p in 1:nv[1]])
-  kumax = maximum([kurtosis(x[:,p]) for p in 1:nv[1]])
-  skmin = minimum([skewness(x[:,p]) for p in 1:nv[1]])
-  kumin = minimum([kurtosis(x[:,p]) for p in 1:nv[1]])
-  println(nv[1])
+  x = f(cormats[1], t, mu)
+  cn = cumnorms(x, m, true, norm)
+  d = size(x, 2)
+  skmax = maximum([skewness(x[:,p]) for p in 1:d])
+  kumax = maximum([kurtosis(x[:,p]) for p in 1:d])
+  skmin = minimum([skewness(x[:,p]) for p in 1:d])
+  kumin = minimum([kurtosis(x[:,p]) for p in 1:d])
+  println(size(cormats[1], 1))
   for i in 1:k
-    xup = fup(cormat, u, mu)
+    xup = fup(cormats[1], u, mu)
     x = vcat(x, xup)[(size(xup, 1)+1):end,:]
-    skmax = vcat(skmax, maximum([skewness(x[:,p]) for p in 1:nv[1]]))
-    kumax = vcat(kumax, maximum([kurtosis(x[:,p]) for p in 1:nv[1]]))
-    skmin = vcat(skmin, minimum([skewness(x[:,p]) for p in 1:nv[1]]))
-    kumin = vcat(kumin, minimum([kurtosis(x[:,p]) for p in 1:nv[1]]))
-    cn = hcat(cn, cumupdatnorms(xup, true, 1))
+    skmax = vcat(skmax, maximum([skewness(x[:,p]) for p in 1:d]))
+    kumax = vcat(kumax, maximum([kurtosis(x[:,p]) for p in 1:d]))
+    skmin = vcat(skmin, minimum([skewness(x[:,p]) for p in 1:d]))
+    kumin = vcat(kumin, minimum([kurtosis(x[:,p]) for p in 1:d]))
+    cn = hcat(cn, cumupdatnorms(xup, true, norm))
     println(tup[i])
   end
-  for n in nv[2:end]
-    cormat = cormatgen(n);
+  for cormat in cormats[2:end]
     x = f(cormat, t, mu)
-    cn = hcat(cn, cumnorms(x, m, true, 1))
-    println(n)
+    cn = hcat(cn, cumnorms(x, m, true, norm))
+    println(size(cormat, 1))
     for i in 1:k
       xup = fup(cormat, u, mu)
-      cn = hcat(cn, cumupdatnorms(xup, true, 1))
+      cn = hcat(cn, cumupdatnorms(xup, true, norm))
       println(tup[i])
     end
   end
@@ -81,12 +80,14 @@ function main(args)
   t = parsed_args["dats"]
   tup = parsed_args["updates"]
   mu = parsed_args["mu"]
+  covmats = [cormatgen(i) for i in n]
   stsdict = Dict{String, Any}()
   f = [normdist, gcopulatmarg, normdist]
   fup = [tcopulagmarg, tdistdat, tdistdat]
+  norm = 2
   for i in 1:3
-    st, y, skmax, skmin, kumax, kumin = getstats(f[i], fup[i], t, n, tup, mu, m)
-    str = "stats/stats"*string(i)*replace(string(t)*"_"*string(mu)*string(n)*".jld", "[", "_")
+    st, y, skmax, skmin, kumax, kumin = getstats(f[i], fup[i], t, covmats, tup, mu, norm, m)
+    str = "stats/stats"*string(i)*"_"*string(norm)*"_"*replace(string(t)*"_"*string(mu)*string(n)*".jld", "[", "_")
     str = replace(str, "]", "")
     push!(stsdict, "st" => st)
     push!(stsdict, "skmax" => skmax)
