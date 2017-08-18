@@ -20,13 +20,13 @@ function getstats(f::Function, fup::Function, t::Int, cormats::Vector{Matrix{Flo
   k = div(t, u)
   tup = [u*i/t for i in 0:k]
   x = f(cormats[1], t, mu)
+  println(size(cormats[1], 1))
   cn = cumnorms(x, m, true, norm, 3)
   d = size(x, 2)
   skmax = maximum([skewness(x[:,p]) for p in 1:d])
   kumax = maximum([kurtosis(x[:,p]) for p in 1:d])
   skmin = minimum([skewness(x[:,p]) for p in 1:d])
   kumin = minimum([kurtosis(x[:,p]) for p in 1:d])
-  println(size(cormats[1], 1))
   for i in 1:k
     xup = fup(cormats[1], u, mu)
     x = vcat(x, xup)[(size(xup, 1)+1):end,:]
@@ -39,8 +39,8 @@ function getstats(f::Function, fup::Function, t::Int, cormats::Vector{Matrix{Flo
   end
   for cormat in cormats[2:end]
     x = f(cormat, t, mu)
-    cn = hcat(cn, cumnorms(x, m, true, norm, 3))
     println(size(cormat, 1))
+    cn = hcat(cn, cumnorms(x, m, true, norm, 3))
     for i in 1:k
       xup = fup(cormat, u, mu)
       cn = hcat(cn, cumupdatnorms(xup, true, norm))
@@ -82,16 +82,19 @@ function main(args)
   t = parsed_args["dats"]
   tup = parsed_args["updates"]
   mu = parsed_args["mu"]
-  if false
+  if true
     co = ""
     covmats = [cormatgen(i) for i in n]
-  else
+  elseif false
     co = "adiag"
     covmats = Matrix{Float64}[]
     for i in n
       x = randn(500, i)
       push!(covmats, cor(x))
     end
+  elseif false
+    co = "af"
+    covmats = [0.9*ones(i,i)+0.1*eye(i) for i in n];
   end
   stsdict = Dict{String, Any}()
   f = [normdist, gcopulatmarg, normdist]
