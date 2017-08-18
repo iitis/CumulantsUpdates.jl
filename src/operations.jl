@@ -76,8 +76,8 @@ in /tmp/cumdata.jld and returns a vector of Floats of k norm of those cumulants.
 If norm = true each value is normalised (divided by a number of elements in a given cumulant's tensor)
 """
 
-function cumnorms{T <: AbstractFloat}(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2)
-  c = cumulants(X, m)
+function cumnorms{T <: AbstractFloat}(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3)
+  c = cumulants(X, m, b)
   cpath = "/tmp/cumdata.jld"
   save(cpath, "c", c, "x", X)
   cnorms(c, norm, k)

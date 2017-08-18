@@ -1,6 +1,8 @@
 #!/usr/bin/env julia
 
 using Cumupdates
+addprocs(6)
+@everywhere using Cumupdates
 using Distributions
 import Cumupdates: cormatgen, cumulants, tcopulagmarg, gcopulatmarg, tdistdat, normdist
 using JLD
@@ -18,7 +20,7 @@ function getstats(f::Function, fup::Function, t::Int, cormats::Vector{Matrix{Flo
   k = div(t, u)
   tup = [u*i/t for i in 0:k]
   x = f(cormats[1], t, mu)
-  cn = cumnorms(x, m, true, norm)
+  cn = cumnorms(x, m, true, norm, 3)
   d = size(x, 2)
   skmax = maximum([skewness(x[:,p]) for p in 1:d])
   kumax = maximum([kurtosis(x[:,p]) for p in 1:d])
@@ -37,7 +39,7 @@ function getstats(f::Function, fup::Function, t::Int, cormats::Vector{Matrix{Flo
   end
   for cormat in cormats[2:end]
     x = f(cormat, t, mu)
-    cn = hcat(cn, cumnorms(x, m, true, norm))
+    cn = hcat(cn, cumnorms(x, m, true, norm, 3))
     println(size(cormat, 1))
     for i in 1:k
       xup = fup(cormat, u, mu)
@@ -63,7 +65,7 @@ function main(args)
         arg_type = Int
       "--dats", "-t"
         help = "t, numbers of data records"
-        default = 200000
+        default = 500000
         arg_type = Int
       "--updates", "-u"
         help = "u, size of the update"
@@ -80,14 +82,24 @@ function main(args)
   t = parsed_args["dats"]
   tup = parsed_args["updates"]
   mu = parsed_args["mu"]
-  covmats = [cormatgen(i) for i in n]
+  if false
+    co = ""
+    covmats = [cormatgen(i) for i in n]
+  else
+    co = "adiag"
+    covmats = Matrix{Float64}[]
+    for i in n
+      x = randn(500, i)
+      push!(covmats, cor(x))
+    end
+  end
   stsdict = Dict{String, Any}()
   f = [normdist, gcopulatmarg, normdist]
   fup = [tcopulagmarg, tdistdat, tdistdat]
   norm = 2
   for i in 1:3
     st, y, skmax, skmin, kumax, kumin = getstats(f[i], fup[i], t, covmats, tup, mu, norm, m)
-    str = "stats/stats"*string(i)*"_"*string(norm)*"_"*replace(string(t)*"_"*string(mu)*string(n)*".jld", "[", "_")
+    str = "stats/stats"*string(co)*string(i)*"_"*string(norm)*"_"*replace(string(t)*"_"*string(mu)*string(n)*".jld", "[", "_")
     str = replace(str, "]", "")
     push!(stsdict, "st" => st)
     push!(stsdict, "skmax" => skmax)
