@@ -50,7 +50,7 @@ function main(args)
     leg34 = hcat(leg34, ["m = 3 n = $(d["n"][j])" "m = 4 n = $(d["n"][j])"])
   end
   plotstats(c12, d["y"], leg12, "\$ ||C_{m}|| \$", "c1c2"*str*".eps", 5, 1.)
-  plotstats(c34, d["y"], leg34, "\$ ||C_{m}||/||C_{2}||^{m/2}\$", "c3c4"*str*".eps", 2)
+  plotstats(c34, d["y"], leg34, "\$ h_{m}(\\mathbf{X})\$", "c3c4"*str*".eps", 2, -1.3)
   plotstats(hcat(d["skmax"], d["skmin"], d["kumax"], d["kumin"]), d["y"], ["max assym.", "min assym.", "max kurt.", "min kurt."], " ", "1d"*str*".eps", 5)
 end
 
