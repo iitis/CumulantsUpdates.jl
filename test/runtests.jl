@@ -135,7 +135,7 @@ end
 facts("norms of arrys of cumulants") do
   c = cumulants(X, 4)
   v = [vecnorm(c[i])/(c[i].dats^i) for i in 1:length(c)]
-  v1 = hcat([vecnorm(c[i]) for i in 1:2], [vecnorm(c[i])/(vecnorm(c[2])^(i/2)) for i in 3:length(c)])
+  v1 = [vecnorm(c[1]), vecnorm(c[2]), vecnorm(c[3])/(vecnorm(c[2])^(3/2)), vecnorm(c[4])/(vecnorm(c[2])^2)]
   context("vector of norms") do
     @fact cnorms(c, false) --> roughly([vecnorm(cum) for cum in c])
     @fact cnorms(c, false, 1.5) --> roughly([vecnorm(cum, 1.5) for cum in c])
