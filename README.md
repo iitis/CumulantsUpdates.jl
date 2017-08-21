@@ -154,14 +154,18 @@ This script returns to a .jld file computational times, given following paramete
 
 Computational times and parameters are saved in the .jld file in /res directory. All comparisons performed by this script use one core. 
 
-To plot a graph run /res/plotcomptimes.jl followed by a `*.jld` file name
+To plot a graph run `/res/plotcomptimes.jl` on given `*.jld` file.
 
-Script `getstats.jl` returns .jld file to /stats folder of statistics computed for Gaussian distributed data updated by data generated using t-Student copula, given following parameters:
+# Statistical analysis on generated data
+
+Script `getstats.jl` returns .jld file to /stats folder of statistics computed for data generated from Gaussian copula and updated by data generated from t-Student copula, given following parameters:
 * `-m (Int)`: maximum cumulant's order for statistical analysis, by default `m = 4`,
-* `-n (Int)`: numbers of marginal variables, by default `m = 20`,
-* `-t (Int)`: number of data records, by default `t = 200000`,
+* `-n (Vararg Int)`: numbers of marginal variables, by default `m = [20, 24]`,
+* `-t (Int)`: number of data records, by default `t = 500000`,
 * `-u (Int)`: size of the update, by default `u = 50000`,
 * `-d (Int)`: number of degree of freedom for t-Student copula, by dafault `d = 10`.
+
+To plot graphs run `/stats/plotstats.jl` on given `*.jld` file.
 
 # Citing this work
 
