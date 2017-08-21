@@ -27,7 +27,7 @@ end
 t = 500000
 tup = 50000
 mu = [10, 14, 18, 22, 26, 30]
-n = 20
+n = 25
 c4 = c4normvsmu(t, n, tup, mu)
 
 
@@ -37,4 +37,6 @@ for i in 1:length(mu)
 end
 
 using PyPlot
-plot(mu, slopes)
+plot(mu, slopes, "d")
+
+linreg(mu, slopes)[2]
