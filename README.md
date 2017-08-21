@@ -89,7 +89,27 @@ julia> cumulants(vcat(x,y)[3:end, :], 3)
 [0.096 0.096; 0.096 0.096]],2,1,2,true)
 
 ```
- 
+### Data analysis
+
+To analyse n-variate data in a `t` long observation window i.e. `X`: `size(X) = (t,n)` run first
+
+```julia
+julia>  cumnorms{T <: AbstractFloat}(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3)
+```
+
+It returns an array of Floats: `k` norms of cumulants of order `1, ..., m` calculated for data `X`: `||C_m|| = (\sum_{c in C_m} c^k)^(1/k)`,
+cumulants are saved in a `/tmp/cumdata.jld` directory to be reloaded for the updata. If `norm = true` norms of `m > 2` th cumulants are mormed 
+in the following way `h_m = ||C_m||\(||C_2||^(m/2))`. The parameter `b` is a block size, by default `b = 3` since there updates are fast.
+
+After the first run of `cumnorms`, and establishing `/tmp/cumdata.jld` if a new package of data comes `Xup` you can run:
+
+```julia
+julia> cumupdatnorms{T <: AbstractFloat}(Xup::Matrix{T}, norm::Bool = true, k::Union{Float64, Int}=2)
+```
+
+meaning of `k` and `norm` as previously. It will load cumulants from `/tmp/cumdata.jld`, updates them using `Xup` data save updated cumulants
+to `/tmp/cumdata.jld` return array of Floats `k` norms of cumulants of order `1, ... m`.
+
 ### Vector norm
 
 ```julia
@@ -141,7 +161,7 @@ Script `getstats.jl` returns .jld file to /stats folder of statistics computed f
 * `-n (Int)`: numbers of marginal variables, by default `m = 20`,
 * `-t (Int)`: number of data records, by default `t = 200000`,
 * `-u (Int)`: size of the update, by default `u = 50000`,
-* `-d (Int)`: number of degree of freedom for t-Student copula, by dafault `d = 8`.
+* `-d (Int)`: number of degree of freedom for t-Student copula, by dafault `d = 10`.
 
 # Citing this work
 
