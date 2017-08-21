@@ -5,11 +5,9 @@ addprocs(6)
 @everywhere using Cumupdates
 import Cumupdates: cormatgen, cumulants, tcopulagmarg, gcopulatmarg, tdistdat, normdist
 
-function c4normvsmu(t::Int = 200000, n::Int = 20, wsize::Int = 50000, mu::Vector{Int} = [10, 12, 14, 16, 18, 20, 22])
-  cormat = cormatgen(n);
+function c4normvsmu(cormat::Matrix{Float64}, t::Int = 200000, wsize::Int = 50000, mu::Vector{Int} = [10, 12, 14, 16, 18, 20, 22])
   k = div(t, wsize)
   norms = zeros(k+1, length(mu))
-  tup = [wsize*i/t for i in 0:k]
   for j in 1:length(mu)
   x = normdist(cormat, t, mu[j])
   norms[1,:] .= cumnorms(x, 4, true, 2, 3)[4]
@@ -17,26 +15,42 @@ function c4normvsmu(t::Int = 200000, n::Int = 20, wsize::Int = 50000, mu::Vector
       xup = tcopulagmarg(cormat, wsize, mu[j])
       x = vcat(x, xup)[(size(xup, 1)+1):end,:]
       norms[i+1,j] = cumupdatnorms(xup, true, 1)[4]
-      println(tup[i])
+      println(wsize*i/t)
       println(mu[j])
     end
   end
   norms
 end
 
-t = 500000
+using PyPlot
+
+n = 30
+t = 2000000
 tup = 50000
-mu = [10, 14, 18, 22, 26, 30]
-n = 25
-c4 = c4normvsmu(t, n, tup, mu)
+mu = [10, 12, 14, 16, 18, 20, 22, 24, 26]
+nu = [10,12,14]
+cormats = [cormatgen(n), 0.5*cormatgen(n)+0.5*eye(n), 0.25*cormatgen(n)+0.75*eye(n), cor(randn(2*n, n))]
 
-
-slopes = zeros(Float64, mu)
-for i in 1:length(mu)
- slopes[i] = (linreg([i*0.1 for i in 0:div(t, tup)], c4[:,i])[2])^(-1)
+nor = zeros(length(cormats), length(mu), div(t, tup)+1)
+sl = zeros(length(cormats), length(mu))
+b  = zeros(length(cormats))
+for j in 1:length(cormats)
+  mod4 = c4normvsmu(cormats[j], t, tup, mu)
+  slopes = zeros(Float64, mu)
+  nor[j,:,:] = mod4
+  for i in 1:length(mu)
+    uv = [i*(tup/t) for i in 0:div(t, tup)]
+   slopes[i] = (linreg(uv[3:end], mod4[3:end,i])[2])^(-1)
+  end
+  sl[j,:] = slopes
+  #plot([i*(tup/t) for i in 0:div(t, tup)], mod4[1:end,1], "--s")
+  a,b[j] = linreg(mu, slopes)
+  println(b[j])
 end
 
-using PyPlot
-plot(mu, slopes, "d")
+b
+sl
 
-linreg(mu, slopes)[2]
+
+plot(mu, sl[1,:], "d")
+plot(mu, [a+b*m for m in mu], "--")

@@ -82,7 +82,7 @@ function main(args)
   t = parsed_args["dats"]
   tup = parsed_args["updates"]
   mu = parsed_args["mu"]
-  if true
+  if false
     co = ""
     covmats = [cormatgen(i) for i in n]
   elseif false
@@ -92,9 +92,9 @@ function main(args)
       x = randn(500, i)
       push!(covmats, cor(x))
     end
-  elseif false
-    co = "af"
-    covmats = [0.9*ones(i,i)+0.1*eye(i) for i in n];
+  elseif true
+    co = "h"
+    covmats = [0.5*cormatgen(i)+0.5*eye(i) for i in n]
   end
   stsdict = Dict{String, Any}()
   f = [normdist, gcopulatmarg, normdist]

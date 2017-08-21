@@ -61,14 +61,14 @@ function tcopulagen(cormat::Matrix{Float64}, t::Int, nu::Int=20)
 end
 
 """
-  u2normal(y::Matrix{Float}, covmat::Matrix{Float})
+  u2normal(y::Matrix{Float})
 
-Returns matrix of multivariate data with gaussian marginals
+Returns matrix of multivariate data with standard gaussian marginals
 """
-function u2normal(y::Matrix{Float64}, cormat::Matrix{Float64})
+function u2stnormal(y::Matrix{Float64})
   x = copy(y)
   for i in 1:size(y, 2)
-    d = Normal(0, sqrt(cormat[i,i]))
+    d = Normal(0, 1.)
     x[:,i] = quantile(d, y[:,i])
   end
   x
@@ -76,7 +76,7 @@ end
 
 
 tcopulagmarg(cormat::Matrix{Float64} = [[1. 0.5];[0.5 1.]], t::Int = 10000, nu::Int = 10) =
-  u2normal(tcopulagen(cormat, t, nu) , cormat)
+  u2stnormal(tcopulagen(cormat, t, nu))
 
 
 function gcopulagen(cormat::Matrix{Float64}, t::Int)
