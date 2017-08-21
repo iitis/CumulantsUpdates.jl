@@ -4,6 +4,8 @@ using SymmetricTensors
 using Cumupdates
 using JLD
 import Cumupdates: rep, momentarray, moms2cums!, cums2moms, cnorms, normperelement
+import Cumupdates: invers_gen, clcopulagen, cormatgen, tcopulagen, gcopulagen, u2stnormal, u2tdist
+import Cumupdates: gcopulatmarg, tdistdat, tcopulagmarg, gcopulatmarg, normdist
 
 srand(43)
 
@@ -131,6 +133,35 @@ facts("cumulants exceptions") do
   @fact_throws BoundsError cumulantsupdat(c, x, y)
 end
 
+facts("generate data")do
+  context("axiliary functions") do
+    @fact invers_gen([1., 2., 3., 4., 5.], 3.2) --> roughly([0.638608, 0.535014, 0.478181, 0.44034, 0.412558], 1.0e-6)
+    srand(43)
+    @fact cormatgen(3) --> roughly([1.0 -0.152492 0.629667; -0.152492 1.0 0.273588; 0.629667 0.273588 1.0], 1.0e-6)
+  end
+  context("generate data from copuls") do
+    srand(43)
+    @fact clcopulagen(2,2) --> roughly([0.982589 0.207961; 2.95138 2.77698], 1.0e-6)
+    srand(43)
+    @fact tcopulagen([[1. 0.5];[0.5 1.]], 2) --> roughly([0.613096 0.870115; 0.744236 0.952649], 1.0e-6)
+    srand(43)
+    @fact gcopulagen([[1. 0.5];[0.5 1.]], 2) --> roughly([0.589188 0.815308; 0.708285 0.924962], 1.0e-6)
+  end
+  context("transform marginals")do
+    @fact u2stnormal([0.2 0.4; 0.4 0.6; 0.6 0.8]) -->  roughly([-0.841621 -0.253347; -0.253347 0.253347; 0.253347 0.841621], 1.0e-6)
+    @fact u2tdist([0.2 0.4; 0.4 0.6; 0.6 0.8], 10) -->  roughly([-0.879058  -0.260185; -0.260185   0.260185; 0.260185   0.879058], 1.0e-6)
+  end
+  context("generates data given copula nad marginal")do
+    srand(43)
+    @fact gcopulatmarg([1. 0.5;0.5 1.], 2, 10) --> roughly([0.231461 0.939967; 0.566673 1.55891], 1.0e-5)
+    srand(43)
+    @fact tcopulagmarg([1. 0.5;0.5 1.], 2, 10) --> roughly([0.249115 0.969224; 0.397457 1.01925], 1.0e-5)
+    srand(43)
+    @fact tdistdat([1. 0.5;0.5 1.], 2, 10) --> roughly([0.332311 1.32305; 0.584631 1.5344], 1.0e-5)
+    srand(43)
+    @fact normdist([1. 0.5;0.5 1.], 2, 10) -->roughly([0.225457 0.897627; 0.548381 1.43926], 1.0e-5)
+  end
+end
 
 facts("norms of arrys of cumulants") do
   c = cumulants(X, 4)
