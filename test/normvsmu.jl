@@ -6,15 +6,20 @@ addprocs(6)
 using JLD
 import Cumupdates: cormatgen, cumulants, tcopulagmarg, gcopulatmarg, tdistdat, normdist
 
-function c4normvsmu(cormat::Matrix{Float64}, t::Int, wsize::Int, mu::Vector{Int})
+function c4normvsmu(cormat::Matrix{Float64}, t::Int, wsize::Int, mu::Vector{Int}, rescale::Bool)
   k = div(t, wsize)
   norms = zeros(k+1, length(mu))
   for j in 1:length(mu)
   x = normdist(cormat, t, mu[j])
+  println(cov(x)[1,1])
+  rescale!(x, [5., 5., 3., 7, 2., 8., 10., 1.2, 1.5, 3.])
+  println(cov(x)[1,1])
   norms[1,:] .= cumnorms(x, 4, true, 2, 3)[4]
     for i in 1:k
       xup = tcopulagmarg(cormat, wsize, mu[j])
+      rescale!(xup, [5., 5., 3., 7, 2., 8., 10., 1.2, 1.5, 3.])
       x = vcat(x, xup)[(size(xup, 1)+1):end,:]
+      println(cov(x)[1,1])
       norms[i+1,j] = cumupdatnorms(xup, true, 1)[4]
       println(wsize*i/t)
       println(mu[j])
@@ -23,8 +28,16 @@ function c4normvsmu(cormat::Matrix{Float64}, t::Int, wsize::Int, mu::Vector{Int}
   norms
 end
 
+function rescale!(x::Matrix{Float64}, r::Vector{Float64})
+  k = 1
+  for i in r
+    x[:,k] = x[:,k] .* i
+    k += 1
+  end
+end
 
-function nvmu(t::Int=200000, tup::Int=50000, mu::Vector{Int} = [10, 12, 14], nar::Vector{Int} = [30])
+
+function nvmu(t::Int=200000, tup::Int=50000, mu::Vector{Int} = [10, 12, 14], nar::Vector{Int} = [30], rescale::Bool = false)
   srand(43)
   for n in nar
     println(n)
@@ -35,7 +48,7 @@ function nvmu(t::Int=200000, tup::Int=50000, mu::Vector{Int} = [10, 12, 14], nar
     b  = zeros(length(cormats))
     for j in 1:length(cormats)
       println(vecnorm(cormats[j]))
-      mod4 = c4normvsmu(cormats[j], t, tup, mu)
+      mod4 = c4normvsmu(cormats[j], t, tup, mu, rescale)
       slopes = zeros(Float64, mu)
       for i in 1:length(mu)
         slopes[i] = (linreg(uv[4:end], mod4[4:end,i])[2])^(-1)
@@ -46,6 +59,9 @@ function nvmu(t::Int=200000, tup::Int=50000, mu::Vector{Int} = [10, 12, 14], nar
       println(b[j])
     end
     str = "stats/nvmu"*string(n)*"_"*string(t)*"_"*string(tup)*".jld"
+    if rescale
+      str = "stats/nvmu_r"*string(n)*"_"*string(t)*"_"*string(tup)*".jld"
+    end
     filedict = Dict{String, Any}()
     push!(filedict, "mu" => mu)
     push!(filedict, "nc2" => [vecnorm(cormat) for cormat in cormats])
@@ -59,7 +75,8 @@ function nvmu(t::Int=200000, tup::Int=50000, mu::Vector{Int} = [10, 12, 14], nar
 end
 
 function main()
-  nvmu(2000000, 50000, [10, 12, 14, 16, 18, 20, 22, 24, 26], [25, 30, 35, 40])
+  #nvmu(2000000, 50000, [10, 12, 14, 16, 18, 20, 22, 24, 26], [25, 30, 35, 40])
+  nvmu(2000000, 50000, [10, 12, 14, 16, 18, 20, 22, 24, 26], [30], true)
 end
 
 main()
