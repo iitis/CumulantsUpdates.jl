@@ -2,7 +2,7 @@
 
 using Distributions
 using Cumupdates
-import Cumupdates: gendata, cormatgen
+import Cumupdates: cormatgen, tcopulagmarg
 using PyCall
 @pyimport matplotlib as mpl
 mpl.rc("text", usetex=true)
@@ -10,17 +10,19 @@ mpl.use("Agg")
 using PyPlot
 srand(42)
 
-t = 2000000
+t = 200000
 cormat = cormatgen(10)
 x = transpose(rand(MvNormal(cormat),t));
-x1 = gendata(cormat, t, 10);
+x1 = tcopulagmarg(cormat, t, 10);
 
 y = x[:,1]
-y1 = x[:,5]
-yy = vcat(x[1:div(t, 2),1], x1[(div(t, 2)+1):end,1])
-yy1 = vcat(x[1:div(t, 2),10], x1[(div(t, 2)+1):end,5])
-yyy = x1[:,1]
-yyy1 = x1[:,5]
+y5 = x[:,5]
+y1_3 = vcat(x[1:div(2*t, 3),1], x1[(div(2*t, 3)+1):end,1])
+y1_35 = vcat(x[1:div(2*t, 3),5], x1[(div(2*t, 3)+1):end,5])
+y2_3 = vcat(x[1:div(t, 3),1], x1[(div(t, 3)+1):end,1])
+y2_35 = vcat(x[1:div(t, 3),5], x1[(div(t, 3)+1):end,5])
+y1 = x1[:,1]
+y15 = x1[:,5]
 
 function plotscatter(y, y1, file)
   fig, ax = subplots(figsize = (2.5, 2.))
@@ -39,12 +41,13 @@ function plothist(y, file)
 end
 
 function main()
-  plotscatter(y, y1, "pics/tup0.png")
-  plotscatter(yy, yy1, "pics/tup12.png")
-  plotscatter(yyy, yyy1, "pics/tup1.png")
-  plothist(y, "pics/h0.eps")
-  plothist(yy, "pics/h12.eps")
-  plothist(yyy, "pics/h1.eps")
+  plotscatter(y, y5, "tup0.png")
+  plotscatter(y1_3, y1_35, "tup13.png")
+  plotscatter(y2_3, y2_35, "tup23.png")
+  plotscatter(y1, y15, "tup1.png")
+  plothist(y, "h0.eps")
+  plothist(y1_3, "h13.eps")
+  plothist(y2_3, "h23.eps")
 end
 
 main()
