@@ -25,6 +25,13 @@ julia> Pkg.clone("https://bison.iitis.pl/kdomino/cumulant-update/tree/master/Cum
 
 to install the files.  Julia 0.5 is required.
 
+For parallel computation just run
+```julia
+julia> addprocs(n)
+julia> @everywhere using Cumupdates
+```
+
+
 ## Functions
 
 
