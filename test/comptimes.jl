@@ -1,11 +1,14 @@
 #!/usr/bin/env julia
 
-using Cumulants
 using JLD
 using ArgParse
 using Cumupdates
 using SymmetricTensors
-
+if false
+  addprocs(10)
+  @everywhere using Cumupdates
+end
+import Cumupdates: cumulants, moment
 
 """
   compspeedups(fcalc::Function, fup::Function, m::Int, n::Int, t::Int, tup::Vector{Int})
