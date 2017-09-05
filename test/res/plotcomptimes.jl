@@ -37,14 +37,16 @@ function singleplot(filename::String, name::String, compare::String = "")
     end
   end
   subplots_adjust(bottom = 0.16, top=0.92, left = 0.12, right = 0.92)
-  PyPlot.ylabel(ylab, labelpad = -1.0)
   fx = matplotlib[:ticker][:ScalarFormatter]()
   fx[:set_powerlimits]((-1, 4))
   ax[:xaxis][:set_major_formatter](fx)
   if contains(filename, "nblocks")
-    PyPlot.xlabel(x, labelpad = -2)
+    subplots_adjust(left = 0.15)
+    PyPlot.ylabel(ylab, labelpad = 0.6)
+    PyPlot.xlabel(x, labelpad = 0.6)
     ax[:legend](fontsize = 6, loc = 2, ncol = 1)
   else
+    PyPlot.ylabel(ylab, labelpad = -1.0)
     PyPlot.xlabel("\$ t_{up} \$", labelpad = 0.6)
     ax[:legend](fontsize = 6, loc = 1, ncol = 1)
   end
