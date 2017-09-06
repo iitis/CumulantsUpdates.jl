@@ -28,10 +28,11 @@ function singleplot(filename::String, name::String, compare::String = "")
   marker = [":s", ":o", ":v", ":<", ":>", ":d"]
   for i in 1:size(comptimes, 2)
     if contains(filename, "nblocks")
-      tt = t[i]
+      str = replace(@sprintf("%.0e", t[i]), "0", "")
+      tt = "\$"*replace(str, "e+", "\\times 10^{")*"}\$"
       ax[:plot](d[x], comptimes[:,i], marker[i], label= "\$ t_{up} \$ = $tt", color = col[i], markersize=2.5, linewidth = 1)
     else
-      tt = n[i]
+      tt =  n[i]
       ax[:plot](d[x][o:end], comptimes[o:end,i], marker[i], label= "n = $tt", color = col[i], markersize=2.5, linewidth = 1)
       i == size(comptimes, 2)? ax[:plot](d[x][o:end], d["tm"][o:end], ":<", label= "theoretical", color = "black", markersize=2.5, linewidth = 1):()
     end
@@ -44,7 +45,7 @@ function singleplot(filename::String, name::String, compare::String = "")
     subplots_adjust(left = 0.15)
     PyPlot.ylabel(ylab, labelpad = 0.6)
     PyPlot.xlabel(x, labelpad = 0.6)
-    ax[:legend](fontsize = 6, loc = 2, ncol = 1)
+    ax[:legend](fontsize = 5, loc = 2, ncol = 1)
   else
     PyPlot.ylabel(ylab, labelpad = -1.0)
     PyPlot.xlabel("\$ t_{up} \$", labelpad = 0.6)
