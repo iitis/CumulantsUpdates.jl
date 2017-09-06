@@ -10,18 +10,22 @@ using ArgParse
 
 
 
-function plotstats(st, y, s, ylab, fname, legloc, of::Float64 = -2.0)
+function plotstats(st, y, s, ylab, fname, legloc, of::Float64 = -2.0, plleg::Bool = true)
   mpl.rc("font", family="serif", size = 5)
   fig, ax = subplots(figsize = (2.5, 2.))
   col = ["red", "blue", "green", "black", "orange", "cyan"]
   marker = [":s", ":o", ":v", ":<", ":>", ":d"]
   for i in 1:size(st, 2)
-    ax[:plot](y, st[:,i], marker[i], label = s[i], color = col[i], markersize=2.5, linewidth = 1)
+    ax[:plot](y, st[:,i], marker[i], label = s[i], color = col[i], markersize=0.7, linewidth = 0.3)
   end
   PyPlot.ylabel(ylab, labelpad = of)
-  PyPlot.xlabel("\$ t_{up} / t \$", labelpad = -2.0)
-  ax[:legend](fontsize = 5, loc = legloc, ncol = 1)
-  subplots_adjust(bottom = 0.12,top=0.92)
+  PyPlot.xlabel("\$ t_{up} / t \$", labelpad = -1.5)
+  subplots_adjust(bottom = 0.13,top=0.92)
+  #subplots_adjust(bottom = 0.13,top=0.92, left = 0.18, right = 0.92)
+  if plleg
+    ax[:legend](fontsize = 5, loc = legloc, ncol = 2)
+    #PyPlot.ylim(1.15*minimum(st), 1.5*maximum(st))
+  end
   f = matplotlib[:ticker][:ScalarFormatter]()
   f[:set_powerlimits]((-1, 2))
   ax[:yaxis][:set_major_formatter](f)
@@ -105,7 +109,9 @@ function main(args)
     end
     plotstats(c12, d["y"], leg12, "\$ ||C_{m}|| \$", "c1c2"*str*".eps", 5, 1.)
     plotstats(c34, d["y"], leg34, "\$ h_{m}(\\mathbf{X})\$", "c3c4"*str*".eps", 2, -1.3)
-    plotstats(hcat(d["skmax"], d["skmin"], d["kumax"], d["kumin"]), d["y"], ["max assym.", "min assym.", "max kurt.", "min kurt."], " ", "1d"*str*".eps", 5)
+    plotstats(hcat(d["skmax"], d["skmin"], d["kumax"], d["kumin"]), d["y"],
+    ["max assym.", "min assym.", "max kurt.", "min kurt."], "statistics values", "1d"*str*".eps", 2,
+     1., d["mu"] == 10)
   end
 end
 
