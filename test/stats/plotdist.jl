@@ -10,10 +10,10 @@ mpl.use("Agg")
 using PyPlot
 srand(42)
 
-t = 200000
+t = 10000
 cormat = cormatgen(10)
 x = transpose(rand(MvNormal(cormat),t));
-x1 = tcopulagmarg(cormat, t, 10);
+x1 = tcopulagmarg(cormat, t, 4);
 
 y = x[:,1]
 y5 = x[:,5]
@@ -26,28 +26,21 @@ y15 = x1[:,5]
 
 function plotscatter(y, y1, file)
   fig, ax = subplots(figsize = (2.5, 2.))
-  ax[:plot](y, y1, "o", color = "blue", markersize=1, alpha=0.1)
+  mpl.rc("font", family="serif", size = 7)
+  subplots_adjust(bottom = 0.14, top=0.92, left = 0.10, right = 0.92)
+  PyPlot.ylabel("\$ X_5 \$", labelpad = -7.)
+  PyPlot.xlabel("\$ X_1 \$", labelpad = 0.5)
+  ax[:plot](y, y1, "o", color = "blue", markersize=1., alpha = 0.1)
   fig[:savefig](file)
 end
 
-
-function plothist(y, file)
-  fig, ax = subplots(figsize = (2.5, 2.))
-  ax[:hist](y[:,1], 20)
-  f = matplotlib[:ticker][:ScalarFormatter]()
-  f[:set_powerlimits]((-1, 2))
-  ax[:yaxis][:set_major_formatter](f)
-  fig[:savefig](file)
-end
 
 function main()
   plotscatter(y, y5, "tup0.png")
-  plotscatter(y1_3, y1_35, "tup13.png")
-  plotscatter(y2_3, y2_35, "tup23.png")
-  plotscatter(y1, y15, "tup1.png")
-  plothist(y, "h0.eps")
-  plothist(y1_3, "h13.eps")
-  plothist(y2_3, "h23.eps")
+  plotscatter(y, y5, "tup0.pdf")
+  plotscatter(y1_3, y1_35, "tup13.pdf")
+  plotscatter(y2_3, y2_35, "tup23.pdf")
+  plotscatter(y1, y15, "tup1.pdf")
 end
 
 main()
