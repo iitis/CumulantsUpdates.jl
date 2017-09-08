@@ -8,7 +8,7 @@ using PyPlot
 using JLD
 using ArgParse
 
-o = 2
+o = 1
 function singleplot(filename::String, name::String, compare::String = "")
     d = load(filename*".jld")
   if compare == ""
