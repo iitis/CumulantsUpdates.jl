@@ -50,7 +50,7 @@ of cumulants
 
 function cums2moms{T <: AbstractFloat}(cum::Vector{SymmetricTensor{T}})
   m = length(cum)
-  Mvec = Array(SymmetricTensor{T}, m)
+  Mvec = Array{SymmetricTensor{T}}(m)
   for i in 1:m
     Mvec[i] = cum[i]
     for sigma in 2:i
