@@ -5,7 +5,7 @@ module Cumupdates
   using StatsBase
   using JLD
   import Cumulants: outerprodcum
-  import SymmetricTensors: indices
+  import SymmetricTensors: indices, getblockunsafe
   import Base: vecnorm
 
   include("updates.jl")

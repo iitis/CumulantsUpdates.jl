@@ -22,7 +22,7 @@ function clcopulagen(t::Int, n::Int, step::Float64 = 0.01, w1 = 1.)
   u = rand(t, n)
   matrix = zeros(Float64, t, n)
   for i = 1:n
-    unif_ret = invers_gen(-log(u[:,i])./quantile(qamma_dist, x), theta)
+    unif_ret = invers_gen(-log.(u[:,i])./quantile(qamma_dist, x), theta)
     @inbounds matrix[:,i] = quantile(Weibull(w1+step*i,1), unif_ret)
   end
   matrix
@@ -55,7 +55,7 @@ function tcopulagen(cormat::Matrix{Float64}, t::Int, nu::Int=20)
   U = rand(d, size(y, 1))
   p = TDist(nu)
   for i in 1:size(cormat, 1)
-    z[:,i] = cdf(p, y[:,i].*sqrt(nu./U))
+    z[:,i] = cdf(p, y[:,i].*sqrt.(nu./U))
   end
   z
 end
@@ -83,7 +83,7 @@ function gcopulagen(cormat::Matrix{Float64}, t::Int)
   y = rand(MvNormal(cormat),t)'
   z = copy(y)
   for i in 1:size(cormat, 1)
-    d = Normal(0, sqrt(cormat[i,i]))
+    d = Normal(0, sqrt.(cormat[i,i]))
     z[:,i] = cdf(d, y[:,i])
   end
   z

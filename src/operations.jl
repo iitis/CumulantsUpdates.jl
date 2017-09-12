@@ -36,7 +36,7 @@ function vecnorm{T <: AbstractFloat, N}(bt::SymmetricTensor{T, N}, k::Union{Floa
   k != 0 || throw(AssertionError("0' th norm not supported"))
   ret = 0.
   for i in indices(N, bt.bln)
-    @inbounds ret += rep(i) * vecnorm(bt[i...], k)^k
+    @inbounds ret += rep(i) * vecnorm(getblockunsafe(bt, i), k)^k
   end
   ret^(1/k)
 end
