@@ -38,7 +38,7 @@ julia> @everywhere using Cumupdates
 ### Moment update
 
 ```julia
-julia> momentupdat{T<:AbstractFloat, m}(M::SymmetricTensor{T, m}, X::Matrix{T}, Xup::Matrix{T})
+julia> momentupdat(M::SymmetricTensor{T, m}, X::Matrix{T}, Xup::Matrix{T}) where {T<:AbstractFloat, m}
 ```
 
 Returns a `SymmetricTensor{T, m}` of the moment tensor of order `m` of updated multivariate data in the observation window of size `t`: `X' = vcat(X,Xup)[1+size(Xup,1):end, :]` such that `size(X') = (t, n)`. Input: moment tensor `M` in the `SymmetricTensors` type with `m` modes and size `M.dats = n`, calculated for `X::Matrix{T}` such that `size(X) = (t, n)`, i.e. data with `n` marginal variables and `t` realisations; the update `Xup::Matrix{T}` such that `size(X) = (tup, n)` and `tup < t`
@@ -69,7 +69,7 @@ SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 
 
 
 ```julia
-julia> cumulantsupdat{T<:AbstractFloat}(cum::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xup::Matrix{T})
+julia> cumulantsupdat(cum::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xup::Matrix{T}) where {T<:AbstractFloat, m}
 ```
 Returns a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,2,...,m` of updated multivariate data in the observation window of size `t`: `X' = vcat(X,Xup)[1+size(Xup,1):end, :]` such that `size(X') = (t, n)`.
 Input: a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,2,...,m`, calculated for `X::Matrix{T}` such that `size(X) = (t, n)`, i.e. data with `n` marginal variables and `t` realisations; the update `Xup::Matrix{T}` such that `size(X) = (tup, n)` and `tup < t`. The input vector of cumulant tensors must by of sequent orders starting form `1`, otherwise error will be return. If cumulants in input vector are not computed for the same data, results are meaningless.
@@ -101,7 +101,7 @@ julia> cumulants(vcat(x,y)[3:end, :], 3)
 To analyse n-variate data in a `t` long observation window i.e. `X`: `size(X) = (t,n)` run first
 
 ```julia
-julia>  cumnorms{T <: AbstractFloat}(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3)
+julia>  cumnorms(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3) where T <: AbstractFloat
 ```
 
 It returns an array of Floats: `k` norms of cumulants of order `1, ..., m` calculated for data `X`: `||C_m|| = (\sum_{c in C_m} c^k)^(1/k)`,
@@ -111,7 +111,7 @@ in the following way `h_m = ||C_m||\(||C_2||^(m/2))`. The parameter `b` is a blo
 After the first run of `cumnorms`, and establishing `/tmp/cumdata.jld` if a new package of data comes `Xup` you can run:
 
 ```julia
-julia> cumupdatnorms{T <: AbstractFloat}(Xup::Matrix{T}, norm::Bool = true, k::Union{Float64, Int}=2)
+julia> cumupdatnorms(Xup::Matrix{T}, norm::Bool = true, k::Union{Float64, Int}=2) where T <: AbstractFloat
 ```
 
 meaning of `k` and `norm` as previously. It will load cumulants from `/tmp/cumdata.jld`, updates them using `Xup` data save updated cumulants
@@ -120,7 +120,7 @@ to `/tmp/cumdata.jld` return array of Floats `k` norms of cumulants of order `1,
 ### Vector norm
 
 ```julia
-julia> vecnorm{T <: AbstractFloat, m}(st::SymmetricTensor{T, m}; k::Union{Float64, Int})
+julia> vecnorm(st::SymmetricTensor{T, m}; k::Union{Float64, Int}) where {T<:AbstractFloat, m}
 ```
 
 Returns a vector norm of the `SymmetricTensors` type, `vecnorm(st, k) = vecnorn(convert(Array, st),k)`, for `k != 0`

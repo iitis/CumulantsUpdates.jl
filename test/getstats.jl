@@ -82,7 +82,7 @@ function main(args)
   t = parsed_args["dats"]
   tup = parsed_args["updates"]
   mu = parsed_args["mu"]
-  if false
+  if true
     co = ""
     covmats = [cormatgen(i) for i in n]
   elseif false
@@ -92,7 +92,7 @@ function main(args)
       x = randn(500, i)
       push!(covmats, cor(x))
     end
-  elseif true
+  elseif false
     co = "h"
     covmats = [0.5*cormatgen(i)+0.5*eye(i) for i in n]
   end
