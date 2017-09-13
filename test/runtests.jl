@@ -51,7 +51,7 @@ Xprim = vcat(X, Xup)[l:end,:]
     @test convert(Array, aa) ≈ convert(Array, moment(Xprim, 4))
   end
 end
-#=
+
 @testset "moment exceptions" begin
   x = ones(10,4);
   y = 2*ones(5,3);
@@ -62,7 +62,7 @@ end
   y = 2*ones(15,4)
   @test_throws BoundsError momentupdat(m, x, y)
 end
-=#
+
 @testset "moments to cumulants" begin
   m1 = moment(X, 1)
   m2 = moment(X, 2)
@@ -118,7 +118,7 @@ end
     @test convert(Array, cc[5]) ≈ convert(Array, cup[5])
   end
 end
-#=
+
 @testset "cumulants exceptions" begin
   x = ones(10,4);
   y = 2*ones(5,3);
@@ -134,7 +134,7 @@ end
   y = 2*ones(15,4)
   @test_throws BoundsError cumulantsupdat(c, x, y)
 end
-=#
+
 @testset "generate data" begin
   @testset "axiliary functions" begin
     @test invers_gen([1., 2., 3., 4., 5.], 3.2) ≈ [0.638608, 0.535014, 0.478181, 0.44034, 0.412558] atol=1.0e-5
@@ -184,7 +184,7 @@ end
     Xprim = vcat(X, Xup)[(size(Xup, 1)+1):end,:]
     cup = cumulants(Xprim, 4)
     @test cumupdatnorms(Xup, false) ≈ [vecnorm(cum) for cum in cup]
-    @test load("/tmp/cumdata.jld", "x") ≈ Xprim 
+    @test load("/tmp/cumdata.jld", "x") ≈ Xprim
     cload = load("/tmp/cumdata.jld", "c")
     @test convert(Array, cload[1]) ≈ convert(Array, cup[1])
     @test convert(Array, cload[2]) ≈ convert(Array, cup[2])
