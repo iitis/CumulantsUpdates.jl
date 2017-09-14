@@ -3,7 +3,7 @@ module Cumupdates
   using SymmetricTensors
   using Distributions
   using StatsBase
-  #using JLD
+  using JLD
   import Cumulants: outerprodcum
   import SymmetricTensors: indices, getblockunsafe
   import Base: vecnorm
