@@ -29,12 +29,12 @@ function getstats(f::Function, fup::Function, t::Int, cormats::Vector{Matrix{Flo
   kumin = minimum([kurtosis(x[:,p]) for p in 1:d])
   for i in 1:k
     xup = fup(cormats[1], u, mu)
-    x = vcat(x, xup)[(size(xup, 1)+1):end,:]
+    nor, x = cumupdatnorms(x, xup, 4, true, norm)
+    cn = hcat(cn, nor)
     skmax = vcat(skmax, maximum([skewness(x[:,p]) for p in 1:d]))
     kumax = vcat(kumax, maximum([kurtosis(x[:,p]) for p in 1:d]))
     skmin = vcat(skmin, minimum([skewness(x[:,p]) for p in 1:d]))
     kumin = vcat(kumin, minimum([kurtosis(x[:,p]) for p in 1:d]))
-    cn = hcat(cn, cumupdatnorms(xup, true, norm))
     println(tup[i])
   end
   for cormat in cormats[2:end]
@@ -43,7 +43,8 @@ function getstats(f::Function, fup::Function, t::Int, cormats::Vector{Matrix{Flo
     cn = hcat(cn, cumnorms(x, m, true, norm, 3))
     for i in 1:k
       xup = fup(cormat, u, mu)
-      cn = hcat(cn, cumupdatnorms(xup, true, norm))
+      nor, x = cumupdatnorms(x, xup, 4, true, norm)
+      cn = hcat(cn, nor)
       println(tup[i])
     end
   end

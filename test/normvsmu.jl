@@ -18,9 +18,9 @@ function c4normvsmu(cormat::Matrix{Float64}, t::Int, wsize::Int, mu::Vector{Int}
     for i in 1:k
       xup = tcopulagmarg(cormat, wsize, mu[j])
       rescale!(xup, [5., 5., 3., 7., 2., 8., 10., 1.2, 1.5, 3.])
-      x = vcat(x, xup)[(size(xup, 1)+1):end,:]
+      nor, x = cumupdatnorms(x, xup, 4, true, 1)
       println(cov(x)[1,1])
-      norms[i+1,j] = cumupdatnorms(xup, true, 1)[4]
+      norms[i+1,j] = nor[4]
       println(wsize*i/t)
       println(mu[j])
     end

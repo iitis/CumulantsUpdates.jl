@@ -96,27 +96,6 @@ julia> cumulants(vcat(x,y)[3:end, :], 3)
 [0.096 0.096; 0.096 0.096]],2,1,2,true)
 
 ```
-### Data analysis
-
-To analyse n-variate data in a `t` long observation window i.e. `X`: `size(X) = (t,n)` run first
-
-```julia
-julia>  cumnorms(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3) where T <: AbstractFloat
-```
-
-It returns an array of Floats: `k` norms of cumulants of order `1, ..., m` calculated for data `X`: `||C_m|| = (\sum_{c in C_m} c^k)^(1/k)`,
-cumulants are saved in a `/tmp/cumdata.jld` directory to be reloaded for the updata. If `norm = true` norms of `m > 2` th cumulants are mormed 
-in the following way `h_m = ||C_m||\(||C_2||^(m/2))`. The parameter `b` is a block size, by default `b = 3` since there updates are fast.
-
-After the first run of `cumnorms`, and establishing `/tmp/cumdata.jld` if a new package of data comes `Xup` you can run:
-
-```julia
-julia> cumupdatnorms(Xup::Matrix{T}, norm::Bool = true, k::Union{Float64, Int}=2) where T <: AbstractFloat
-```
-
-meaning of `k` and `norm` as previously. It will load cumulants from `/tmp/cumdata.jld`, updates them using `Xup` data save updated cumulants
-to `/tmp/cumdata.jld` return array of Floats `k` norms of cumulants of order `1, ... m`.
-
 ### Vector norm
 
 ```julia
@@ -139,6 +118,29 @@ julia> vecnorm(st, 2.5)
 julia> vecnorm(st, 1)
 1.339089
 ```
+
+### Tensor norms of cumulants
+
+To compute tensor norms of cumulants of `t` realisations of n-variate data `X`: `size(X) = (t,n)` run:
+
+```julia
+julia>  cumnorms(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3, cache::Bool = true) where T <: AbstractFloat
+```
+
+Returns an array of Floats of `k` norms of `1, ..., m` cumulant tensors of `X` i.e. `||C_m|| = (\sum_{c in C_m(X)} c^k)^(1/k)`,
+* if `cache` cumulants are saved in a `/tmp/cumdata.jld` directory;
+* if `norm = true` tensor norms for `m > 2` are normalised by `||C_2||^(m/2)` i.e. `h_m = ||C_m||\(||C_2||^(m/2))`,
+* the parameter `b` is a block size, in the block structure of cumulants.
+
+To compute tensor norms of cumulants calculated in a `t` long observation wondow for `X`: `size(X) = (t,n)` updated by `X_up`: `size(X_up) = (t_up,n)` run:
+
+```julia
+julia> cumupdatnorms(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3, cache::Bool = true) where T <: AbstractFloat
+```
+
+Returns an array of Floats of `k` norms of updated `1, ..., m` cumulant tensors, and matrix of updated data `Xup1`
+Parameters `m`, `norm`, `k`, `b` as in `cumnorms()`. If `/tmp/cumdata.jld` is established and cumulants for `X` are saved there, they will be loaded and updated, otherwise they will be recalculated. 
+If `cache` updated cumulants are saved in a `/tmp/cumdata.jld` directory.
 
 
 # Performance analysis
