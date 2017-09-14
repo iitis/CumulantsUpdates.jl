@@ -9,6 +9,11 @@ notifications:
   email: false
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia --depwarn=no -e 'Pkg.add("SymmetricTensors")'
+  - julia --depwarn=no -e 'Pkg.add("Cumulants")'
+  - julia --depwarn=no -e 'Pkg.add("Distributions")'
+  - julia --depwarn=no -e 'Pkg.add("StatsBase")'
+  - julia --depwarn=no -e 'Pkg.add("JLD")'
   - julia -e 'Pkg.clone(pwd()); Pkg.build("Cumupdates"); Pkg.test("Cumupdates"; coverage=true)'
 after_success:
   - julia -e 'cd(Pkg.dir("Cumupdates")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
