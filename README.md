@@ -20,7 +20,7 @@ As of 01/01/2017 [kdomino](https://github.com/kdomino) is the lead maintainer of
 Within Julia, run
 
 ```julia
-julia> Pkg.clone("https://bison.iitis.pl/kdomino/cumulant-update/tree/master/Cumupdates")
+julia> Pkg.clone("https://github.com/ZKSI/Cumupdates")
 ```
 
 to install the files.  Julia 0.5 is required.
