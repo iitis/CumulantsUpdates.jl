@@ -107,15 +107,11 @@ function cumupdatnorms(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4,
                                                      cache::Bool = true) where T <: AbstractFloat
   Xprim = vcat(X, Xup)[(size(Xup, 1)+1):end,:]
   cpath = "/tmp/cumdata.jld"
-  if isfile(cpath)
-    d = load(cpath)
-    X1 = try(d["x"]) catch end
-    c = try(d["c"]) catch end
-    if ((length(c) == m) & (X1 == X) & (typeof(c[1]) <: SymmetricTensor))
-      cup = cumulantsupdat(c, X, Xup)
-    else
-      cup = cumulants(Xprim, m, b)
-    end
+  d = try load(cpath) catch end
+  X1 = try(d["x"]) catch end
+  c = try(d["c"]) catch [1.] end
+  if ((length(c) == m) & (X1 == X) & (typeof(c[1]) <: SymmetricTensor))
+    cup = cumulantsupdat(c, X, Xup)
   else
     cup = cumulants(Xprim, m, b)
   end

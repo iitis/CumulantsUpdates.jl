@@ -127,18 +127,60 @@ To compute tensor norms of cumulants of `t` realisations of n-variate data `X`: 
 julia>  cumnorms(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3, cache::Bool = true) where T <: AbstractFloat
 ```
 
+```julia
+julia> X = ones(10,3);
+
+julia> cumnorms(X, 3, false)
+3-element Array{Float64,1}:
+ 1.73205
+ 0.0
+ 0.0
+ 
+julia> cumnorms(X, 3, false, 1)
+3-element Array{Float64,1}:
+ 3.0
+ 0.0
+ 0.0
+```
+
 Returns an array of Floats of `k` norms of `1, ..., m` cumulant tensors of `X` i.e. `||C_m|| = (\sum_{c in C_m(X)} c^k)^(1/k)`,
 * if `cache` cumulants are saved in a `/tmp/cumdata.jld` directory;
 * if `norm = true` tensor norms for `m > 2` are normalised by `||C_2||^(m/2)` i.e. `h_m = ||C_m||\(||C_2||^(m/2))`,
 * the parameter `b` is a block size, in the block structure of cumulants.
 
-To compute tensor norms of cumulants calculated in a `t` long observation wondow for `X`: `size(X) = (t,n)` updated by `X_up`: `size(X_up) = (t_up,n)` run:
+To compute tensor norms of cumulants calculated in a `t` long observation window for `X`: `size(X) = (t,n)` updated by `Xup`: `size(Xup) = (tup,n)` run:
 
 ```julia
 julia> cumupdatnorms(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3, cache::Bool = true) where T <: AbstractFloat
 ```
 
-Returns an array of Floats of `k` norms of updated `1, ..., m` cumulant tensors, and matrix of updated data `Xup1`
+```julia
+julia> X = ones(10,3);
+
+julia> Xup = zeros(5,3);
+
+julia> cumupdatnorms(X, Xup, 3, false)[1]
+3-element Array{Float64,1}:
+ 0.866025
+ 0.75
+ 0.0
+ 
+julia> cumupdatnorms(X, Xup, 3, false)[2]
+10×3 Array{Float64,2}:
+ 1.0  1.0  1.0
+ 1.0  1.0  1.0
+ 1.0  1.0  1.0
+ 1.0  1.0  1.0
+ 1.0  1.0  1.0
+ 0.0  0.0  0.0
+ 0.0  0.0  0.0
+ 0.0  0.0  0.0
+ 0.0  0.0  0.0
+ 0.0  0.0  0.0
+
+```
+
+Returns an array of Floats of `k` norms of updated `1, ..., m` cumulant tensors, and matrix of updated data `Xup`
 Parameters `m`, `norm`, `k`, `b` as in `cumnorms()`. If `/tmp/cumdata.jld` is established and cumulants for `X` are saved there, they will be loaded and updated, otherwise they will be recalculated. 
 If `cache` updated cumulants are saved in a `/tmp/cumdata.jld` directory.
 
@@ -172,7 +214,7 @@ Script `getstats.jl` returns .jld file to /stats folder of statistics computed f
 * `-n (Vararg Int)`: numbers of marginal variables, by default `m = [20, 24]`,
 * `-t (Int)`: number of data records, by default `t = 500000`,
 * `-u (Int)`: size of the update, by default `u = 50000`,
-* `-d (Int)`: number of degree of freedom for t-Student copula, by dafault `d = 10`.
+* `-d (Int)`: number of degree of freedom for t-Student copula, by default `d = 10`.
 
 To plot graphs run `/stats/plotstats.jl` on given `*.jld` file.
 
