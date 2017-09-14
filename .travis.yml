@@ -1,0 +1,14 @@
+language: julia
+os:
+  - linux
+  - osx
+julia:
+  - 0.6
+# - nightly
+notifications:
+  email: false
+script:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia -e 'Pkg.clone(pwd()); Pkg.build("Cumupdates"); Pkg.test("Cumupdates"; coverage=true)'
+after_success:
+  - julia -e 'cd(Pkg.dir("Cumupdates")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'

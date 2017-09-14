@@ -20,7 +20,7 @@ As of 01/01/2017 [kdomino](https://github.com/kdomino) is the lead maintainer of
 Within Julia, run
 
 ```julia
-julia> Pkg.clone("https://github.com/ZKSI/Cumupdates")
+julia> Pkg.clone("https://github.com/ZKSI/Cumupdates.jl")
 ```
 
 to install the files.  Julia 0.5 is required.
