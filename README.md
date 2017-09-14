@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/ZKSI/Cumupdates.jl.svg?branch=master)](https://travis-ci.org/ZKSI/Cumupdates.jl)
+
+
 # Cumupdates.jl
 
 Updates moment tensors of any order for multivariate data aw well as a sequence of cumulant tensors of order `1,2,...,m`
