@@ -7,6 +7,10 @@ julia:
 # - nightly
 notifications:
   email: false
+addons:
+  apt:
+    packages:
+      - hdf5-tools
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia --depwarn=no -e 'Pkg.add("SymmetricTensors"); Pkg.add("Cumulants")'
@@ -14,4 +18,4 @@ script:
   - julia --depwarn=no -e 'Pkg.add("JLD")'
   - julia -e 'Pkg.clone("https://github.com/ZKSI/Cumupdates.jl.git"); Pkg.build("Cumupdates"); Pkg.test("Cumupdates"; coverage=true)'
 after_success:
-  - julia -e 'cd(Pkg.dir("Cumupdates")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
+- julia -e 'cd(Pkg.dir("Cumupdates")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
