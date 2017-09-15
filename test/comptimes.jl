@@ -4,10 +4,6 @@ using JLD
 using ArgParse
 using Cumupdates
 using SymmetricTensors
-if false
-  addprocs(10)
-  @everywhere using Cumupdates
-end
 import Cumupdates: cumulants, moment
 
 """
@@ -44,8 +40,8 @@ function compspeedups(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, f::Funct
   compt, updt
 end
 
-function savecomptime(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int)
-  filename = replace("res/"*string(m)*"_"*string(t)*string(n)*string(tup)".jld", "[", "_")
+function savecomptime(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int, p::Int)
+  filename = replace("res/$(m)_$(t)_$(n)_$(tup)_$(p).jld", "[", "")
   filename = replace(filename, "]", "")
   compt = Dict{String, Any}()
   momtime = compspeedups(m, n, t, tup, moment, momentupdat, b)
@@ -87,12 +83,16 @@ function main(args)
         arg_type = Int
       "--dats", "-t"
         help = "t, numbers of data records"
-        default = 250000
+        default = 300000
         arg_type = Int
       "--updates", "-u"
         help = "u, size of the update"
         nargs = '*'
-        default = [25000, 30000, 35000, 40000]
+        default = [30000, 40000, 50000]
+        arg_type = Int
+      "--nprocs", "-p"
+        help = "number of processes"
+        default = 1
         arg_type = Int
     end
   parsed_args = parse_args(s)
@@ -101,7 +101,13 @@ function main(args)
   t = parsed_args["dats"]
   tup = parsed_args["updates"]
   b = parsed_args["blocksize"]
-  savecomptime(m, n, t, tup, b)
+  p = parsed_args["nprocs"]
+  if p > 1
+    addprocs(p)
+    eval(Expr(:toplevel, :(@everywhere using Cumupdates)))
+  end
+  println("number of workers = ", nworkers())
+  savecomptime(m, n, t, tup, b, p)
 end
 
 main(ARGS)

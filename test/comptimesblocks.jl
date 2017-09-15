@@ -14,7 +14,7 @@ function comptime(c, data::Matrix{Float64}, datup::Matrix{Float64})
 end
 
 
-function savect(tup::Vector{Int}, n::Int, m::Int)
+function savect(tup::Vector{Int}, n::Int, m::Int, p::Int)
   maxb = round(Int, sqrt(n))
   comptimes = zeros(maxb-1, length(tup))
   println("max block size = ", maxb)
@@ -29,8 +29,9 @@ function savect(tup::Vector{Int}, n::Int, m::Int)
       println("bloks size = ", b)
     end
   end
-  filename = replace("res/$(m)_$(tup)_$(n)_nblocks.jld", "[", "")
+  filename = replace("res/$(m)_$(tup)_$(n)_$(p)_nblocks.jld", "[", "")
   filename = replace(filename, "]", "")
+  filename = replace(filename, " ", "")
   compt = Dict{String, Any}("cumulants"=> comptimes)
   push!(compt, "t" => tup)
   push!(compt, "n" => n)
@@ -56,14 +57,24 @@ function main(args)
       "--tup", "-u"
         help = "u, numbers of data updates"
         nargs = '*'
-        default = [20000, 40000]
+        default = [20000,40000]
+        arg_type = Int
+      "--nprocs", "-p"
+        help = "number of processes"
+        default = 1
         arg_type = Int
     end
   parsed_args = parse_args(s)
   m = parsed_args["order"]
   n = parsed_args["nvar"]
   tup = parsed_args["tup"]
-  savect(tup::Vector{Int}, n::Int, m::Int)
+  p = parsed_args["nprocs"]
+  if p > 1
+    addprocs(p)
+    eval(Expr(:toplevel, :(@everywhere using Cumupdates)))
+  end
+  println("number of workers = ", nworkers())
+  savect(tup, n, m, p)
 end
 
 main(ARGS)
