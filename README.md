@@ -3,18 +3,22 @@
 
 # Cumupdates.jl
 
-Updates moment tensors of any order for multivariate data aw well as a sequence of cumulant tensors of order `1,2,...,m`
-Functions takes and return tensor or array of tensors in `SymmetricTensors` type. Requires [SymmetricTensors.jl](https://github.com/ZKSI/SymmetricTensors.jl). To convert to array, run:
+Updates following statistics of n-variate data
+* `m`'th moment tensor,
+* a sequence of cumulant tensors of order `1,2,...,m`,
+for `m >= 1`.
+
+To store symmetric tensors uses a `SymmetricTensors` type, requires [SymmetricTensors.jl](https://github.com/ZKSI/SymmetricTensors.jl). To convert to array, run:
 
 ```julia
 julia> convert(Array, st::SymmetricTensors{T, m})
 ```
+to convert back, run:
 
 ```julia
 julia>  convert(SymmetricTensor, a::Array{T,m})
 ```
-Requires [Cumulants.jl](https://github.com/ZKSI/Cumulants.jl). Advised to compute first moment tensors or a vector of cumulants using `Cumulants.jl` that returns
-`SymmetricTensors{T,m}` for N'th moment or `[SymmetricTensors{T,1}, SymmetricTensors{T,2}, ..., SymmetricTensors{T,m}]` for cumulant series of order 1,2,..., N
+Requires [Cumulants.jl](https://github.com/ZKSI/Cumulants.jl). 
 
 As of 01/01/2017 [kdomino](https://github.com/kdomino) is the lead maintainer of this package.
 
@@ -26,7 +30,9 @@ Within Julia, run
 julia> Pkg.clone("https://github.com/ZKSI/Cumupdates.jl")
 ```
 
-to install the files.  Julia 0.5 is required.
+to install the files.  Julia 0.6 is required.
+
+## Parallel computation
 
 For parallel computation just run
 ```julia
@@ -34,17 +40,17 @@ julia> addprocs(n)
 julia> @everywhere using Cumupdates
 ```
 
-
 ## Functions
 
-
 ### Moment update
+
+To update the moment tensor `SymmetricTensor{T, m}` for `m <= 1` given original data `X \in R^{t, n}` and the update `Xup \in R^{tup, n}` and `t > tup` just run
 
 ```julia
 julia> momentupdat(M::SymmetricTensor{T, m}, X::Matrix{T}, Xup::Matrix{T}) where {T<:AbstractFloat, m}
 ```
 
-Returns a `SymmetricTensor{T, m}` of the moment tensor of order `m` of updated multivariate data in the observation window of size `t`: `X' = vcat(X,Xup)[1+size(Xup,1):end, :]` such that `size(X') = (t, n)`. Input: moment tensor `M` in the `SymmetricTensors` type with `m` modes and size `M.dats = n`, calculated for `X::Matrix{T}` such that `size(X) = (t, n)`, i.e. data with `n` marginal variables and `t` realisations; the update `Xup::Matrix{T}` such that `size(X) = (tup, n)` and `tup < t`
+Returns a `SymmetricTensor{T, m}` of the moment tensor of updated multivariate data: `Xprim = vcat(X,Xup)[1+tup:end, :] \in R^{t, n}`. The output of `momentupdat(M, X, Xup)` corresponds to the output of `Cumulants.moment(Xprim, m)`, where `typeof(M) = SymmetricTensor{T, m}`. However if `tup << t` `momentupdat()` is much faster.
 
 ```julia
 julia> x = ones(6, 2);
@@ -70,12 +76,13 @@ SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 
 
 ### Cumulants update
 
+To update the vector of cumulants `cums = [SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of order `1, ..., m` given original data `X \in R^{t, n}` and the update `Xup \in R^{tup, n}` for `t > tup` just run:
 
 ```julia
-julia> cumulantsupdat(cum::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xup::Matrix{T}) where {T<:AbstractFloat, m}
+julia> cumulantsupdat(cums::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xup::Matrix{T}) where {T<:AbstractFloat, m}
 ```
-Returns a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,2,...,m` of updated multivariate data in the observation window of size `t`: `X' = vcat(X,Xup)[1+size(Xup,1):end, :]` such that `size(X') = (t, n)`.
-Input: a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,2,...,m`, calculated for `X::Matrix{T}` such that `size(X) = (t, n)`, i.e. data with `n` marginal variables and `t` realisations; the update `Xup::Matrix{T}` such that `size(X) = (tup, n)` and `tup < t`. The input vector of cumulant tensors must by of sequent orders starting form `1`, otherwise error will be return. If cumulants in input vector are not computed for the same data, results are meaningless.
+
+Returns a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,2,...,m` of updated multivariate data `Xprim = vcat(X,Xup)[1+tup:end, :] \in R^{t, n}`. If `Cumulants.cumulants(X, m) = cums` then the oputpu of `cumulantsupdat(cums, X, Xup)` will correspond to the output of `Cumulants.cumulants(Xprim, m)`. However if `t` is large and `t >> tup` `cumulantsupdat` is much faster. If the input `cums` is not a sequence of cumulants of order `1,2, ..., m` wrror will be returned. If cumulants in `cums` are not computed for the same data, results are meaningless.
 
 ```julia
 julia> x = ones(10,2);
@@ -99,13 +106,15 @@ julia> cumulants(vcat(x,y)[3:end, :], 3)
 [0.096 0.096; 0.096 0.096]],2,1,2,true)
 
 ```
+
 ### Vector norm
 
 ```julia
 julia> vecnorm(st::SymmetricTensor{T, m}; k::Union{Float64, Int}) where {T<:AbstractFloat, m}
 ```
 
-Returns a vector norm of the `SymmetricTensors` type, `vecnorm(st, k) = vecnorn(convert(Array, st),k)`, for `k != 0`
+Returns a vector norm of the `SymmetricTensors` type if `k != 0` The output of `vecnorm(st, k)` corresponds to the output of `vecnorn(convert(Array, st),k)`. However
+`vecnorm(st::SymmetricTensor...)` uses the block structure implemented in `SymmetricTensors` and decreases the computer memory requirement.
 
 ```julia
 julia> te = [-0.112639 0.124715 0.124715 0.268717 0.124715 0.268717 0.268717 0.046154];
@@ -124,7 +133,7 @@ julia> vecnorm(st, 1)
 
 ### Tensor norms of cumulants
 
-To compute tensor norms of cumulants of `t` realisations of n-variate data `X`: `size(X) = (t,n)` run:
+To compute tensor norms of cumulants of `X \in R^{t, n}` run:
 
 ```julia
 julia>  cumnorms(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3, cache::Bool = true) where T <: AbstractFloat
@@ -146,12 +155,14 @@ julia> cumnorms(X, 3, false, 1)
  0.0
 ```
 
-Returns an array of Floats of `k` norms of `1, ..., m` cumulant tensors of `X` i.e. `||C_m|| = (\sum_{c in C_m(X)} c^k)^(1/k)`,
+Returns an array of Floats of `k` norms of `1, ..., m` cumulant tensors of `X` i.e. `||C_m|| = (\sum_{c \in C_m(X)} c^k)^(1/k)`,
 * if `cache` cumulants are saved in a `/tmp/cumdata.jld` directory;
-* if `norm = true` tensor norms for `m > 2` are normalised by `||C_2||^(m/2)` i.e. `h_m = ||C_m||\(||C_2||^(m/2))`,
-* the parameter `b` is a block size, in the block structure of cumulants.
+* if `norm = true` tensor norms for `m > 2` are normalised by `||C_2||^(m/2)` i.e. `h_m = ||C_m||/(||C_2||^(m/2))`,
+* the parameter `b` is a block size, in the block structure of cumulants - see `SymmetricTensors` docs.
 
-To compute tensor norms of cumulants calculated in a `t` long observation window for `X`: `size(X) = (t,n)` updated by `Xup`: `size(Xup) = (tup,n)` run:
+### Tensor norms of cumulants after the update
+
+Given data, `X \in R^{t,n}`, the update `Xup \in R^{tup,n}` we can compute tensor norms for `Xprim = vcat(X,Xup)[1+tup:end, :] \in R^{t, n}` by running:
 
 ```julia
 julia> cumupdatnorms(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3, cache::Bool = true) where T <: AbstractFloat
@@ -183,43 +194,40 @@ julia> cumupdatnorms(X, Xup, 3, false)[2]
 
 ```
 
-Returns an array of Floats of `k` norms of updated `1, ..., m` cumulant tensors, and matrix of updated data `Xup`
-Parameters `m`, `norm`, `k`, `b` as in `cumnorms()`. If `/tmp/cumdata.jld` is established and cumulants for `X` are saved there, they will be loaded and updated, otherwise they will be recalculated. 
-If `cache` updated cumulants are saved in a `/tmp/cumdata.jld` directory.
+Returns an array of Floats of `k` norms of updated `1, ..., m` cumulant tensors, and matrix of updated data: `cumupdatnorms(X, Xup)[2] = Xprim`
+Parameters `m`, `norm`, `k`, `b` are as in `cumnorms`. If `cache` updated cumulants are saved in a `/tmp/cumdata.jld` directory. The output of `cumupdatnorms(X, Xup, m, norm, k)[1]` is the same as the output of `cumnorms(X, m, norm, k)`, however if cumulants of `X` were calculated and saved in `/tmp/cumdata.jld` `cumupdatnorms` will use fast `cumulantsupdat`.
 
 
 # Performance analysis
 
-To analyse the computational time of moments and cumulants updates vs a naive recalculation that uses `Cumulants.jl`, we supply the executable script `comptimes.jl`.
-This script returns to a .jld file computational times, given following parameters:
-* `-m (Int)`: cumulant's order, by default `m = 4`,
+To analyse the computational time of moments and cumulants updates vs `Cumulants.moment` or `Cumulants.cumulants` recalculation, we supply the executable script `comptimes.jl`.
+The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
+* `-m (Int)`: cumulant's maksimum order, by default `m = 4`,
 * `-n (vararg Int)`: numbers of marginal variables, by default `m = 30`,
 * `-t (Int)`: number of realisations of random variable, by default `t = 2500000`,
 * `-u (vararg Int)`: number of realisations of update, by default `u = 25000, 30000, 35000, 40000`,
-* `-b (Int)`: blocks size, by default `b = 3`.
-
-Computational times and parameters are saved in the .jld file in /res directory. All comparisons performed by this script use one core.
+* `-b (Int)`: blocks size, by default `b = 3`,
+* `-p (Int)`: numbers of processes, by default `p = 1`.
 
 To analyse the computational time of cumulants updates for different block sizes `1 < b =< Int(sqrt(n))`, we supply the executable script `comptimesblocks.jl`.
-This script returns to a .jld file computational times, given following parameters:
+The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
 * `-m (Int)`: cumulant's order, by default `m = 4`,
 * `-n (Int)`: numbers of marginal variables, by default `m = 48`,
 * `-u (vararg Int)`: number of realisations of the update, by default `u = 20000, 40000`.
+* `-p (Int)`: numbers of processes, by default `p = 1`.
 
-Computational times and parameters are saved in the .jld file in /res directory. All comparisons performed by this script use one core. 
-
-To plot a graph run `/res/plotcomptimes.jl` on given `*.jld` file.
+To plot computional times run executable `res/plotcomptimes.jl` on chosen `*.jld` file.
 
 # Statistical analysis on generated data
 
-Script `getstats.jl` returns .jld file to /stats folder of statistics computed for data generated from Gaussian copula and updated by data generated from t-Student copula, given following parameters:
+Script `getstats.jl` returns `stats/*.jld` file of statistics computed for data generated from Gaussian copula and updated by data generated from t-Student copula, given following parameters:
 * `-m (Int)`: maximum cumulant's order for statistical analysis, by default `m = 4`,
 * `-n (Vararg Int)`: numbers of marginal variables, by default `m = [20, 24]`,
 * `-t (Int)`: number of data records, by default `t = 500000`,
 * `-u (Int)`: size of the update, by default `u = 50000`,
 * `-d (Int)`: number of degree of freedom for t-Student copula, by default `d = 10`.
 
-To plot graphs run `/stats/plotstats.jl` on given `*.jld` file.
+To plot statistics run executable `stats/plotstats.jl` on chosen `*.jld` file.
 
 # Citing this work
 
