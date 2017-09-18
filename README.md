@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/ZKSI/Cumupdates.jl.svg?branch=master)](https://travis-ci.org/ZKSI/Cumupdates.jl)
-
+[![Coverage Status](https://coveralls.io/repos/github/ZKSI/Cumupdates.jl/badge.svg?branch=master)](https://coveralls.io/github/ZKSI/Cumupdates.jl?branch=master)
 
 # Cumupdates.jl
 
