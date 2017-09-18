@@ -27,14 +27,6 @@ momentarray(X::Matrix{T}, m::Int = 4, b::Int = 2) where T <: AbstractFloat =
 Changes vector of Symmetric Tensors of moments to vector of Symmetric Tensors of cumulants
 """
 
-function moms2cums1!(M::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
-  for i in 1:length(M)
-    for sigma in 2:i
-      @inbounds M[i] -= outerprodcum(i, sigma, M...; exclpartlen = 0)
-    end
-  end
-end
-
 
 function moms2cums!(M::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
   m = length(M)
@@ -54,18 +46,6 @@ end
 Returns vector of Symmetric Tensors of moments given vector of Symmetric Tensors
 of cumulants
 """
-
-function cums2moms1(cum::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
-  m = length(cum)
-  Mvec = Array{SymmetricTensor{T}}(m)
-  for i in 1:m
-    Mvec[i] = cum[i]
-    for sigma in 2:i
-      Mvec[i] += outerprodcum(i, sigma, cum...; exclpartlen = 0)
-    end
-  end
-  Mvec
-end
 
 
 function cums2moms(cum::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
