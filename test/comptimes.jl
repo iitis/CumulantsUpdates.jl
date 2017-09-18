@@ -43,6 +43,7 @@ end
 function savecomptime(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int, p::Int)
   filename = replace("res/$(m)_$(t)_$(n)_$(tup)_$(p).jld", "[", "")
   filename = replace(filename, "]", "")
+  filename = replace(filename, " ", "")
   compt = Dict{String, Any}()
   momtime = compspeedups(m, n, t, tup, moment, momentupdat, b)
   cumtime = compspeedups(m, n, t, tup, cumulants, cumulantsupdat, b)

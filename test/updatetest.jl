@@ -113,8 +113,8 @@ end
   @test_throws MethodError cumulantsupdat([c1[1], c1[3], c1[4]], x, y)
   @test_throws MethodError cumulantsupdat([c1[1], c1[2], c1[4], c1[4]], x, y)
   @test_throws MethodError cumulantsupdat([c1[1], c1[2], c1[4], c1[3]], x, y)
-  @test_throws UndefRefError cumulantsupdat([c1[2], c1[3], c1[4]], x, y)
-  @test_throws UndefRefError cumulantsupdat([c1[2], c1[4]], x, y)
+  @test_throws MethodError cumulantsupdat([c1[2], c1[3], c1[4]], x, y)
+  @test_throws MethodError cumulantsupdat([c1[2], c1[4]], x, y)
   y = 2*ones(15,4)
   @test_throws BoundsError cumulantsupdat(c1, x, y)
 end
