@@ -203,9 +203,9 @@ Parameters `m`, `norm`, `k`, `b` are as in `cumnorms`. If `cache` updated cumula
 To analyse the computational time of moments and cumulants updates vs `Cumulants.moment` or `Cumulants.cumulants` recalculation, we supply the executable script `comptimes.jl`.
 The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
 * `-m (Int)`: cumulant's maksimum order, by default `m = 4`,
-* `-n (vararg Int)`: numbers of marginal variables, by default `m = 30`,
-* `-t (Int)`: number of realisations of random variable, by default `t = 2500000`,
-* `-u (vararg Int)`: number of realisations of update, by default `u = 25000, 30000, 35000, 40000`,
+* `-n (vararg Int)`: numbers of marginal variables, by default `m = 15, 20, 25, 30`,
+* `-t (Int)`: number of realisations of random variable, by default `t = 500000,
+* `-u (vararg Int)`: number of realisations of update, by default `u = 20000, 30000, 40000, 50000`,
 * `-b (Int)`: blocks size, by default `b = 3`,
 * `-p (Int)`: numbers of processes, by default `p = 1`.
 

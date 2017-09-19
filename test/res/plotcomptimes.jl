@@ -24,7 +24,7 @@ function singleplot(filename::String, name::String, compare::String = "")
   m = d["m"]
   mpl.rc("font", family="serif", size = 7)
   fig, ax = subplots(figsize = (2.5, 2.))
-  col = ["red", "blue", "green", "yellow", "orange", "cyan"]
+  col = ["red", "blue", "green", "gray", "brown", "orange"]
   marker = [":s", ":o", ":v", ":<", ":>", ":d"]
   for i in 1:size(comptimes, 2)
     if contains(filename, "nblocks")
