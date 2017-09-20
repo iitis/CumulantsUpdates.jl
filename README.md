@@ -204,7 +204,7 @@ To analyse the computational time of moments and cumulants updates vs `Cumulants
 The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
 * `-m (Int)`: cumulant's maksimum order, by default `m = 4`,
 * `-n (vararg Int)`: numbers of marginal variables, by default `m = 15, 20, 25, 30`,
-* `-t (Int)`: number of realisations of random variable, by default `t = 500000,
+* `-t (Int)`: number of realisations of random variable, by default `t = 500000`,
 * `-u (vararg Int)`: number of realisations of update, by default `u = 20000, 30000, 40000, 50000`,
 * `-b (Int)`: blocks size, by default `b = 3`,
 * `-p (Int)`: numbers of processes, by default `p = 1`.
@@ -222,7 +222,7 @@ To plot computional times run executable `res/plotcomptimes.jl` on chosen `*.jld
 
 Script `getstats.jl` returns `stats/*.jld` file of statistics computed for data generated from Gaussian copula and updated by data generated from t-Student copula, given following parameters:
 * `-m (Int)`: maximum cumulant's order for statistical analysis, by default `m = 4`,
-* `-n (Vararg Int)`: numbers of marginal variables, by default `m = [20, 24]`,
+* `-n (Vararg Int)`: numbers of marginal variables, by default `m = 20, 24`,
 * `-t (Int)`: number of data records, by default `t = 500000`,
 * `-u (Int)`: size of the update, by default `u = 50000`,
 * `-d (Int)`: number of degree of freedom for t-Student copula, by default `d = 10`.
