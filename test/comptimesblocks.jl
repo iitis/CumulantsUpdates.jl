@@ -2,7 +2,7 @@
 
 using Cumulants
 using SymmetricTensors
-using Cumupdates
+using CumulantsUpdates
 using JLD
 using ArgParse
 
@@ -71,7 +71,7 @@ function main(args)
   p = parsed_args["nprocs"]
   if p > 1
     addprocs(p)
-    eval(Expr(:toplevel, :(@everywhere using Cumupdates)))
+    eval(Expr(:toplevel, :(@everywhere using CumulantsUpdates)))
   end
   println("number of workers = ", nworkers())
   savect(tup, n, m, p)

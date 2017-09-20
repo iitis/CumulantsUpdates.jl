@@ -93,7 +93,7 @@ end
     @test convert(Array, cc[5]) ≈ convert(Array, cup[5])
   end
   addprocs(2)
-  eval(Expr(:toplevel, :(@everywhere using Cumupdates)))
+  eval(Expr(:toplevel, :(@everywhere using CumulantsUpdates)))
   @testset "multiprocessing cumulants update" begin
     cupp = cumulantsupdat(c[1:4], X, Xup)
     @test convert(Array, cc[1]) ≈ convert(Array, cupp[1])

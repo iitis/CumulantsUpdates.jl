@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/ZKSI/Cumupdates.jl.svg?branch=master)](https://travis-ci.org/ZKSI/Cumupdates.jl)
-[![Coverage Status](https://coveralls.io/repos/github/ZKSI/Cumupdates.jl/badge.svg?branch=master)](https://coveralls.io/github/ZKSI/Cumupdates.jl?branch=master)
+[![Build Status](https://travis-ci.org/ZKSI/CumulantsUpdates.jl.svg?branch=master)](https://travis-ci.org/ZKSI/CumulantsUpdates.jl)
+[![Coverage Status](https://coveralls.io/repos/github/ZKSI/CumulantsUpdates.jl/badge.svg?branch=master)](https://coveralls.io/github/ZKSI/CumulantsUpdates.jl?branch=master)
 
-# Cumupdates.jl
+# CumulantsUpdates.jl
 
 Updates following statistics of n-variate data
 * `m`'th moment tensor,
@@ -27,7 +27,7 @@ As of 01/01/2017 [kdomino](https://github.com/kdomino) is the lead maintainer of
 Within Julia, run
 
 ```julia
-julia> Pkg.clone("https://github.com/ZKSI/Cumupdates.jl")
+julia> Pkg.clone("https://github.com/ZKSI/CumulantsUpdates.jl")
 ```
 
 to install the files.  Julia 0.6 is required.
@@ -37,7 +37,7 @@ to install the files.  Julia 0.6 is required.
 For parallel computation just run
 ```julia
 julia> addprocs(n)
-julia> @everywhere using Cumupdates
+julia> @everywhere using CumulantsUpdates
 ```
 
 ## Functions

@@ -1,11 +1,11 @@
 using Base.Test
 using Cumulants
 using SymmetricTensors
-using Cumupdates
+using CumulantsUpdates
 using JLD
-import Cumupdates: rep, momentarray, moms2cums!, cums2moms, cnorms, normperelement
-import Cumupdates: invers_gen, clcopulagen, cormatgen, tcopulagen, gcopulagen, u2stnormal, u2tdist
-import Cumupdates: gcopulatmarg, tdistdat, tcopulagmarg, gcopulatmarg, normdist
+import CumulantsUpdates: rep, momentarray, moms2cums!, cums2moms, cnorms, normperelement
+import CumulantsUpdates: invers_gen, clcopulagen, cormatgen, tcopulagen, gcopulagen, u2stnormal, u2tdist
+import CumulantsUpdates: gcopulatmarg, tdistdat, tcopulagmarg, gcopulatmarg, normdist
 
 include("updatetest.jl")
 include("gendattest.jl")

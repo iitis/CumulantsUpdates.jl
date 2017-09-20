@@ -1,5 +1,5 @@
 
-Cumscatter.jl is licensed under the MIT License (MIT)
+CumulantsUpdates.jl is licensed under the MIT License (MIT)
 
 Copyright (c) 2016-2017 Krzysztof Domino, Piotr Gawron, 
 Institute of Theoretical and Applied Informatics, Polish Academy of Sciences

@@ -2,9 +2,9 @@
 
 using JLD
 using ArgParse
-using Cumupdates
+using CumulantsUpdates
 using SymmetricTensors
-import Cumupdates: cumulants, moment
+import CumulantsUpdates: cumulants, moment
 
 """
   compspeedups(fcalc::Function, fup::Function, m::Int, n::Int, t::Int, tup::Vector{Int})
@@ -105,7 +105,7 @@ function main(args)
   p = parsed_args["nprocs"]
   if p > 1
     addprocs(p)
-    eval(Expr(:toplevel, :(@everywhere using Cumupdates)))
+    eval(Expr(:toplevel, :(@everywhere using CumulantsUpdates)))
   end
   println("number of workers = ", nworkers())
   savecomptime(m, n, t, tup, b, p)

@@ -1,4 +1,4 @@
-module Cumupdates
+module CumulantsUpdates
   using Cumulants
   using SymmetricTensors
   using Distributions

@@ -1,10 +1,10 @@
 #!/usr/bin/env julia
 
-using Cumupdates
+using CumulantsUpdates
 addprocs(6)
-@everywhere using Cumupdates
+@everywhere using CumulantsUpdates
 using Distributions
-import Cumupdates: cormatgen, cumulants, tcopulagmarg, gcopulatmarg, tdistdat, normdist
+import CumulantsUpdates: cormatgen, cumulants, tcopulagmarg, gcopulatmarg, tdistdat, normdist
 using JLD
 using ArgParse
 

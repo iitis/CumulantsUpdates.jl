@@ -1,10 +1,10 @@
 #!/usr/bin/env julia
 
-using Cumupdates
+using CumulantsUpdates
 addprocs(6)
-@everywhere using Cumupdates
+@everywhere using CumulantsUpdates
 using JLD
-import Cumupdates: cormatgen, cumulants, tcopulagmarg, gcopulatmarg, tdistdat, normdist
+import CumulantsUpdates: cormatgen, cumulants, tcopulagmarg, gcopulatmarg, tdistdat, normdist
 
 function c4normvsmu(cormat::Matrix{Float64}, t::Int, wsize::Int, mu::Vector{Int}, rescale::Bool)
   k = div(t, wsize)
