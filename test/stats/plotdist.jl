@@ -1,8 +1,8 @@
 #!/usr/bin/env julia
 
 using Distributions
-using Cumupdates
-import Cumupdates: cormatgen, tcopulagmarg
+using CumulantsUpdates
+import CumulantsUpdates: cormatgen, tcopulagmarg
 using PyCall
 @pyimport matplotlib as mpl
 mpl.rc("text", usetex=true)
