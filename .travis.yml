@@ -18,4 +18,4 @@ script:
   - julia --depwarn=no -e 'Pkg.add("JLD")'
   - julia -e 'Pkg.clone("https://github.com/ZKSI/CumulantsUpdates.jl.git"); Pkg.build("CumulantsUpdates"); Pkg.test("CumulantsUpdates"; coverage=true)'
 after_success:
-- julia -e 'cd(Pkg.dir("CumulantsUpdates")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
+  - julia -e 'cd(Pkg.dir("CumulantsUpdates")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
