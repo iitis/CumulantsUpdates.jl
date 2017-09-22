@@ -233,4 +233,4 @@ To plot statistics run executable `stats/plotstats.jl` on chosen `*.jld` file.
 
 Krzysztof Domino, Piotr Gawron, *On updates of high order cumulant tensors*, [arXiv:1701.06446](https://arxiv.org/abs/1701.06446)
 
-This procject was partially financed by the National Science Centre, Poland – project number 2014/15/B/ST6/05204.
+This project was partially financed by the National Science Centre, Poland – project number 2014/15/B/ST6/05204.
