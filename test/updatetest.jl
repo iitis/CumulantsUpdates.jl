@@ -85,6 +85,8 @@ end
     @test convert(Array, cup1[2]) ≈ convert(Array, cprim[2])
     @test convert(Array, cup1[3]) ≈ convert(Array, cprim[3])
   end
+end
+#=
   @testset "test on wider data" begin
     @test convert(Array, cc[1]) ≈ convert(Array, cup[1])
     @test convert(Array, cc[2]) ≈ convert(Array, cup[2])
@@ -117,4 +119,53 @@ end
   @test_throws MethodError cumulantsupdat([c1[2], c1[4]], x, y)
   y = 2*ones(15,4)
   @test_throws BoundsError cumulantsupdat(c1, x, y)
+end
+=#
+
+@testset "cumulants update" begin
+  m = momentarray(X, 5)
+  cc = cumulants(Xprim, 5)
+  cup = updat(m, X, Xup)
+  @testset "simple test" begin
+    x = ones(6, 2)
+    y = 2*ones(2,2)
+    m1 = momentarray(x, 3)
+    cup1 = updat(m1, x, y)
+    cprim = cumulants(vcat(x,y)[3:end,:],3)
+    @test convert(Array, cup1[1]) ≈ convert(Array, cprim[1])
+    @test convert(Array, cup1[2]) ≈ convert(Array, cprim[2])
+    @test convert(Array, cup1[3]) ≈ convert(Array, cprim[3])
+  end
+  @testset "test on wider data" begin
+    @test convert(Array, cc[1]) ≈ convert(Array, cup[1])
+    @test convert(Array, cc[2]) ≈ convert(Array, cup[2])
+    @test convert(Array, cc[3]) ≈ convert(Array, cup[3])
+    @test convert(Array, cc[4]) ≈ convert(Array, cup[4])
+    @test convert(Array, cc[5]) ≈ convert(Array, cup[5])
+  end
+  addprocs(2)
+  eval(Expr(:toplevel, :(@everywhere using CumulantsUpdates)))
+  @testset "multiprocessing cumulants update" begin
+    cupp = updat(m[1:4], X, Xup)
+    @test convert(Array, cc[1]) ≈ convert(Array, cupp[1])
+    @test convert(Array, cc[2]) ≈ convert(Array, cupp[2])
+    @test convert(Array, cc[3]) ≈ convert(Array, cupp[3])
+    @test convert(Array, cc[4]) ≈ convert(Array, cupp[4])
+  end
+end
+
+@testset "updat exceptions" begin
+  x = ones(10,4);
+  y = 2*ones(5,3);
+  c1 = momentarray(x, 4);
+  @test_throws DimensionMismatch updat(c1, x, y)
+  y = 2*ones(5,4)
+  @test_throws DimensionMismatch updat(c1, x[:, 1:3], y)
+  @test_throws MethodError updat([c1[1], c1[3], c1[4]], x, y)
+  @test_throws MethodError updat([c1[1], c1[2], c1[4], c1[4]], x, y)
+  @test_throws MethodError updat([c1[1], c1[2], c1[4], c1[3]], x, y)
+  @test_throws MethodError updat([c1[2], c1[3], c1[4]], x, y)
+  @test_throws MethodError updat([c1[2], c1[4]], x, y)
+  y = 2*ones(15,4)
+  @test_throws BoundsError updat(c1, x, y)
 end

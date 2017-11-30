@@ -9,7 +9,7 @@ using ArgParse
 
 function comptime(c, data::Matrix{Float64}, datup::Matrix{Float64})
   t = time_ns()
-  cumulantsupdat(c, data, datup)
+  updat(c, data, datup)
   Float64(time_ns()-t)/1.0e9
 end
 
@@ -19,9 +19,9 @@ function savect(tup::Vector{Int}, n::Int, m::Int, p::Int)
   comptimes = zeros(maxb-1, length(tup))
   println("max block size = ", maxb)
   data = randn(maximum(tup)+10, n)
-  cumulantsupdat(cumulants(data[1:10, 1:10], 4), data[1:10, 1:10], data[1:5, 1:10])
+  updat(momentarray(data[1:10, 1:10], 4), data[1:10, 1:10], data[1:5, 1:10])
   for b in 2:maxb
-    c = cumulants(data, m, b)
+    c = momentarray(data, m, b)
     for k in 1:length(tup)
       datup = randn(tup[k], n)
       comptimes[b-1, k] = comptime(c, data, datup)

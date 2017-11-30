@@ -11,4 +11,5 @@ module CumulantsUpdates
   include("operations.jl")
 
   export momentupdat, cumulantsupdat, vecnorm, cumnorms, cumupdatnorms
+  export momentarray, updat, moms2cums!
 end

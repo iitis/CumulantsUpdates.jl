@@ -77,3 +77,10 @@ function cumulantsupdat(cum::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xup::Matr
   moms2cums!(Mup)
   Mup
 end
+
+
+function updat(M::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xup::Matrix{T}) where T <: AbstractFloat
+  @inbounds Mup = [momentupdat(M[i], X, Xup) for i in 1:length(M)]
+  moms2cums!(Mup)
+  Mup
+end

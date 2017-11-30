@@ -7,37 +7,64 @@ using SymmetricTensors
 import CumulantsUpdates: cumulants, moment
 
 """
-  compspeedups(fcalc::Function, fup::Function, m::Int, n::Int, t::Int, tup::Vector{Int})
+  momspeedups(fcalc::Function, fup::Function, m::Int, n::Int, t::Int, tup::Vector{Int})
 
-Returns Vector, a computional speedup of m'th statics update of multivariate data
+Returns Vector, a computional speedup of m'th moment update of n[i] variate data
 """
 
-function compspeedups(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, f::Function,
-                                                                        fup::Function,
-                                                                        b::Int)
+function momspeedups(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int)
   compt = zeros(length(tup), length(n))
   updt = copy(compt)
   X = randn(15, 10)
-  M = f(X[1:10,:], m, b)
-  fup(M, X[1:10,:], X[10:15,:])
+  M = moment(X[1:10,:], m, b)
+  momentupdat(M, X[1:10,:], X[10:15,:])
   for i in 1:length(n)
-    println("n = ", n[i])
-    println("compute")
+    println("moment calc n = ", n[i])
     X = randn(t, n[i])
     t1 = Float64(time_ns())
-    M = f(X, m, b)
-    calctime = Float64(time_ns())-t1
+    M = moment(X, m, b)
+    compt[:,i] = Float64(time_ns())-t1
     for j in 1:length(tup)
-      println("update ", fup)
-      println("tup = ", tup[j])
+      println("update tup = ", tup[j])
       Xup = rand(tup[j], n[i])
       t2 = Float64(time_ns())
-      cup = fup(M, X, Xup)
+      cup = momentupdat(M, X, Xup)
       updt[j,i] = Float64(time_ns()) - t2
-      compt[j,i] = calctime
     end
   end
   compt, updt
+end
+
+function cumspeedups(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int)
+  compt = zeros(length(tup), length(n))
+  ccomp = copy(compt)
+  updt = copy(compt)
+  X = randn(15, 10)
+  cumulants(X[1:10,:], m, b)
+  M = momentarray(X[1:10,:], m, b)
+  M1 = copy(M)
+  moms2cums!(M1)
+  updat(M, X[1:10,:], X[10:15,:])
+  for i in 1:length(n)
+    println("cumulants calc n = ", n[i])
+    X = randn(t, n[i])
+    t1 = Float64(time_ns())
+    cumulants(X, m, b)
+    t2 = Float64(time_ns())
+    M = momentarray(X, m, b)
+    M1 = copy(M)
+    moms2cums!(M1)
+    ccomp[:,i] = Float64(time_ns())-t2
+    compt[:,i] = t2-t1
+    for j in 1:length(tup)
+      println("update tup = ", tup[j])
+      Xup = rand(tup[j], n[i])
+      t2 = Float64(time_ns())
+      cup = updat(M, X, Xup)
+      updt[j,i] = Float64(time_ns()) - t2
+    end
+  end
+  compt, updt, ccomp
 end
 
 function savecomptime(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int, p::Int)
@@ -45,12 +72,13 @@ function savecomptime(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int, 
   filename = replace(filename, "]", "")
   filename = replace(filename, " ", "")
   compt = Dict{String, Any}()
-  momtime = compspeedups(m, n, t, tup, moment, momentupdat, b)
-  cumtime = compspeedups(m, n, t, tup, cumulants, cumulantsupdat, b)
+  momtime = momspeedups(m, n, t, tup, b)
+  cumtime = cumspeedups(m, n, t, tup, b)
   push!(compt, "moment" => momtime[1])
   push!(compt, "moment update" => momtime[2])
   push!(compt, "cumulants" => cumtime[1])
   push!(compt, "cumulants updat" => cumtime[2])
+  push!(compt, "cumulants bench" => cumtime[3])
   push!(compt, "tm" => t./(2*tup))
   push!(compt, "t" => t)
   push!(compt, "n" => n)
@@ -79,7 +107,7 @@ function main(args)
         arg_type = Int
       "--nvar", "-n"
         nargs = '*'
-        default = [15, 20, 25, 30]
+        default = [20, 25]
         help = "n, numbers of marginal variables"
         arg_type = Int
       "--dats", "-t"
