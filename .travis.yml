@@ -14,7 +14,7 @@ addons:
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia --depwarn=no -e 'Pkg.add("SymmetricTensors"); Pkg.add("Cumulants")'
-  - julia --depwarn=no -e 'Pkg.add("Distributions"); Pkg.add("StatsBase")'
+  - julia --depwarn=no -e 'Pkg.add("StatsBase")'
   - julia --depwarn=no -e 'Pkg.add("JLD")'
   - julia -e 'Pkg.clone("https://github.com/ZKSI/CumulantsUpdates.jl.git"); Pkg.build("CumulantsUpdates"); Pkg.test("CumulantsUpdates"; coverage=true)'
 after_success:

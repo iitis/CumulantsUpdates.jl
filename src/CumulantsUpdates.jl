@@ -1,7 +1,6 @@
 module CumulantsUpdates
   using Cumulants
   using SymmetricTensors
-  using Distributions
   using StatsBase
   using JLD
   import Cumulants: outerprodcum
@@ -9,9 +8,6 @@ module CumulantsUpdates
   import Base: vecnorm
 
   include("updates.jl")
-
-  include("gendata.jl")
-
   include("operations.jl")
 
   export momentupdat, cumulantsupdat, vecnorm, cumnorms, cumupdatnorms

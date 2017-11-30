@@ -218,16 +218,6 @@ The script saves computational times to the `res/*.jld` file. The scripts accept
 
 To plot computional times run executable `res/plotcomptimes.jl` on chosen `*.jld` file.
 
-# Statistical analysis on generated data
-
-Script `getstats.jl` returns `stats/*.jld` file of statistics computed for data generated from Gaussian copula and updated by data generated from t-Student copula, given following parameters:
-* `-m (Int)`: maximum cumulant's order for statistical analysis, by default `m = 4`,
-* `-n (Vararg Int)`: numbers of marginal variables, by default `m = 20, 24`,
-* `-t (Int)`: number of data records, by default `t = 500000`,
-* `-u (Int)`: size of the update, by default `u = 50000`,
-* `-d (Int)`: number of degree of freedom for t-Student copula, by default `d = 10`.
-
-To plot statistics run executable `stats/plotstats.jl` on chosen `*.jld` file.
 
 # Citing this work
 
