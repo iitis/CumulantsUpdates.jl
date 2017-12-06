@@ -31,6 +31,10 @@ function singleplot(filename::String, name::String, compare::String = "")
       str = replace(@sprintf("%.0e", t[i]), "0", "")
       tt = "\$"*replace(str, "e+", "\\times 10^{")*"}\$"
       ax[:plot](d[x], comptimes[:,i], marker[i], label= "\$ t_{up} \$ = $tt", color = col[i], markersize=2.5, linewidth = 1)
+    elseif contains(filename, "nprocs")
+      str = replace(@sprintf("%.0e", t[i]), "0", "")
+      tt = "\$"*replace(str, "e+", "\\times 10^{")*"}\$"
+      ax[:plot](d[x], comptimes[:,i], marker[i], label= "\$ t_{up} \$ = $tt", color = col[i], markersize=2.5, linewidth = 1)
     else
       tt =  n[i]
       ax[:plot](d[x][o:end], comptimes[o:end,i], marker[i], label= "n = $tt", color = col[i], markersize=2.5, linewidth = 1)
@@ -41,11 +45,11 @@ function singleplot(filename::String, name::String, compare::String = "")
   fx = matplotlib[:ticker][:ScalarFormatter]()
   fx[:set_powerlimits]((-1, 4))
   ax[:xaxis][:set_major_formatter](fx)
-  if contains(filename, "nblocks")
+  if contains(filename, "nblocks") | contains(filename, "nprocs")
     subplots_adjust(left = 0.15)
     PyPlot.ylabel(ylab, labelpad = 0.6)
     PyPlot.xlabel(x, labelpad = 0.6)
-    ax[:legend](fontsize = 5, loc = 2, ncol = 1)
+    ax[:legend](fontsize = 5, loc = 9, ncol = 1)
   else
     PyPlot.ylabel(ylab, labelpad = -1.0)
     PyPlot.xlabel("\$ t_{up} \$", labelpad = 0.6)

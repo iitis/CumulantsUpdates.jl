@@ -4,6 +4,7 @@ using JLD
 using ArgParse
 using CumulantsUpdates
 using SymmetricTensors
+using Combinatorics
 import CumulantsUpdates: cumulants, moment
 
 """
@@ -60,7 +61,7 @@ function savecomptime(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int, 
   cumtime = cumspeedups(m, n, t, tup, b)
   push!(compt, "cumulants" => cumtime[1])
   push!(compt, "cumulants updat" => cumtime[2])
-  push!(compt, "tm" => t./(2*tup))
+  push!(compt, "tm" => t./(2*tup+bellnum(m)))
   push!(compt, "t" => t)
   push!(compt, "n" => n)
   push!(compt, "m" => m)
