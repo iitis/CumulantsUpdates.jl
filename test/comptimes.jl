@@ -7,85 +7,66 @@ using SymmetricTensors
 import CumulantsUpdates: cumulants, moment
 
 """
-  momspeedups(fcalc::Function, fup::Function, m::Int, n::Int, t::Int, tup::Vector{Int})
+  cumspeedups(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int)
 
-Returns Vector, a computional speedup of m'th moment update of n[i] variate data
+Returns Vector, a computional speedup of m'th cumulant update of n[i] variate data
 """
 
-function momspeedups(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int)
-  compt = zeros(length(tup), length(n))
+function cumspeedups(m::Int, n::Vector{Int}, t::Int, u::Vector{Int}, b::Int, bc::Int = 2)
+  compt = zeros(length(u), length(n))
   updt = copy(compt)
-  X = randn(15, 10)
-  M = moment(X[1:10,:], m, b)
-  momentupdat(M, X[1:10,:], X[10:15,:])
+  precomp(m)
   for i in 1:length(n)
-    println("moment calc n = ", n[i])
+    println("cumulants calc n = ", n[i])
     X = randn(t, n[i])
     t1 = Float64(time_ns())
-    M = moment(X, m, b)
+    cumulants(X, m, bc)
     compt[:,i] = Float64(time_ns())-t1
-    for j in 1:length(tup)
-      println("update tup = ", tup[j])
-      Xup = rand(tup[j], n[i])
-      t2 = Float64(time_ns())
-      cup = momentupdat(M, X, Xup)
-      updt[j,i] = Float64(time_ns()) - t2
+    M = momentarray(X, m, b)
+    for j in 1:length(u)
+      println("update u = ", u[j])
+      Xup = rand(u[j], n[i])
+      t1 = Float64(time_ns())
+      updat(M, X, Xup)
+      updt[j,i] = Float64(time_ns()) - t1
     end
   end
   compt, updt
 end
 
-function cumspeedups(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int)
-  compt = zeros(length(tup), length(n))
-  ccomp = copy(compt)
-  updt = copy(compt)
+"""
+  precomp(m::Int)
+
+precompiles updates functions
+"""
+function precomp(m::Int)
   X = randn(15, 10)
-  cumulants(X[1:10,:], m, b)
-  M = momentarray(X[1:10,:], m, b)
-  M1 = copy(M)
-  moms2cums!(M1)
+  cumulants(X[1:10,:], m, 2)
+  M = momentarray(X[1:10,:], m, 4)
   updat(M, X[1:10,:], X[10:15,:])
-  for i in 1:length(n)
-    println("cumulants calc n = ", n[i])
-    X = randn(t, n[i])
-    t1 = Float64(time_ns())
-    cumulants(X, m, b)
-    t2 = Float64(time_ns())
-    M = momentarray(X, m, b)
-    M1 = copy(M)
-    moms2cums!(M1)
-    ccomp[:,i] = Float64(time_ns())-t2
-    compt[:,i] = t2-t1
-    for j in 1:length(tup)
-      println("update tup = ", tup[j])
-      Xup = rand(tup[j], n[i])
-      t2 = Float64(time_ns())
-      cup = updat(M, X, Xup)
-      updt[j,i] = Float64(time_ns()) - t2
-    end
-  end
-  compt, updt, ccomp
 end
+
+"""
+  savecomptime(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int, p::Int)
+
+Saves comptime parameters into a .jld file
+"""
 
 function savecomptime(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int, p::Int)
   filename = replace("res/$(m)_$(t)_$(n)_$(tup)_$(p).jld", "[", "")
   filename = replace(filename, "]", "")
   filename = replace(filename, " ", "")
   compt = Dict{String, Any}()
-  momtime = momspeedups(m, n, t, tup, b)
   cumtime = cumspeedups(m, n, t, tup, b)
-  push!(compt, "moment" => momtime[1])
-  push!(compt, "moment update" => momtime[2])
   push!(compt, "cumulants" => cumtime[1])
   push!(compt, "cumulants updat" => cumtime[2])
-  push!(compt, "cumulants bench" => cumtime[3])
   push!(compt, "tm" => t./(2*tup))
   push!(compt, "t" => t)
   push!(compt, "n" => n)
   push!(compt, "m" => m)
   push!(compt, "tup" => tup)
   push!(compt, "x" => "tup")
-  push!(compt, "functions" => [["moment", "moment update"], ["cumulants", "cumulants updat"]])
+  push!(compt, "functions" => [["cumulants", "cumulants updat"]])
   save(filename, compt)
 end
 
@@ -103,11 +84,11 @@ function main(args)
         arg_type = Int
         "--blocksize", "-b"
         help = "the size of blocks of the block structure"
-        default = 3
+        default = 4
         arg_type = Int
       "--nvar", "-n"
         nargs = '*'
-        default = [20, 25]
+        default = [40]
         help = "n, numbers of marginal variables"
         arg_type = Int
       "--dats", "-t"
@@ -117,11 +98,11 @@ function main(args)
       "--updates", "-u"
         help = "u, size of the update"
         nargs = '*'
-        default = [20000, 30000, 40000, 50000]
+        default = [10000, 15000, 20000]
         arg_type = Int
       "--nprocs", "-p"
         help = "number of processes"
-        default = 1
+        default = 3
         arg_type = Int
     end
   parsed_args = parse_args(s)

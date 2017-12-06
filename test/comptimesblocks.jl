@@ -13,27 +13,29 @@ function comptime(c, data::Matrix{Float64}, datup::Matrix{Float64})
   Float64(time_ns()-t)/1.0e9
 end
 
+precomp(m::Int, data::Matrix{Float64}) =
+  updat(momentarray(data[1:10, 1:10], m), data[1:10, 1:10], data[1:5, 1:10])
 
-function savect(tup::Vector{Int}, n::Int, m::Int, p::Int)
-  maxb = round(Int, sqrt(n))
-  comptimes = zeros(maxb-1, length(tup))
+function savect(u::Vector{Int}, n::Int, m::Int, p::Int)
+  maxb = round(Int, sqrt(n))+2
+  comptimes = zeros(maxb-1, length(u))
   println("max block size = ", maxb)
-  data = randn(maximum(tup)+10, n)
-  updat(momentarray(data[1:10, 1:10], 4), data[1:10, 1:10], data[1:5, 1:10])
+  data = randn(maximum(u)+10, n)
+  precomp(m, data)
   for b in 2:maxb
-    c = momentarray(data, m, b)
-    for k in 1:length(tup)
-      datup = randn(tup[k], n)
-      comptimes[b-1, k] = comptime(c, data, datup)
-      println("tup = ", tup[k])
-      println("bloks size = ", b)
+    println("bloks size = ", b)
+    M = momentarray(data, m, b)
+    for k in 1:length(u)
+      datup = randn(u[k], n)
+      comptimes[b-1, k] = comptime(M, data, datup)
+      println("u = ", u[k])
     end
   end
-  filename = replace("res/$(m)_$(tup)_$(n)_$(p)_nblocks.jld", "[", "")
+  filename = replace("res/$(m)_$(u)_$(n)_$(p)_nblocks.jld", "[", "")
   filename = replace(filename, "]", "")
   filename = replace(filename, " ", "")
   compt = Dict{String, Any}("cumulants"=> comptimes)
-  push!(compt, "t" => tup)
+  push!(compt, "t" => u)
   push!(compt, "n" => n)
   push!(compt, "m" => m)
   push!(compt, "x" => "block size")
@@ -57,24 +59,24 @@ function main(args)
       "--tup", "-u"
         help = "u, numbers of data updates"
         nargs = '*'
-        default = [20000,40000]
+        default = [10000, 20000]
         arg_type = Int
       "--nprocs", "-p"
         help = "number of processes"
-        default = 1
+        default = 3
         arg_type = Int
     end
   parsed_args = parse_args(s)
   m = parsed_args["order"]
   n = parsed_args["nvar"]
-  tup = parsed_args["tup"]
+  u = parsed_args["tup"]
   p = parsed_args["nprocs"]
   if p > 1
     addprocs(p)
     eval(Expr(:toplevel, :(@everywhere using CumulantsUpdates)))
   end
   println("number of workers = ", nworkers())
-  savect(tup, n, m, p)
+  savect(u, n, m, p)
 end
 
 main(ARGS)
