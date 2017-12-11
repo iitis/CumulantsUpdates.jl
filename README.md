@@ -76,14 +76,21 @@ SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 
 
 ```
 
-Function
+Function `momentarray(X, m)` can be used to compute an array of moments of order `1, ..., m`
+of data `X ∈ ℜᵗˣⁿ`
 
+```julia
+julia> momentarray(X::Matrix{T}, m::Int, b::Int) where {T<:AbstractFloat, m}
+```
+`b` - is a `SymmetricTensor` parameter, a block size.
+
+One can update an array of moments by calling:
 
 ```julia
 julia> momentupdat(M::Array{SymmetricTensor{T, m}}, X::Matrix{T}, Xᵤₚ::Matrix{T}) where {T<:AbstractFloat, m}
 ```
 
-Returns an `Array{SymmetricTensor{T, m}}` of moment tensors of order `1, ..., m` of updated multivariate data: `X' = vcat(X,Xᵤₚ)[1+u:end, :] ∈ Rᵗˣⁿ`. The output of `momentupdat(M, X, Xᵤₚ) = arraymoment(X', m)`,  if `u ≪ t` `momentupdat()` is much faster than a recalculation.
+Returns an `Array{SymmetricTensor{T, m}}` of moment tensors of order `1, ..., m` of updated multivariate data: `X' = vcat(X,Xᵤₚ)[1+u:end, :] ∈ Rᵗˣⁿ`. If `M = momentarray(X, m)`, we have `momentupdat(M, X, Xᵤₚ) = momentarray(X', m)`.  
 
 ### Cumulants update
 
