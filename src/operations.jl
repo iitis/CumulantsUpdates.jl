@@ -14,9 +14,8 @@ julia> rep((1,1,1))
 ```
 """
 function rep(ind::Tuple)
-  l = length(ind)
-  c = counts([ind...])
-  div(factorial(l), mapreduce(x -> factorial(x), * , c))
+  @inbounds c = counts([ind...])
+  div(factorial(length(ind)), mapreduce(factorial, * , c))
 end
 
 """
@@ -42,81 +41,14 @@ function vecnorm(bt::SymmetricTensor{T, N}, k::Union{Float64, Int}=2) where T<:A
 end
 
 """
-  cnorms(c::Vector{SymmetricTensor{T}}, norm::Bool, k::Union{Float64, Int})
+  cnorms(c::Vector{SymmetricTensor{T}})
 
-Returns vector of Floats of k norms of cumulants of order 1, ..., m. If norm = true
+Returns vector of Floats of norms of cumulants of order 3, ..., m, normalsed
+by √||C₂||ᵏ
 .....
 
 """
-function cnorms(c::Vector{SymmetricTensor{T}}, norm::Bool = true, k::Union{Float64, Int}=2) where T <: AbstractFloat
-  if norm
-    mcov = [vecnorm(cum, k) for cum in c[1:2]]
-    return [mcov..., [vecnorm(c[i], k)/(mcov[2])^(i/2) for i in 3:length(c)]...]
-  else
-    return [vecnorm(cum, k) for cum in c]
-  end
-end
-
-"""
-  normperelement(c::Vector{SymmetricTensor{T}}, norm::Bool, k::Union{Float64, Int})
-
-Returns vector of Floats of k norms of cumulants of order 1, ..., m, each value is divided by a number of elements in a given cumulant's tensor)
-
-"""
-
-normperelement(c::Vector{SymmetricTensor{T}}, norm::Bool = true, k::Union{Float64, Int}=2) where T <: AbstractFloat =
- [vecnorm(c[i], k)/(c[i].dats)^i for i in 1:length(c)]
-
-"""
-  cumnorms(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2
-                                                        cache::Bool = true, b::Int = 3)
-
-Returns a vector of Floats of k norm of cumulants of order 1, ..., m calculated for data X.
-If norm = true norms for m > 2 are normalised by the norm of the secod cumulant rised to m/2.
-If cache save cumulants in /tmp/cumdata.jld.
-b - the block size for the block structure of cumulants.
-"""
-
-function cumnorms(X::Matrix{T}, m::Int = 4, norm::Bool = true,
-                                            k::Union{Float64, Int}=2, b::Int = 3,
-                                            cache::Bool = true) where T <: AbstractFloat
-  c = cumulants(X, m, b)
-  if cache
-    cpath = "/tmp/cumdata.jld"
-    try save(cpath, "c", c, "x", X) catch end
-  end
-  cnorms(c, norm, k)
-end
-
-"""
-  cumupdatnorms(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4, norm::Bool = true,
-                                                          k::Union{Float64, Int}=2,
-                                                          b::Int = 3)
-
-Returns a vector of Floats of k norm of cumulants of order 1, ..., m calculated for data X,
-updated by Xup. Save updates cumulants in /tmp/cumdata.jld.
-If cumulants are stored in "/tmp/cumdata.jld" the function uses it.
-If norm = true norms for m > 2 are normalised by the norm of the secod cumulant rised to m/2.
-b - the block size for the block structure of cumulants.
-"""
-
-function cumupdatnorms(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4,
-                                                     norm::Bool = true,
-                                                     k::Union{Float64, Int}=2,
-                                                     b::Int = 3,
-                                                     cache::Bool = true) where T <: AbstractFloat
-  Xprim = vcat(X, Xup)[(size(Xup, 1)+1):end,:]
-  cpath = "/tmp/cumdata.jld"
-  d = try load(cpath) catch end
-  X1 = try(d["x"]) catch end
-  c = try(d["c"]) catch [1.] end
-  if ((length(c) == m) & (X1 == X) & (typeof(c[1]) <: SymmetricTensor))
-    cup = cumulantsupdat(c, X, Xup)
-  else
-    cup = cumulants(Xprim, m, b)
-  end
-  if cache
-    try save(cpath, "c", cup, "x", Xprim) catch end
-  end
-  cnorms(cup, norm, k), Xprim
+function cnorms(c::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
+  n = vecnorm(c[2])
+  [vecnorm(c[k])/(n)^(k/2) for k in 3:length(c)]
 end

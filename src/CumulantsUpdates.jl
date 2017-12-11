@@ -10,6 +10,7 @@ module CumulantsUpdates
   include("updates.jl")
   include("operations.jl")
 
-  export momentupdat, cumulantsupdat, vecnorm, cumnorms, cumupdatnorms
-  export momentarray, updat, moms2cums!
+  export momentupdat, momentarray
+  export cumulantsupdat
+  export vecnorm, moms2cums!, cums2moms
 end

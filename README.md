@@ -3,10 +3,12 @@
 
 # CumulantsUpdates.jl
 
-Updates following statistics of n-variate data
+Updates following statistics of `n`-variate data
 * `m`'th moment tensor,
-* a sequence of cumulant tensors of order `1,2,...,m`,
-for `m >= 1`.
+* an array of moment tensors of order `1,2,...,m`.
+
+Given `t` realisations of `n`-variate data: `X ∈ ℜᵗˣⁿ`, and the update `Xᵤₚ ∈ ℜᵘˣⁿ`
+returns array of updated cumulant tensors of order `1,2,...,m`.
 
 To store symmetric tensors uses a `SymmetricTensors` type, requires [SymmetricTensors.jl](https://github.com/ZKSI/SymmetricTensors.jl). To convert to array, run:
 
@@ -18,7 +20,7 @@ to convert back, run:
 ```julia
 julia>  convert(SymmetricTensor, a::Array{T,m})
 ```
-Requires [Cumulants.jl](https://github.com/ZKSI/Cumulants.jl). 
+Requires [Cumulants.jl](https://github.com/ZKSI/Cumulants.jl).
 
 As of 01/01/2017 [kdomino](https://github.com/kdomino) is the lead maintainer of this package.
 
@@ -44,35 +46,44 @@ julia> @everywhere using CumulantsUpdates
 
 ### Moment update
 
-To update the moment tensor `SymmetricTensor{T, m}` for `m <= 1` given original data `X \in R^{t, n}` and the update `Xup \in R^{tup, n}` and `t > tup` just run
+To update the moment tensor `M::SymmetricTensor{T, m}` for `m ≤ 1` given  data `X ∈ ℜᵗˣⁿ` and the update `Xᵤₚ ∈ ℜᵘˣⁿ` where `u < t` run
 
 ```julia
-julia> momentupdat(M::SymmetricTensor{T, m}, X::Matrix{T}, Xup::Matrix{T}) where {T<:AbstractFloat, m}
+julia> momentupdat(M::SymmetricTensor{T, m}, X::Matrix{T}, Xᵤₚ::Matrix{T}) where {T<:AbstractFloat, m}
 ```
 
-Returns a `SymmetricTensor{T, m}` of the moment tensor of updated multivariate data: `Xprim = vcat(X,Xup)[1+tup:end, :] \in R^{t, n}`. The output of `momentupdat(M, X, Xup)` corresponds to the output of `Cumulants.moment(Xprim, m)`, where `typeof(M) = SymmetricTensor{T, m}`. However if `tup << t` `momentupdat()` is much faster.
+Returns a `SymmetricTensor{T, m}` of the moment tensor of updated multivariate data: `X' = vcat(X,Xᵤₚ)[1+u:end, :] ∈ Rᵗˣⁿ`. The output of `momentupdat(M, X, Xᵤₚ) = moment(X', m)`,  if `u ≪ t` `momentupdat()` is much faster than a recalculation.
 
 ```julia
 julia> x = ones(6, 2);
 
 julia> m = moment(x, 3)
-SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
+SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
 
 [1.0 1.0; 1.0 1.0]],2,1,2,true)
 
 julia> y = 2*ones(2,2);
 
 julia> momentupdat(m, x, y)
-SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
+SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
 
 [3.33333 3.33333; 3.33333 3.33333]],2,1,2,true)
 
 julia> moment(vcat(x,y)[3:end,:],3)
-SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
+SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
 
 [3.33333 3.33333; 3.33333 3.33333]],2,1,2,true)
 
 ```
+
+Function
+
+
+```julia
+julia> momentupdat(M::Array{SymmetricTensor{T, m}}, X::Matrix{T}, Xᵤₚ::Matrix{T}) where {T<:AbstractFloat, m}
+```
+
+Returns an `Array{SymmetricTensor{T, m}}` of moment tensors of order `1, ..., m` of updated multivariate data: `X' = vcat(X,Xᵤₚ)[1+u:end, :] ∈ Rᵗˣⁿ`. The output of `momentupdat(M, X, Xᵤₚ) = arraymoment(X', m)`,  if `u ≪ t` `momentupdat()` is much faster than a recalculation.
 
 ### Cumulants update
 
@@ -95,9 +106,9 @@ julia> cumulantsupdat(c, x, y)
 3-element Array{SymmetricTensors.SymmetricTensor{Float64,N},1}:
  SymmetricTensors.SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2,1.2]],2,1,2,true)                                             
  SymmetricTensors.SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]],2,1,2,true)                                
- SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096] 
+ SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096]
 [0.096 0.096; 0.096 0.096]],2,1,2,true)
- 
+
 julia> cumulants(vcat(x,y)[3:end, :], 3)
 3-element Array{SymmetricTensors.SymmetricTensor{Float64,N},1}:
  SymmetricTensors.SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2,1.2]],2,1,2,true)                                             
@@ -147,7 +158,7 @@ julia> cumnorms(X, 3, false)
  1.73205
  0.0
  0.0
- 
+
 julia> cumnorms(X, 3, false, 1)
 3-element Array{Float64,1}:
  3.0
@@ -178,7 +189,7 @@ julia> cumupdatnorms(X, Xup, 3, false)[1]
  0.866025
  0.75
  0.0
- 
+
 julia> cumupdatnorms(X, Xup, 3, false)[2]
 10×3 Array{Float64,2}:
  1.0  1.0  1.0
