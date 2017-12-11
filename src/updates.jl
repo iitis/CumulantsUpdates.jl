@@ -4,6 +4,19 @@
 
 Returns SymmetricTensor{Float, N} updated moment, given original moment, original data and update
 of data - dataup
+
+```jldocstests
+julia> x = ones(6, 2);
+
+julia> m = moment(x, 3);
+
+julia> y = 2*ones(2,2);
+
+julia> momentupdat(m, x, y)
+SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
+[3.33333 3.33333; 3.33333 3.33333]],2,1,2,true)
+
+```
 """
 
 function momentupdat(M::SymmetricTensor{T, N}, X::Matrix{T}, Xup::Matrix{T}) where T<:AbstractFloat where N
@@ -91,6 +104,23 @@ cumulantsupdat(X::Matrix{T}, m::Int = 4, b::Int = 4) where T <: AbstractFloat =
 Returns a vector of SymmetricTensors of cumulants of order 1, ..., m calculated
 for X, updated by Xup. Loads moments arrays and saves updated moment
 arrays in /tmp/cumdata.jld b - the block size for the block structure of cumulants.
+
+
+```jldoctests
+julia> x = ones(10,2);
+
+julia> y = 2*ones(2,2);
+
+julia> c = cumulantsupdat(x, 3, 2);
+
+julia> cumulantsupdat(x, y, 3)
+
+3-element Array{SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2, 1.2]], 2, 1, 2, true)
+ SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]], 2, 1, 2, true)
+ SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096]
+[0.096 0.096; 0.096 0.096]], 2, 1, 2, true)
+```
 """
 
 function cumulantsupdat(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4, b::Int = 4) where T <: AbstractFloat

@@ -19,31 +19,40 @@ function rep(ind::Tuple)
 end
 
 """
-vecnorm(bt::SymmetricTensor{N}, k=2)
+vecnorm(bt::SymmetricTensor{T, m}, p::Union{Float64, Int}=2) where {T<:AbstractFloat, m}
 
-Returns float, a k-norm of bt, for k != 0
+Returns Float, a p-norm of bt, supported for p ≠ 0
 
 ```jldoctest
+
+julia> te = [-0.112639 0.124715 0.124715 0.268717 0.124715 0.268717 0.268717 0.046154];
+
+julia> st = convert(SymmetricTensor, (reshape(te, (2,2,2))));
+
 julia> vecnorm(st)
 0.5273572868359742
 
-julia> vecnorm(st, k=1)
+julia> vecnorm(st, 2.5)
+0.4468668679541424
+
+julia> vecnorm(st, 1)
 1.339089
 ```
 """
-function vecnorm(bt::SymmetricTensor{T, N}, k::Union{Float64, Int}=2) where T<:AbstractFloat where N
-  k != 0 || throw(AssertionError("0' th norm not supported"))
+
+function vecnorm(bt::SymmetricTensor{T, m}, p::Union{Float64, Int}=2) where {T<:AbstractFloat, m}
+  p != 0 || throw(AssertionError("0-norm not supported"))
   ret = 0.
-  for i in indices(N, bt.bln)
-    @inbounds ret += rep(i) * vecnorm(getblockunsafe(bt, i), k)^k
+  for i in indices(m, bt.bln)
+    @inbounds ret += rep(i) * vecnorm(getblockunsafe(bt, i), p)^p
   end
-  ret^(1/k)
+  ret^(1/p)
 end
 
 """
   cnorms(c::Vector{SymmetricTensor{T}})
 
-Returns vector of Floats of norms of cumulants of order 3, ..., m, normalsed
+Returns vector of Floats of norms of cumulants of order 3, ..., k , ..., m, normalsed
 by √||C₂||ᵏ
 .....
 

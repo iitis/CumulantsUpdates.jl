@@ -110,42 +110,46 @@ Next if a new update `Xᵤₚ ∈ ℜᵘˣⁿ`: `u < t` is recorded one can run:
 julia> cumulantsupdat(X::Matrix{T}, Xᵤₚ::Matrix{T}, m::Int = 4, b::Int = 4) where {T<:AbstractFloat, m}
 ```
 
-to get a vector `[SymmetricTensor{T, 1}, ...,SymmetricTensor{T, m}]` of cumulant tensors  of updated `n`-variate data `ℜᵗⁿ ∋ X' = vcat(X,Xᵤₚ)[1+u:end, :] \in R^{t, n}`. The function caches the array of updated moments in `tmp/cumdata.jld` for next update cycle.
+to get a vector `[SymmetricTensor{T, 1}, ...,SymmetricTensor{T, m}]` of cumulant tensors  of updated `n`-variate data `ℜᵗⁿ ∋ X' = vcat(X,Xᵤₚ)[1+u:end, :] \in R^{t, n}`. The function caches the array of updated moments in `tmp/cumdata.jld`. For next update cycle, call:
 
-
-If `u ≪ t`  `cumulantsupdat()` is much faster that a cumulants recalculation using `Cumulants.jl`
+```julia
+julia> cumulantsupdat(X'::Matrix{T}, Xᵤₚ₂::Matrix{T}, m::Int = 4, b::Int = 4) where {T<:AbstractFloat, m}
+```
+etc... If `u ≪ t`  `cumulantsupdat()` is much faster that a cumulants recalculation using `Cumulants.jl`
 
 ```julia
 julia> x = ones(10,2);
 
 julia> y = 2*ones(2,2);
 
-julia> c = cumulants(x, 3);
+julia> c = cumulantsupdat(x, 3, 2);
 
-julia> cumulantsupdat(c, x, y)
-3-element Array{SymmetricTensors.SymmetricTensor{Float64,N},1}:
- SymmetricTensors.SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2,1.2]],2,1,2,true)                                             
- SymmetricTensors.SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]],2,1,2,true)                                
- SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096]
-[0.096 0.096; 0.096 0.096]],2,1,2,true)
+julia> cumulantsupdat(x, y, 3)
+
+3-element Array{SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2, 1.2]], 2, 1, 2, true)                                            
+ SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]], 2, 1, 2, true)                                
+ SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096]
+[0.096 0.096; 0.096 0.096]], 2, 1, 2, true)
+
 
 julia> cumulants(vcat(x,y)[3:end, :], 3)
-3-element Array{SymmetricTensors.SymmetricTensor{Float64,N},1}:
- SymmetricTensors.SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2,1.2]],2,1,2,true)                                             
- SymmetricTensors.SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]],2,1,2,true)                                
- SymmetricTensors.SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096]
-[0.096 0.096; 0.096 0.096]],2,1,2,true)
+3-element Array{SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2, 1.2]], 2, 1, 2, true)                                            
+ SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]], 2, 1, 2, true)                                
+ SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096]
+[0.096 0.096; 0.096 0.096]], 2, 1, 2, true)
 
 ```
 
 ### Vector norm
 
 ```julia
-julia> vecnorm(st::SymmetricTensor{T, m}; k::Union{Float64, Int}) where {T<:AbstractFloat, m}
+julia> vecnorm(st::SymmetricTensor{T, m}, p::Union{Float64, Int}) where {T<:AbstractFloat, m}
 ```
 
-Returns a vector norm of the `SymmetricTensors` type if `k != 0` The output of `vecnorm(st, k)` corresponds to the output of `vecnorn(convert(Array, st),k)`. However
-`vecnorm(st::SymmetricTensor...)` uses the block structure implemented in `SymmetricTensors` and decreases the computer memory requirement.
+Returns a `p`-norm of the tensor stored as `SymmetricTensors`, supported for `k ≠ 0`. The output of `vecnorm(st, p) = vecnorn(convert(Array, st),p)`. However
+`vecnorm(st::SymmetricTensor, p)` uses the block structure implemented in `SymmetricTensors`, hance is faster and decreases the computer memory requirement.
 
 ```julia
 julia> te = [-0.112639 0.124715 0.124715 0.268717 0.124715 0.268717 0.268717 0.046154];
@@ -161,91 +165,72 @@ julia> vecnorm(st, 2.5)
 julia> vecnorm(st, 1)
 1.339089
 ```
+### Convert cumulants to moments and moments to cumulants
 
-### Tensor norms of cumulants
-
-To compute tensor norms of cumulants of `X \in R^{t, n}` run:
+Given `M` a vector of moments of order `1, ..., m` to change it to a vector
+of cumulants of order `1, ..., m` using
 
 ```julia
-julia>  cumnorms(X::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3, cache::Bool = true) where T <: AbstractFloat
+julia> function moms2cums!(M::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
+```
+One can convert a vector of cumulants `c` to a vector of moments by running
+
+```julia
+julia> function cums2moms(c::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
 ```
 
 ```julia
-julia> X = ones(10,3);
 
-julia> cumnorms(X, 3, false)
-3-element Array{Float64,1}:
- 1.73205
- 0.0
- 0.0
+julia> m = momentarray(ones(20,3), 3)
+3-element Array{SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                
+ SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #NULL [1.0]], 2, 2, 3, false)                                                                                       
+ SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
+[1.0 1.0; 1.0 1.0] #NULL; #NULL #NULL] Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #NULL [1.0]], 2, 2, 3, false)
 
-julia> cumnorms(X, 3, false, 1)
-3-element Array{Float64,1}:
- 3.0
- 0.0
- 0.0
-```
+julia> moms2cums!(m)
 
-Returns an array of Floats of `k` norms of `1, ..., m` cumulant tensors of `X` i.e. `||C_m|| = (\sum_{c \in C_m(X)} c^k)^(1/k)`,
-* if `cache` cumulants are saved in a `/tmp/cumdata.jld` directory;
-* if `norm = true` tensor norms for `m > 2` are normalised by `||C_2||^(m/2)` i.e. `h_m = ||C_m||/(||C_2||^(m/2))`,
-* the parameter `b` is a block size, in the block structure of cumulants - see `SymmetricTensors` docs.
+julia> m
+3-element Array{SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                
+ SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #NULL [0.0]], 2, 2, 3, false)                                                                                     
+ SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.0 0.0; 0.0 0.0]
+[0.0 0.0; 0.0 0.0] #NULL; #NULL #NULL]
+Nullable{Array{Float64,3}}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #NULL [0.0]], 2, 2, 3, false)
 
-### Tensor norms of cumulants after the update
-
-Given data, `X \in R^{t,n}`, the update `Xup \in R^{tup,n}` we can compute tensor norms for `Xprim = vcat(X,Xup)[1+tup:end, :] \in R^{t, n}` by running:
-
-```julia
-julia> cumupdatnorms(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4, norm::Bool = true, k::Union{Float64, Int}=2, b::Int = 3, cache::Bool = true) where T <: AbstractFloat
-```
-
-```julia
-julia> X = ones(10,3);
-
-julia> Xup = zeros(5,3);
-
-julia> cumupdatnorms(X, Xup, 3, false)[1]
-3-element Array{Float64,1}:
- 0.866025
- 0.75
- 0.0
-
-julia> cumupdatnorms(X, Xup, 3, false)[2]
-10×3 Array{Float64,2}:
- 1.0  1.0  1.0
- 1.0  1.0  1.0
- 1.0  1.0  1.0
- 1.0  1.0  1.0
- 1.0  1.0  1.0
- 0.0  0.0  0.0
- 0.0  0.0  0.0
- 0.0  0.0  0.0
- 0.0  0.0  0.0
- 0.0  0.0  0.0
+julia>  cums2moms(m)
+3-element Array{SymmetricTensor{Float64,N} where N,1}:
+SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                
+ SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #NULL [1.0]], 2, 2, 3, false)                                                                                       
+SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
+[1.0 1.0; 1.0 1.0] #NULL; #NULL #NULL]
+Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #NULL [1.0]], 2, 2, 3, false)
 
 ```
+# Performance tests
 
-Returns an array of Floats of `k` norms of updated `1, ..., m` cumulant tensors, and matrix of updated data: `cumupdatnorms(X, Xup)[2] = Xprim`
-Parameters `m`, `norm`, `k`, `b` are as in `cumnorms`. If `cache` updated cumulants are saved in a `/tmp/cumdata.jld` directory. The output of `cumupdatnorms(X, Xup, m, norm, k)[1]` is the same as the output of `cumnorms(X, m, norm, k)`, however if cumulants of `X` were calculated and saved in `/tmp/cumdata.jld` `cumupdatnorms` will use fast `cumulantsupdat`.
-
-
-# Performance analysis
-
-To analyse the computational time of moments and cumulants updates vs `Cumulants.moment` or `Cumulants.cumulants` recalculation, we supply the executable script `comptimes.jl`.
-The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
+To analyse the computational time of cumulants updates vs `Cumulants.jl` recalculation, we supply the executable script `comptimes.jl`. The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
 * `-m (Int)`: cumulant's maksimum order, by default `m = 4`,
-* `-n (vararg Int)`: numbers of marginal variables, by default `m = 15, 20, 25, 30`,
+* `-n (vararg Int)`: numbers of marginal variables, by default `n = 40`,
 * `-t (Int)`: number of realisations of random variable, by default `t = 500000`,
-* `-u (vararg Int)`: number of realisations of update, by default `u = 20000, 30000, 40000, 50000`,
-* `-b (Int)`: blocks size, by default `b = 3`,
-* `-p (Int)`: numbers of processes, by default `p = 1`.
+* `-u (vararg Int)`: number of realisations of update, by default `u = 10000, 15000, 20000`,
+* `-b (Int)`: blocks size, by default `b = 4`,
+* `-p (Int)`: numbers of processes, by default `p = 3`.
 
-To analyse the computational time of cumulants updates for different block sizes `1 < b =< Int(sqrt(n))`, we supply the executable script `comptimesblocks.jl`.
+To analyse the computational time of cumulants updates for different block sizes `1 < b ≤ Int(√n)+2`, we supply the executable script `comptimesblocks.jl`.
 The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
 * `-m (Int)`: cumulant's order, by default `m = 4`,
 * `-n (Int)`: numbers of marginal variables, by default `m = 48`,
-* `-u (vararg Int)`: number of realisations of the update, by default `u = 20000, 40000`.
-* `-p (Int)`: numbers of processes, by default `p = 1`.
+* `-u (vararg Int)`: number of realisations of the update, by default `u = 10000, 20000`.
+* `-p (Int)`: numbers of processes, by default `p = 3`.
+
+To analyse the computational time of cumulants updates for different number of workers, we supply the executable script `comptimesprocs.jl`.
+The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
+* `-m (Int)`: cumulant's order, by default `m = 4`,
+* `-n (Int)`: numbers of marginal variables, by default `m = 48`,
+* `-u (vararg Int)`: number of realisations of the update, by default `u = 10000, 20000`,
+* `-b (Int)`: blocks size, by default `b = 4`,
+* `-p (Int)`: maximal numbers of processes, by default `p = 6`.
 
 To plot computional times run executable `res/plotcomptimes.jl` on chosen `*.jld` file.
 

@@ -67,7 +67,7 @@ function main(args)
         default = 4
         arg_type = Int
       "--nprocs", "-p"
-        help = "number of processes"
+        help = "maximal number of processes"
         default = 6
         arg_type = Int
     end
