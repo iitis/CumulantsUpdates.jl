@@ -75,10 +75,10 @@ function cums2moms(cum::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
 end
 
 """
-  cumulantsupdat(X::Matrix{T}, m::Int = 4, b::Int = 3)
+  cumulantsupdat(X::Matrix{T}, m::Int = 4, b::Int = 4)
 
 Returns a a vector of SymmetricTensors of cumulants of order 1, ..., m calculated.
-Moments array are saved in /tmp/cumdata.jld for further cumulants updates,
+Moments array are saved in tmp/cumdata.jld for further cumulants updates,
 parameter b is the block size for the block structure of cumulants.
 """
 

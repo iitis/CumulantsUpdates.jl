@@ -94,13 +94,26 @@ Returns an `Array{SymmetricTensor{T, m}}` of moment tensors of order `1, ..., m`
 
 ### Cumulants update
 
-To update the vector of cumulants `cums = [SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of order `1, ..., m` given original data `X \in R^{t, n}` and the update `Xup \in R^{tup, n}` for `t > tup` just run:
+Presented function is design for sequent update of multivariate cumulant tensors.
+Hence it can be applied in a data streamming scheme. Suppose we have data `X ∈ ℜᵗˣⁿ`
+and want to compute cumulant tensors in an observation window of size `t`. Run first
 
 ```julia
-julia> cumulantsupdat(cums::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xup::Matrix{T}) where {T<:AbstractFloat, m}
+julia> cumulantsupdat(X::Matrix{T}, m::Int = 4, b::Int = 4) where {T<:AbstractFloat, m}
 ```
 
-Returns a vector `[SymmetricTensor{T, 1}, SymmetricTensor{T, 2}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,2,...,m` of updated multivariate data `Xprim = vcat(X,Xup)[1+tup:end, :] \in R^{t, n}`. If `Cumulants.cumulants(X, m) = cums` then the oputpu of `cumulantsupdat(cums, X, Xup)` will correspond to the output of `Cumulants.cumulants(Xprim, m)`. However if `t` is large and `t >> tup` `cumulantsupdat` is much faster. If the input `cums` is not a sequence of cumulants of order `1,2, ..., m` wrror will be returned. If cumulants in `cums` are not computed for the same data, results are meaningless.
+to get a vector `[SymmetricTensor{T, 1}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,...,m` of `X` and caches the array of moments of `X` in `tmp/cumdata.jld`.
+
+Next if a new update `Xᵤₚ ∈ ℜᵘˣⁿ`: `u < t` is recorded one can run:
+
+```julia
+julia> cumulantsupdat(X::Matrix{T}, Xᵤₚ::Matrix{T}, m::Int = 4, b::Int = 4) where {T<:AbstractFloat, m}
+```
+
+to get a vector `[SymmetricTensor{T, 1}, ...,SymmetricTensor{T, m}]` of cumulant tensors  of updated `n`-variate data `ℜᵗⁿ ∋ X' = vcat(X,Xᵤₚ)[1+u:end, :] \in R^{t, n}`. The function caches the array of updated moments in `tmp/cumdata.jld` for next update cycle.
+
+
+If `u ≪ t`  `cumulantsupdat()` is much faster that a cumulants recalculation using `Cumulants.jl`
 
 ```julia
 julia> x = ones(10,2);
