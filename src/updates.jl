@@ -50,13 +50,26 @@ momentarray(X::Matrix{T}, m::Int = 4, b::Int = 2) where T <: AbstractFloat =
   moms2cums!(M::Vector{SymmetricTensor})
 
 Changes vector of Symmetric Tensors of moments to vector of Symmetric Tensors of cumulants
+```jldocstests
+
+julia> m = momentarray(ones(20,3), 3);
+
+julia> moms2cums!(m)
+
+julia> m[3]
+
+SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.0 0.0; 0.0 0.0]
+[0.0 0.0; 0.0 0.0] #NULL; #NULL #NULL]
+Nullable{Array{Float64,3}}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #NULL [0.0]], 2, 2, 3, false)
+```
+
 """
 
 
 function moms2cums!(M::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
   m = length(M)
   for i in 1:m
-    f(sigma::Int) = outerprodcum(i, sigma, M...; exclpartlen = 0)
+    f(σ::Int) = outerprodcum(i, σ, M...; exclpartlen = 0)
     prods = pmap(f, [(2:m)...])
     for k in 2:m
       @inbounds M[i] -= prods[k-1]
