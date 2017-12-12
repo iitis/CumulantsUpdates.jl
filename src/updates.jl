@@ -1,4 +1,31 @@
 """
+  dataupdat(X::Matrix{T}, Xup::Matrix{T}) where T<:AbstractFloat
+
+Returns Matrix{Float} of size(X), first u = size(Xup, 1) rows of X are removed and
+at the end the updat Xup is appended.
+
+
+```jldocstests
+
+julia> a = ones(4,4);
+
+julia> b = zeros(2,4);
+
+julia> dataupdat(a,b)
+4×4 Array{Float64,2}:
+ 1.0  1.0  1.0  1.0
+ 1.0  1.0  1.0  1.0
+ 0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0
+
+```
+"""
+
+dataupdat(X::Matrix{T}, Xup::Matrix{T}) where T<:AbstractFloat =
+  vcat(X,Xup)[1+size(Xup, 1):end, :]
+
+
+"""
 
     momentupdat(M::SymmetricTensor{Float, N}, X::Matrix, Xup::Matrix)
 
@@ -19,7 +46,7 @@ SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 
 ```
 """
 
-function momentupdat(M::SymmetricTensor{T, N}, X::Matrix{T}, Xup::Matrix{T}) where T<:AbstractFloat where N
+function momentupdat(M::SymmetricTensor{T, N}, X::Matrix{T}, Xup::Matrix{T}) where {T<:AbstractFloat, N}
   tup = size(Xup,1)
   M + tup/size(X, 1)*(moment(Xup, N, M.bls) - moment(X[1:tup,:], N, M.bls))
 end
@@ -137,11 +164,11 @@ julia> cumulantsupdat(x, y, 3)
 """
 
 function cumulantsupdat(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4, b::Int = 4) where T <: AbstractFloat
-  Xp = vcat(X, Xup)[(size(Xup, 1)+1):end,:]
   cpath = "/tmp/cumdata.jld"
   d = try load(cpath) catch end
   X1 = try(d["x"]) catch end
   M = try(d["M"]) catch [1.] end
+  Xp = dataupdat(X, Xup)
   if ((length(M) == m) & (X1 == X) & (typeof(M[1]) <: SymmetricTensor))
     Mup = momentupdat(M, X, Xup)
     println("load")

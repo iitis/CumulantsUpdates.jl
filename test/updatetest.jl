@@ -4,6 +4,10 @@ X = randn(100, 20)
 Xup = rand(25, 20)
 l = size(Xup, 1) + 1
 Xprim = vcat(X, Xup)[l:end,:]
+@testset "data updat" begin
+  @test dataupdat(X, Xup) ≈ Xprim
+end
+
 
 @testset "moment updates" begin
   x = ones(6, 2)
@@ -83,7 +87,7 @@ end
     cc = cumulantsupdat(X, Xup, 4)
     @test convert(Array, cc[3]) ≈ convert(Array, cup[3])
     @test convert(Array, cc[4]) ≈ convert(Array, cup[4])
-    Xprpr = vcat(Xprim, Xup)[(size(Xup, 1)+1):end,:]
+    Xprpr = dataupdat(Xprim, Xup)
     cc = cumulantsupdat(Xprim, Xup, 4)
     ccc = cumulants(Xprpr, 4)
     @test convert(Array, cc[3]) ≈ convert(Array, ccc[3])

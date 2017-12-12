@@ -44,15 +44,47 @@ julia> @everywhere using CumulantsUpdates
 
 ## Functions
 
+### Data update
+
+To update data `X ∈ ℜᵗˣⁿ` by the update `Xᵤₚ ∈ ℜᵘˣⁿ` in the observation
+window of size `t` and get `ℜᵗˣⁿ ∋ X' = vcat(X,Xᵤₚ)[1+u:end, :]` run:
+
+```julia
+julia> dataupdat(X::Matrix{T}, Xup::Matrix{T}) where T<:AbstractFloat
+```
+the condition `u < t` must be fulfilled.
+
+```julia
+julia> a = ones(4,4)
+4×4 Array{Float64,2}:
+ 1.0  1.0  1.0  1.0
+ 1.0  1.0  1.0  1.0
+ 1.0  1.0  1.0  1.0
+ 1.0  1.0  1.0  1.0
+
+julia> b = zeros(2,4)
+2×4 Array{Float64,2}:
+ 0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0
+
+julia> dataupdat(a,b)
+4×4 Array{Float64,2}:
+ 1.0  1.0  1.0  1.0
+ 1.0  1.0  1.0  1.0
+ 0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0
+```
+
 ### Moment update
 
-To update the moment tensor `M::SymmetricTensor{T, m}` for `m ≤ 1` given  data `X ∈ ℜᵗˣⁿ` and the update `Xᵤₚ ∈ ℜᵘˣⁿ` where `u < t` run
+To update the moment tensor `M::SymmetricTensor{T, m}` for  data `X ∈ ℜᵗˣⁿ`, given the update `Xᵤₚ ∈ ℜᵘˣⁿ` where `u < t` run
 
 ```julia
 julia> momentupdat(M::SymmetricTensor{T, m}, X::Matrix{T}, Xᵤₚ::Matrix{T}) where {T<:AbstractFloat, m}
 ```
 
-Returns a `SymmetricTensor{T, m}` of the moment tensor of updated multivariate data: `X' = vcat(X,Xᵤₚ)[1+u:end, :] ∈ Rᵗˣⁿ`. The output of `momentupdat(M, X, Xᵤₚ) = moment(X', m)`,  if `u ≪ t` `momentupdat()` is much faster than a recalculation.
+Returns a `SymmetricTensor{T, m}` of the moment tensor of updated multivariate data:
+`ℜᵗˣⁿ ∈ X' = dataupdat(X,Xᵤₚ)`, i.e.: `M = moment(X, m)`, `momentupdat(M, X, Xᵤₚ) = moment(X', m)`. If `u ≪ t` `momentupdat()` is much faster than a recalculation.
 
 ```julia
 julia> x = ones(6, 2);
@@ -90,7 +122,7 @@ One can update an array of moments by calling:
 julia> momentupdat(M::Array{SymmetricTensor{T, m}}, X::Matrix{T}, Xᵤₚ::Matrix{T}) where {T<:AbstractFloat, m}
 ```
 
-Returns an `Array{SymmetricTensor{T, m}}` of moment tensors of order `1, ..., m` of updated multivariate data: `X' = vcat(X,Xᵤₚ)[1+u:end, :] ∈ Rᵗˣⁿ`. If `M = momentarray(X, m)`, we have `momentupdat(M, X, Xᵤₚ) = momentarray(X', m)`.  
+Returns an `Array{SymmetricTensor{T, m}}` of moment tensors of order `1, ..., m` of updated multivariate data: `ℜᵗˣⁿ ∋ X' = dataupdat(X,Xᵤₚ)`, i.e. `Mₐᵣ = momentarray(X, m)`, `momentupdat(Mₐᵣ, X, Xᵤₚ) = momentarray(X', m)`.  
 
 ### Cumulants update
 
