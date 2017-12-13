@@ -23,12 +23,12 @@ function cumspeedups(m::Int, n::Vector{Int}, t::Int, u::Vector{Int}, b::Int, bc:
     t1 = Float64(time_ns())
     cumulants(X, m, bc)
     compt[:,i] = Float64(time_ns())-t1
-    M = momentarray(X, m, b)
+    cumulantscache(X, m, b)
     for j in 1:length(u)
       println("update u = ", u[j])
       Xup = rand(u[j], n[i])
       t1 = Float64(time_ns())
-      updat(M, X, Xup)
+      _, X = cumulantsupdat(X, Xup, m, b)
       updt[j,i] = Float64(time_ns()) - t1
     end
   end
@@ -43,8 +43,8 @@ precompiles updates functions
 function precomp(m::Int)
   X = randn(15, 10)
   cumulants(X[1:10,:], m, 2)
-  M = momentarray(X[1:10,:], m, 4)
-  updat(M, X[1:10,:], X[10:15,:])
+  cumulantscache(X[1:10,:], m, 4)
+  cumulantsupdat(X[1:10,:], X[10:15,:], m, 4)
 end
 
 """

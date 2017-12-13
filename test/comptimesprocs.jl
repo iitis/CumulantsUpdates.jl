@@ -7,28 +7,33 @@ using JLD
 using ArgParse
 
 
-function comptime(c, data::Matrix{Float64}, datup::Matrix{Float64})
+function comptime(X::Matrix{Float64}, Xup::Matrix{Float64}, m::Int, b::Int)
   t = time_ns()
-  updat(c, data, datup)
-  Float64(time_ns()-t)/1.0e9
+  _, X = cumulantsupdat(X, Xup)
+  Float64(time_ns()-t)/1.0e9, X
 end
 
-precomp(m::Int, data::Matrix{Float64}) =
-  updat(momentarray(data[1:10, 1:10], m), data[1:10, 1:10], data[1:5, 1:10])
+function precomp(m::Int)
+  X = randn(15, 10)
+  cumulantscache(X[1:10,:], m, 4)
+  cumulantsupdat(X[1:10,:], X[10:15,:], m, 4)
+end
 
 function savect(u::Vector{Int}, p::Int, n::Int, m::Int, b::Int)
   comptimes = zeros(p, length(u))
-  data = randn(maximum(u)+10, n)
-  precomp(m, data)
-  M = momentarray(data, m, b)
+  X = randn(maximum(u)+10, n)
+  precomp(m)
+  addprocs(p)
+  eval(Expr(:toplevel, :(@everywhere using CumulantsUpdates)))
+  cumulantscache(X, m, b)
   for i in 1:p
     rmprocs(procs()[2:end])
     addprocs(i)
     eval(Expr(:toplevel, :(@everywhere using CumulantsUpdates)))
     println("number of workers = ", nworkers())
     for k in 1:length(u)
-      datup = randn(u[k], n)
-      comptimes[i, k] = comptime(M, data, datup)
+      Xup = randn(u[k], n)
+      comptimes[i, k], X = comptime(X, Xup, m, b)
       println("u = ", u[k])
     end
   end

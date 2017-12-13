@@ -126,46 +126,49 @@ Returns an `Array{SymmetricTensor{T, m}}` of moment tensors of order `1, ..., m`
 
 ### Cumulants update
 
-Presented function is design for sequent update of multivariate cumulant tensors.
-Hence it can be applied in a data streamming scheme. Suppose we have data `X ∈ ℜᵗˣⁿ`
-and want to compute cumulant tensors in an observation window of size `t`. Run first
+Presented functions are design for sequent update of multivariate cumulant tensors.
+Hence it can be applied in a data streaming scheme. Suppose one has data `X ∈ ℜᵗˣⁿ`
+and subsequent coming updates `Xᵤₚ ∈ ℜᵘˣⁿ` such that `u ≪ t`. Suppose one want to compute cumulant tensors in an observation window of size `t` each time the update comes.
+One can first compute cumulants of order `1, ..., m` and cache moments of order `1, ..., m`
+for further fast cumulants updates.
 
 ```julia
-julia> cumulantsupdat(X::Matrix{T}, m::Int = 4, b::Int = 4) where {T<:AbstractFloat, m}
+julia> cumulantscache(X::Matrix{T}, m::Int = 4, b::Int = 4) where {T<:AbstractFloat, m}
 ```
-
-to get a vector `[SymmetricTensor{T, 1}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,...,m` of `X` and caches the array of moments of `X` in `tmp/cumdata.jld`.
-
-Next if a new update `Xᵤₚ ∈ ℜᵘˣⁿ`: `u < t` is recorded one can run:
 
 ```julia
-julia> cumulantsupdat(X::Matrix{T}, Xᵤₚ::Matrix{T}, m::Int = 4, b::Int = 4) where {T<:AbstractFloat, m}
+julia> X = ones(10,3);
+
+julia> cumulantscache(X, 2,2)[1]
+
+SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                         
+
 ```
 
-to get a vector `[SymmetricTensor{T, 1}, ...,SymmetricTensor{T, m}]` of cumulant tensors  of updated `n`-variate data `ℜᵗⁿ ∋ X' = vcat(X,Xᵤₚ)[1+u:end, :] \in R^{t, n}`. The function caches the array of updated moments in `tmp/cumdata.jld`. For next update cycle, call:
+The function returns a vector `[SymmetricTensor{T, 1}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,...,m` of `X` and caches the array of moments of `X` in `tmp/cumdata.jld` for further fast cumulants updates.
+
+
+If the subsequent update `Xᵤₚ ∈ ℜᵘˣⁿ` of `X ∈ ℜᵗˣⁿ` is recorded, to compute
+cumulants vector `c = [C₁(X'), ..., Cₘ(X')]` of updated `ℜᵗˣⁿ ∋ X'ₖ = dataupdat(Xₖ, Xᵤₚ_ₖ)` run:
 
 ```julia
-julia> cumulantsupdat(X'::Matrix{T}, Xᵤₚ₂::Matrix{T}, m::Int = 4, b::Int = 4) where {T<:AbstractFloat, m}
+julia> c, X' = cumulantsupdat(X::Matrix{T}, Xᵤₚ::Matrix{T}, m::Int = 4, b::Int = 4) where {T<:AbstractFloat, m}
 ```
-etc... If `u ≪ t`  `cumulantsupdat()` is much faster that a cumulants recalculation using `Cumulants.jl`
+
+The function caches the array of updated moments in `tmp/cumdata.jld`, for next update cycle. Now set `X = X'` and wait for another update. If `u ≪ t`  `cumulantsupdat()` is much faster that a cumulants recalculation using `Cumulants.jl`. If `cumulantscache()` is not used first run of `cumulantsupdat()` would compute whole moments tensors in a classical
+way and cache updated moments for another fast round.
 
 ```julia
 julia> x = ones(10,2);
 
 julia> y = 2*ones(2,2);
 
-julia> c = cumulantsupdat(x, 3, 2);
+julia> cumulantscache(x, 3, 2)
 
-julia> cumulantsupdat(x, y, 3)
+julia> c, X' = cumulantsupdat(x, y, 3, 2)
 
-3-element Array{SymmetricTensor{Float64,N} where N,1}:
- SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2, 1.2]], 2, 1, 2, true)                                            
- SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]], 2, 1, 2, true)                                
- SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096]
-[0.096 0.096; 0.096 0.096]], 2, 1, 2, true)
+julia> c
 
-
-julia> cumulants(vcat(x,y)[3:end, :], 3)
 3-element Array{SymmetricTensor{Float64,N} where N,1}:
  SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2, 1.2]], 2, 1, 2, true)                                            
  SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]], 2, 1, 2, true)                                
@@ -173,6 +176,26 @@ julia> cumulants(vcat(x,y)[3:end, :], 3)
 [0.096 0.096; 0.096 0.096]], 2, 1, 2, true)
 
 ```
+
+Record that `cumulantsupdat(x, y, m, b) = cumulants(dataupdat(x, y), m, b)`, but
+if `u ≪ t` `cumulantsupdat()` is much faster. The update scheme where `X ∈ ℜᵗˣⁿ`
+original data, `U` - array of updates with elements `Xᵤₚ_ᵢ ∈ ℜᵘⁱ ˣ ⁿ`
+
+```julia
+julia> Xp = X;
+
+julia> c = cumulantscache(X, m, b)
+
+julia>f(c)
+
+julia> for Xᵤₚ in U
+        c, Xp =cumulantsupdat(Xp, Xᵤₚ, m, b)
+        f(c)
+       end
+
+```
+Here `f(c)` is some function that extracts information form cumulants, for presentation
+purpose we can use `f(c) = println(map(vecnorm, c))`
 
 ### Vector norm
 
@@ -181,7 +204,7 @@ julia> vecnorm(st::SymmetricTensor{T, m}, p::Union{Float64, Int}) where {T<:Abst
 ```
 
 Returns a `p`-norm of the tensor stored as `SymmetricTensors`, supported for `k ≠ 0`. The output of `vecnorm(st, p) = vecnorn(convert(Array, st),p)`. However
-`vecnorm(st::SymmetricTensor, p)` uses the block structure implemented in `SymmetricTensors`, hance is faster and decreases the computer memory requirement.
+`vecnorm(st::SymmetricTensor, p)` uses the block structure implemented in `SymmetricTensors`, hence is faster and decreases the computer memory requirement.
 
 ```julia
 julia> te = [-0.112639 0.124715 0.124715 0.268717 0.124715 0.268717 0.268717 0.046154];
@@ -242,7 +265,7 @@ Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #NULL [1.0]], 2, 2, 3,
 # Performance tests
 
 To analyse the computational time of cumulants updates vs `Cumulants.jl` recalculation, we supply the executable script `comptimes.jl`. The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
-* `-m (Int)`: cumulant's maksimum order, by default `m = 4`,
+* `-m (Int)`: cumulant's maximum order, by default `m = 4`,
 * `-n (vararg Int)`: numbers of marginal variables, by default `n = 40`,
 * `-t (Int)`: number of realisations of random variable, by default `t = 500000`,
 * `-u (vararg Int)`: number of realisations of update, by default `u = 10000, 15000, 20000`,
@@ -264,7 +287,7 @@ The script saves computational times to the `res/*.jld` file. The scripts accept
 * `-b (Int)`: blocks size, by default `b = 4`,
 * `-p (Int)`: maximal numbers of processes, by default `p = 6`.
 
-To plot computional times run executable `res/plotcomptimes.jl` on chosen `*.jld` file.
+To plot computational times run executable `res/plotcomptimes.jl` on chosen `*.jld` file.
 
 
 # Citing this work

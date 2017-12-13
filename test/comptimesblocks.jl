@@ -7,27 +7,30 @@ using JLD
 using ArgParse
 
 
-function comptime(c, data::Matrix{Float64}, datup::Matrix{Float64})
+function comptime(X::Matrix{Float64}, Xup::Matrix{Float64}, m::Int, b::Int)
   t = time_ns()
-  updat(c, data, datup)
-  Float64(time_ns()-t)/1.0e9
+  _, X = cumulantsupdat(X, Xup)
+  Float64(time_ns()-t)/1.0e9, X
 end
 
-precomp(m::Int, data::Matrix{Float64}) =
-  updat(momentarray(data[1:10, 1:10], m), data[1:10, 1:10], data[1:5, 1:10])
+function precomp(m::Int)
+  X = randn(15, 10)
+  cumulantscache(X[1:10,:], m, 4)
+  cumulantsupdat(X[1:10,:], X[10:15,:], m, 4)
+end
 
 function savect(u::Vector{Int}, n::Int, m::Int, p::Int)
   maxb = round(Int, sqrt(n))+2
   comptimes = zeros(maxb-1, length(u))
   println("max block size = ", maxb)
-  data = randn(maximum(u)+10, n)
-  precomp(m, data)
+  precomp(m)
   for b in 2:maxb
+    X = randn(maximum(u)+10, n)
     println("bloks size = ", b)
-    M = momentarray(data, m, b)
+    cumulantscache(X, m, b)
     for k in 1:length(u)
-      datup = randn(u[k], n)
-      comptimes[b-1, k] = comptime(M, data, datup)
+      Xup = randn(u[k], n)
+      comptimes[b-1, k], X = comptime(X, Xup, m, b)
       println("u = ", u[k])
     end
   end

@@ -16,11 +16,11 @@ end
   M4 = moment(x, 4)
   M3up = momentupdat(M3, x, y)
   @testset "simple test" begin
-    Mup = moment(vcat(x,y)[3:end,:],3)
+    Mup = moment(dataupdat(x,y),3)
     @test convert(Array, Mup) ≈ convert(Array, M3up)
   end
   @testset "moment array" begin
-    Ma = momentarray(x, 4)
+    Ma = momentarray(x, 4, 2)
     @test convert(Array, Ma[3]) ≈ convert(Array, M3)
     @test convert(Array, Ma[4]) ≈ convert(Array, M4)
     MM = momentupdat(Ma, x, y)
@@ -66,63 +66,59 @@ end
 end
 
 @testset "simple cumulants update" begin
-  x = ones(6, 2)
-  y = 2*ones(2,2)
-  c1 = cumulantsupdat(x, 3, 2)
-  cup1 = cumulantsupdat(x, y, 3)
-  cprim = cumulants(vcat(x,y)[3:end,:],3)
-  @test convert(Array, cup1[1]) ≈ convert(Array, cprim[1])
-  @test convert(Array, cup1[2]) ≈ convert(Array, cprim[2])
-  @test convert(Array, cup1[3]) ≈ convert(Array, cprim[3])
+  x = ones(10, 3)
+  y = 2*ones(2,3)
+  c1 = cumulantscache(x, 6, 2)
+  c3 = cumulants(dataupdat(x,y),6)
+  c4 = cumulants(x, 2, 2)
+  @test convert(Array, c1[1]) ≈ convert(Array, c4[1])
+  @test convert(Array, c1[2]) ≈ convert(Array, c4[2])
+  c5 = cumulantscache(x, 6, 2)
+  @test convert(Array, c5[5]) ≈ convert(Array, c1[5])
+  c2 = cumulantsupdat(x, y, 6)[1]
+  @test convert(Array, c2[1]) ≈ convert(Array, c3[1])
+  @test convert(Array, c2[2]) ≈ convert(Array, c3[2])
+  @test convert(Array, c2[3]) ≈ convert(Array, c3[3])
+  @test convert(Array, c2[4]) ≈ convert(Array, c3[4])
+  @test convert(Array, c2[5]) ≈ convert(Array, c3[5])
+  @test convert(Array, c2[6]) ≈ convert(Array, c3[6])
 end
 
 
 @testset "cumulants updates using cache" begin
-    Xprim = vcat(X, Xup)[(size(Xup, 1)+1):end,:]
-    cup = cumulants(Xprim, 4)
     c = cumulants(X)
-    cc = cumulantsupdat(X)
+    cc = cumulantscache(X)
     @test convert(Array, cc[3]) ≈ convert(Array, c[3])
     @test convert(Array, cc[4]) ≈ convert(Array, c[4])
-    cc = cumulantsupdat(X, Xup, 4)
+    cc, Xp = cumulantsupdat(X, Xup, 4)
+    @test Xp == dataupdat(X, Xup)
+    cup = cumulants(Xprim, 4)
     @test convert(Array, cc[3]) ≈ convert(Array, cup[3])
     @test convert(Array, cc[4]) ≈ convert(Array, cup[4])
-    Xprpr = dataupdat(Xprim, Xup)
-    cc = cumulantsupdat(Xprim, Xup, 4)
+    cc, Xprpr = cumulantsupdat(Xprim, Xup, 4)
     ccc = cumulants(Xprpr, 4)
     @test convert(Array, cc[3]) ≈ convert(Array, ccc[3])
     @test convert(Array, cc[4]) ≈ convert(Array, ccc[4])
-    @test convert(Array, cumulantsupdat(X, Xup, 4)[4]) ≈ convert(Array, cup[4])
+    @test convert(Array, cumulantsupdat(X, Xup, 4)[1][4]) ≈ convert(Array, cup[4])
 end
 
 
-@testset "larger data cumulants update" begin
-  cc = cumulants(Xprim, 5)
-  c = cumulantsupdat(X, 5)
-  cup = cumulantsupdat(X, Xup, 5)
-  @testset "test on wider data" begin
-    @test convert(Array, cc[1]) ≈ convert(Array, cup[1])
-    @test convert(Array, cc[2]) ≈ convert(Array, cup[2])
-    @test convert(Array, cc[3]) ≈ convert(Array, cup[3])
-    @test convert(Array, cc[4]) ≈ convert(Array, cup[4])
-    @test convert(Array, cc[5]) ≈ convert(Array, cup[5])
-  end
+@testset "multiprocessing cumulants update" begin
   addprocs(2)
   eval(Expr(:toplevel, :(@everywhere using CumulantsUpdates)))
-  @testset "multiprocessing cumulants update" begin
-    c = cumulantsupdat(X, 4)
-    cup = cumulantsupdat(X, Xup, 4)
+    cc = cumulants(Xprim, 4)
+    cumulantscache(X, 4)
+    cup = cumulantsupdat(X, Xup, 4)[1]
     @test convert(Array, cc[1]) ≈ convert(Array, cup[1])
     @test convert(Array, cc[2]) ≈ convert(Array, cup[2])
     @test convert(Array, cc[3]) ≈ convert(Array, cup[3])
     @test convert(Array, cc[4]) ≈ convert(Array, cup[4])
-  end
 end
 
 @testset "cumulants update exceptions" begin
   x = ones(10,4);
   y = 2*ones(5,3);
-  c = cumulantsupdat(x, 4)
+  cumulantscache(x, 4)
   @test_throws ArgumentError cumulantsupdat(x, y)
   y = 2*ones(5,4)
   @test_throws ArgumentError cumulantsupdat(x[:, 1:3], y)

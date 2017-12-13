@@ -46,9 +46,13 @@ SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 
 ```
 """
 
-function momentupdat(M::SymmetricTensor{T, N}, X::Matrix{T}, Xup::Matrix{T}) where {T<:AbstractFloat, N}
+function momentupdat(M::SymmetricTensor{T, m}, X::Matrix{T}, Xup::Matrix{T}) where {T<:AbstractFloat, m}
   tup = size(Xup,1)
-  M + tup/size(X, 1)*(moment(Xup, N, M.bls) - moment(X[1:tup,:], N, M.bls))
+  if tup == 0
+    return M
+  else
+    return M + tup/size(X, 1)*(moment(Xup, m, M.bls) - moment(X[1:tup,:], m, M.bls))
+  end
 end
 
 """
@@ -69,7 +73,7 @@ momentupdat(M::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xup::Matrix{T}) where T
 Returns an array of Symmetric Tensors of moments given data and maximum moment order
 """
 
-momentarray(X::Matrix{T}, m::Int = 4, b::Int = 2) where T <: AbstractFloat =
+momentarray(X::Matrix{T}, m::Int = 4, b::Int = 4) where T <: AbstractFloat =
     [moment(X, i, b) for i in 1:m]
 
 """
@@ -128,15 +132,15 @@ function cums2moms(cum::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
 end
 
 """
-  cumulantsupdat(X::Matrix{T}, m::Int = 4, b::Int = 4)
+  cumulantscache(X::Matrix{T}, m::Int = 4, b::Int = 4)
 
 Returns a a vector of SymmetricTensors of cumulants of order 1, ..., m calculated.
 Moments array are saved in tmp/cumdata.jld for further cumulants updates,
 parameter b is the block size for the block structure of cumulants.
 """
 
-cumulantsupdat(X::Matrix{T}, m::Int = 4, b::Int = 4) where T <: AbstractFloat =
-  cumulantsupdat(X, zeros(0, size(X,2)), m, b)
+cumulantscache(X::Matrix{T}, m::Int = 4, b::Int = 4) where T <: AbstractFloat =
+  cumulantsupdat(X, zeros(0, size(X,2)), m, b)[1]
 
 """
   cumulantsupdat(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4, b::Int = 4)
@@ -170,15 +174,15 @@ function cumulantsupdat(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4, b::Int = 4) wh
   M = try(d["M"]) catch [1.] end
   Xp = dataupdat(X, Xup)
   if ((length(M) == m) & (X1 == X) & (typeof(M[1]) <: SymmetricTensor))
+    println("update")
     Mup = momentupdat(M, X, Xup)
-    println("load")
   else
+    println("compute")
     Mup = momentarray(Xp, m, b)
-    println("comp")
   end
   try save(cpath, "M", Mup, "x", Xp) catch end
   moms2cums!(Mup)
-  Mup
+  Mup, Xp
 end
 
 
