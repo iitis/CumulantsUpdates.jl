@@ -184,11 +184,3 @@ function cumulantsupdat(X::Matrix{T}, Xup::Matrix{T}, m::Int = 4, b::Int = 4) wh
   moms2cums!(Mup)
   Mup, Xp
 end
-
-
-
-function updat(M::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xup::Matrix{T}) where T <: AbstractFloat
-  @inbounds Mup = momsupdat(M, X, Xup)
-  moms2cums!(Mup)
-  Mup
-end
