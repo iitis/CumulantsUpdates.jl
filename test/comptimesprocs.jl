@@ -9,7 +9,7 @@ using ArgParse
 
 function comptime(X::Matrix{Float64}, Xup::Matrix{Float64}, m::Int, b::Int)
   t = time_ns()
-  _, X = cumulantsupdat(X, Xup)
+  _, X = cumulantsupdat(X, Xup, m, b)
   Float64(time_ns()-t)/1.0e9, X
 end
 
