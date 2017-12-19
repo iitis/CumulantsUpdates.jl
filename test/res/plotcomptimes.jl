@@ -29,7 +29,7 @@ function singleplot(filename::String)
       tt =  n[i]
       comptimes = d["cumulants"][:,i]./d["cumulants updat"][:,i]
       ax[:plot](d[x], comptimes, marker[i], label= "n = $tt", color = col[i], markersize=2.5, linewidth = 1)
-      i == size(d["cumulants"], 2)? ax[:plot](d[x], d["tm"], ":<", label= "theoretical", color = "black", markersize=2.5, linewidth = 1):()
+      #i == size(d["cumulants"], 2)? ax[:plot](d[x], d["tm"], ":<", label= "theoretical", color = "black", markersize=2.5, linewidth = 1):()
     end
   end
   subplots_adjust(bottom = 0.16, top=0.92, left = 0.12, right = 0.92)

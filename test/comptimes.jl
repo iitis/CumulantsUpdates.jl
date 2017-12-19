@@ -89,7 +89,7 @@ function main(args)
         arg_type = Int
       "--nvar", "-n"
         nargs = '*'
-        default = [40]
+        default = [60]
         help = "n, numbers of marginal variables"
         arg_type = Int
       "--dats", "-t"
@@ -99,7 +99,7 @@ function main(args)
       "--updates", "-u"
         help = "u, size of the update"
         nargs = '*'
-        default = [10000, 15000, 20000]
+        default = [12000, 18000, 24000, 30000, 36000]
         arg_type = Int
       "--nprocs", "-p"
         help = "number of processes"
