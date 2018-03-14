@@ -16,6 +16,7 @@ script:
   - julia --depwarn=no -e 'Pkg.add("SymmetricTensors"); Pkg.add("Cumulants")'
   - julia --depwarn=no -e 'Pkg.add("StatsBase")'
   - julia --depwarn=no -e 'Pkg.add("JLD")'
-  - julia -e 'Pkg.clone("https://github.com/ZKSI/CumulantsUpdates.jl.git"); Pkg.build("CumulantsUpdates"); Pkg.test("CumulantsUpdates"; coverage=true)'
+  - julia -e 'Pkg.clone("https://github.com/ZKSI/CumulantsUpdates.jl.git"); Pkg.checkout("CumulantsUpdates", "nonullablearrays")'
+  - julia -e 'Pkg.build("CumulantsUpdates"); Pkg.test("CumulantsUpdates"; coverage=true)'
 after_success:
   - julia -e 'cd(Pkg.dir("CumulantsUpdates")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
