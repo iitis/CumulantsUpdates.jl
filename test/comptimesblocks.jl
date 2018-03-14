@@ -20,7 +20,7 @@ function precomp(m::Int)
 end
 
 function savect(u::Vector{Int}, n::Int, m::Int, p::Int)
-  maxb = round(Int, sqrt(n))+2
+  maxb = round(Int, sqrt(n))-1
   comptimes = zeros(maxb-1, length(u))
   println("max block size = ", maxb)
   precomp(m)
