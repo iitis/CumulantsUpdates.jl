@@ -43,7 +43,7 @@ julia> vecnorm(st, 1)
 function vecnorm(bt::SymmetricTensor{T, m}, p::Union{Float64, Int}=2) where {T<:AbstractFloat, m}
   p != 0 || throw(AssertionError("0-norm not supported"))
   ret = 0.
-  for i in indices(m, bt.bln)
+  for i in pyramidindices(m, bt.bln)
     @inbounds ret += rep(i) * vecnorm(getblockunsafe(bt, i), p)^p
   end
   ret^(1/p)
