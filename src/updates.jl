@@ -40,8 +40,8 @@ julia> m = moment(x, 3);
 julia> y = 2*ones(2,2);
 
 julia> momentupdat(m, x, y)
-SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
-[3.33333 3.33333; 3.33333 3.33333]],2,1,2,true)
+SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[3.33333 3.33333; 3.33333 3.33333]
+[3.33333 3.33333; 3.33333 3.33333]], 2, 1, 2, true)
 
 ```
 """
@@ -89,9 +89,8 @@ julia> moms2cums!(m)
 
 julia> m[3]
 
-SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.0 0.0; 0.0 0.0]
-[0.0 0.0; 0.0 0.0] #NULL; #NULL #NULL]
-Nullable{Array{Float64,3}}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #NULL [0.0]], 2, 2, 3, false)
+SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[0.0 0.0; 0.0 0.0]
+[0.0 0.0; 0.0 0.0] #undef; #undef #undef]
 ```
 
 """
@@ -151,19 +150,18 @@ arrays in /tmp/cumdata.jld b - the block size for the block structure of cumulan
 
 
 ```jldoctests
-julia> x = ones(10,2);
+julia> x = ones(10,3);
 
-julia> y = 2*ones(2,2);
+julia> y = 2*ones(2,3);
 
-julia> c = cumulantsupdat(x, 3, 2);
+julia> cumulantsupdat(x, y, 3,2)[1]
 
-julia> cumulantsupdat(x, y, 3)
-
-3-element Array{SymmetricTensor{Float64,N} where N,1}:
- SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2, 1.2]], 2, 1, 2, true)
- SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]], 2, 1, 2, true)
- SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096]
-[0.096 0.096; 0.096 0.096]], 2, 1, 2, true)
+3-element Array{SymmetricTensors.SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensors.SymmetricTensor{Float64,1}(Union{Array{Float64,1}, Void}[[1.2, 1.2], [1.2]], 2, 2, 3, false)
+ SymmetricTensors.SymmetricTensor{Float64,2}(Union{Array{Float64,2}, Void}[[0.16 0.16; 0.16 0.16] [0.16; 0.16]; #undef [0.16]], 2, 2, 3, false)
+ SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[0.096 0.096; 0.096 0.096]
+[0.096 0.096; 0.096 0.096] #undef; #undef #undef]
+Union{Array{Float64,3}, Void}[[0.096 0.096; 0.096 0.096] [0.096; 0.096]; #undef [0.096]], 2, 2, 3, false)
 ```
 """
 
