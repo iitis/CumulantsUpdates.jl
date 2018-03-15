@@ -167,9 +167,11 @@ julia> c, X' = cumulantsupdat(x, y, 3, 2)
 
 julia> c
 
-(SymmetricTensors.SymmetricTensor{Float64,N} where N[SymmetricTensors.SymmetricTensor{Float64,1}(Union{Array{Float64,1}, Void}[[1.2, 1.2]], 2, 1, 2, true), SymmetricTensors.SymmetricTensor{Float64,2}(Union{Array{Float64,2}, Void}[[0.16 0.16; 0.16 0.16]], 2, 1, 2, true), SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[0.096 0.096; 0.096 0.096]
-
-[0.096 0.096; 0.096 0.096]], 2, 1, 2, true)], [1.0 1.0; 1.0 1.0; … ; 2.0 2.0; 2.0 2.0])
+3-element Array{SymmetricTensors.SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensors.SymmetricTensor{Float64,1}(Union{Array{Float64,1}, Void}[[1.2, 1.2]], 2, 1, 2, true)                                            
+ SymmetricTensors.SymmetricTensor{Float64,2}(Union{Array{Float64,2}, Void}[[0.16 0.16; 0.16 0.16]], 2, 1, 2, true)                                
+ SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[0.096 0.096; 0.096 0.096]
+[0.096 0.096; 0.096 0.096]], 2, 1, 2, true)
 
 julia> X'
 10×2 Array{Float64,2}:
