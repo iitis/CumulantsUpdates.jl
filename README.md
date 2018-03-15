@@ -89,23 +89,22 @@ Returns a `SymmetricTensor{T, m}` of the moment tensor of updated multivariate d
 ```julia
 julia> x = ones(6, 2);
 
-julia> m = moment(x, 3)
-SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
+julia> julia> m = moment(x, 3)
+SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[1.0 1.0; 1.0 1.0]
 
-[1.0 1.0; 1.0 1.0]],2,1,2,true)
+[1.0 1.0; 1.0 1.0]], 2, 1, 2, true)
 
 julia> y = 2*ones(2,2);
 
 julia> momentupdat(m, x, y)
-SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
+SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[3.33333 3.33333; 3.33333 3.33333]
 
-[3.33333 3.33333; 3.33333 3.33333]],2,1,2,true)
+[3.33333 3.33333; 3.33333 3.33333]], 2, 1, 2, true)
 
 julia> moment(vcat(x,y)[3:end,:],3)
-SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
+SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[3.33333 3.33333; 3.33333 3.33333]
 
-[3.33333 3.33333; 3.33333 3.33333]],2,1,2,true)
-
+[3.33333 3.33333; 3.33333 3.33333]], 2, 1, 2, true)
 ```
 
 Function `momentarray(X, m)` can be used to compute an array of moments of order `1, ..., m`
