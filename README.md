@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/103524792.svg)](https://zenodo.org/badge/latestdoi/103524792)
 [![Build Status](https://travis-ci.org/ZKSI/CumulantsUpdates.jl.svg?branch=master)](https://travis-ci.org/ZKSI/CumulantsUpdates.jl)
 [![Coverage Status](https://coveralls.io/repos/github/ZKSI/CumulantsUpdates.jl/badge.svg?branch=master)](https://coveralls.io/github/ZKSI/CumulantsUpdates.jl?branch=master)
 
