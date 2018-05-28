@@ -17,6 +17,7 @@ script:
   - julia --depwarn=no -e 'Pkg.clone("https://github.com/ZKSI/Cumulants.jl.git")'
   - julia --depwarn=no -e 'Pkg.add("StatsBase")'
   - julia --depwarn=no -e 'Pkg.add("JLD")'
+  - julia --depwarn=no -e 'Pkg.build("HDF5")'
   - julia -e 'Pkg.clone("https://github.com/ZKSI/CumulantsUpdates.jl.git")'
   - julia -e 'Pkg.build("CumulantsUpdates"); Pkg.test("CumulantsUpdates"; coverage=true)'
 after_success:
