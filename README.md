@@ -278,6 +278,6 @@ To plot computational times run executable `res/plotcomptimes.jl` on chosen `*.j
 
 # Citing this work
 
-Krzysztof Domino, Piotr Gawron, *On updates of high order cumulant tensors*, [arXiv:1701.06446](https://arxiv.org/abs/1701.06446)
+Krzysztof Domino, Piotr Gawron, *Sliding window high order cumulant tensors calculation algorithm*, [arXiv:1701.06446](https://arxiv.org/abs/1701.06446)
 
 This project was partially financed by the National Science Centre, Poland – project number 2014/15/B/ST6/05204.
