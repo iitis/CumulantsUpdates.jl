@@ -68,14 +68,10 @@ end
 @testset "simple cumulants update" begin
   x = ones(10, 3)
   y = 2*ones(2,3)
-  c1 = cumulantscache(x, 6, 2)
-  c3 = cumulants(dataupdat(x,y),6)
-  c4 = cumulants(x, 2, 2)
-  @test convert(Array, c1[1]) ≈ convert(Array, c4[1])
-  @test convert(Array, c1[2]) ≈ convert(Array, c4[2])
-  c5 = cumulantscache(x, 6, 2)
-  @test convert(Array, c5[5]) ≈ convert(Array, c1[5])
-  c2 = cumulantsupdat(x, y, 6)[1]
+  s = DataMoments(x, 6, 2)
+  c2 = cumulantsupdate!(s, y)
+  xx = dataupdat(x,y)
+  c3 = cumulants(xx, 6)
   @test convert(Array, c2[1]) ≈ convert(Array, c3[1])
   @test convert(Array, c2[2]) ≈ convert(Array, c3[2])
   @test convert(Array, c2[3]) ≈ convert(Array, c3[3])
@@ -85,43 +81,55 @@ end
 end
 
 
-@testset "cumulants updates using cache" begin
+@testset "cumulants updates larger data" begin
     c = cumulants(X)
-    cc = cumulantscache(X)
-    @test convert(Array, cc[3]) ≈ convert(Array, c[3])
-    @test convert(Array, cc[4]) ≈ convert(Array, c[4])
-    cc, Xp = cumulantsupdat(X, Xup, 4)
-    @test Xp == dataupdat(X, Xup)
-    cup = cumulants(Xprim, 4)
-    @test convert(Array, cc[3]) ≈ convert(Array, cup[3])
-    @test convert(Array, cc[4]) ≈ convert(Array, cup[4])
-    cc, Xprpr = cumulantsupdat(Xprim, Xup, 4)
-    ccc = cumulants(Xprpr, 4)
-    @test convert(Array, cc[3]) ≈ convert(Array, ccc[3])
-    @test convert(Array, cc[4]) ≈ convert(Array, ccc[4])
-    @test convert(Array, cumulantsupdat(X, Xup, 4)[1][4]) ≈ convert(Array, cup[4])
+    Xp = dataupdat(X, Xup)
+    s = DataMoments(X, 4, 4)
+    C = cumulantsupdate!(s, Xup)
+    @test s.X ≈ Xp
+    @test s.b == 4
+    @test s.d == 4
+    @test Array(s.M[4]) ≈ Array(moment(Xp, 4))
+    CC = cumulants(Xp, 4)
+    @test Array(C[3]) ≈ Array(CC[3])
+    @test Array(C[4]) ≈ Array(CC[4])
 end
 
 
 @testset "multiprocessing cumulants update" begin
   addprocs(2)
   eval(Expr(:toplevel, :(@everywhere using CumulantsUpdates)))
-    cc = cumulants(Xprim, 4)
-    cumulantscache(X, 4)
-    cup = cumulantsupdat(X, Xup, 4)[1]
-    @test convert(Array, cc[1]) ≈ convert(Array, cup[1])
-    @test convert(Array, cc[2]) ≈ convert(Array, cup[2])
-    @test convert(Array, cc[3]) ≈ convert(Array, cup[3])
-    @test convert(Array, cc[4]) ≈ convert(Array, cup[4])
+    Xp = dataupdat(X, Xup)
+    s = DataMoments(X, 4, 4)
+    C = cumulantsupdate!(s, Xup)
+    @test s.X ≈ Xp
+    @test s.b == 4
+    @test s.d == 4
+    @test Array(s.M[4]) ≈ Array(moment(Xp, 4))
+    CC = cumulants(Xp, 4)
+    @test Array(C[3]) ≈ Array(CC[3])
+    @test Array(C[4]) ≈ Array(CC[4])
 end
 
 @testset "cumulants update exceptions" begin
   x = ones(10,4);
   y = 2*ones(5,3);
-  cumulantscache(x, 4)
-  @test_throws ArgumentError cumulantsupdat(x, y)
-  y = 2*ones(5,4)
-  @test_throws ArgumentError cumulantsupdat(x[:, 1:3], y)
+  s = DataMoments(x, 4, 2)
+  @test_throws DimensionMismatch cumulantsupdate!(s, y)
   y = 2*ones(15,4)
-  @test_throws BoundsError cumulantsupdat(x, y)
+  @test_throws BoundsError cumulantsupdate!(s, y)
+  s1 = DataMoments(x[:, 1:3], 4, 2)
+  y = 2*ones(5,4)
+  @test_throws UndefVarError cumulantsupdat(s1, y)
+end
+
+@testset "save and load" begin
+  x = ones(10,4);
+  s = DataMoments(x, 4, 2)
+  @test savedm(s, "/tmp/cumdata.jld") == nothing
+  s1 = loaddm("/tmp/cumdata.jld")
+  @test s1.X == s.X
+  @test s1.d == s.d
+  @test s1.b == s.b
+  @test Array(s1.M[4]) == Array(s.M[4])
 end

@@ -23,12 +23,12 @@ function cumspeedups(m::Int, n::Vector{Int}, t::Int, u::Vector{Int}, b::Int, bc:
     t1 = Float64(time_ns())
     cumulants(X, m, bc)
     compt[:,i] = Float64(time_ns())-t1
-    cumulantscache(X, m, b)
+    dm = DataMoments(X, m, b)
     for j in 1:length(u)
       println("update u = ", u[j])
       Xup = rand(u[j], n[i])
       t1 = Float64(time_ns())
-      _, X = cumulantsupdat(X, Xup, m, b)
+      _ = cumulantsupdate!(dm, Xup)
       updt[j,i] = Float64(time_ns()) - t1
     end
   end
@@ -43,8 +43,8 @@ precompiles updates functions
 function precomp(m::Int)
   X = randn(15, 10)
   cumulants(X[1:10,:], m, 2)
-  cumulantscache(X[1:10,:], m, 4)
-  cumulantsupdat(X[1:10,:], X[10:15,:], m, 4)
+  dm = DataMoments(X[1:10,:], m, 4)
+  cumulantsupdate!(dm, X[10:15,:])
 end
 
 """
@@ -79,8 +79,8 @@ Returns plots of the speedup of updates. Takes optional arguments from bash
 function main(args)
   s = ArgParseSettings("description")
   @add_arg_table s begin
-      "--order", "-m"
-        help = "m, the order of cumulant, ndims of cumulant's tensor"
+      "--order", "-d"
+        help = "d, the order of cumulant, ndims of cumulant's tensor"
         default = 4
         arg_type = Int
         "--blocksize", "-b"
@@ -103,7 +103,7 @@ function main(args)
         arg_type = Int
       "--nprocs", "-p"
         help = "number of processes"
-        default = 3
+        default = 6
         arg_type = Int
     end
   parsed_args = parse_args(s)

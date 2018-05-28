@@ -13,7 +13,8 @@ addons:
       - hdf5-tools
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia --depwarn=no -e 'Pkg.add("SymmetricTensors"); Pkg.add("Cumulants")'
+  - julia --depwarn=no -e 'Pkg.add("SymmetricTensors"); Pkg.checkout("SymmetricTensors", "nonullablearrays");'
+  - julia --depwarn=no -e 'Pkg.add("Cumulants"); Pkg.checkout("Cumulants", "nonullablearrays");'
   - julia --depwarn=no -e 'Pkg.add("StatsBase")'
   - julia --depwarn=no -e 'Pkg.add("JLD")'
   - julia -e 'Pkg.clone("https://github.com/ZKSI/CumulantsUpdates.jl.git")'

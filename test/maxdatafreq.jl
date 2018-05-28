@@ -11,17 +11,17 @@ function cumnorms(c::Vector{SymmetricTensor{Float64}})
   map(vecnorm, c[1:2])..., cnorms(c)...
 end
 
-function comptime(X::Matrix{Float64}, Xup::Matrix{Float64}, m::Int, b::Int)
+function comptime(dm::DataMoments{Float64}, Xup::Matrix{Float64})
   t = time_ns()
-  c, X = cumulantsupdat(X, Xup)
+  c = cumulantsupdate!(dm, Xup)
   cumnorms(c)
-  Float64(time_ns()-t)/1.0e9, X
+  Float64(time_ns()-t)/1.0e9
 end
 
 function precomp(m::Int)
   X = randn(15, 10)
-  cumulantscache(X[1:10,:], m, 4)
-  cumulantsupdat(X[1:10,:], X[10:15,:], m, 4)
+  dm = DataMoments(X[1:10,:], m, 4)
+  cumulantsupdate!(dm, X[10:15,:])
 end
 
 function savect(u::Vector{Int}, nvec::Vector{Int}, m::Int, p::Int, b::Int)
@@ -31,10 +31,10 @@ function savect(u::Vector{Int}, nvec::Vector{Int}, m::Int, p::Int, b::Int)
   for n in nvec
     X = randn(maximum(u)+10, n)
     println("n = ", n)
-    cumulantscache(X, m, b)
+    dm = DataMoments(X, m, b)
     for k in 1:length(u)
       Xup = randn(u[k], n)
-      a, X = comptime(X, Xup, m, b)
+      a = comptime(dm, Xup)
       comptimes[i, k] = u[k]/a
       println("u = ", u[k], "f =", div(u[k],a), "Hz")
     end
@@ -55,8 +55,8 @@ end
 function main(args)
   s = ArgParseSettings("description")
   @add_arg_table s begin
-      "--order", "-m"
-        help = "m, the order of cumulant, ndims of cumulant's tensor"
+      "--order", "-d"
+        help = "d, the order of cumulant, ndims of cumulant's tensor"
         default = 4
         arg_type = Int
       "--nvar", "-n"

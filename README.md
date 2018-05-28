@@ -1,24 +1,25 @@
+[![DOI](https://zenodo.org/badge/103524792.svg)](https://zenodo.org/badge/latestdoi/103524792)
 [![Build Status](https://travis-ci.org/ZKSI/CumulantsUpdates.jl.svg?branch=master)](https://travis-ci.org/ZKSI/CumulantsUpdates.jl)
 [![Coverage Status](https://coveralls.io/repos/github/ZKSI/CumulantsUpdates.jl/badge.svg?branch=master)](https://coveralls.io/github/ZKSI/CumulantsUpdates.jl?branch=master)
 
 # CumulantsUpdates.jl
 
 Updates following statistics of `n`-variate data
-* `m`'th moment tensor,
-* an array of moment tensors of order `1,2,...,m`.
+* `d`'th moment tensor,
+* an array of moment tensors of order `1,2,...,d`.
 
-Given `t` realisations of `n`-variate data: `X ∈ ℜᵗˣⁿ`, and the update `Xᵤₚ ∈ ℜᵘˣⁿ`
-returns array of updated cumulant tensors of order `1,2,...,m`.
+Given `t` realisations of `n`-variate data: `X ∈ ℜᵗˣⁿ`, and the update `X+ ∈ ℜᵘˣⁿ`
+returns array of updated cumulant tensors of order `1,2,...,d`.
 
 To store symmetric tensors uses a `SymmetricTensors` type, requires [SymmetricTensors.jl](https://github.com/ZKSI/SymmetricTensors.jl). To convert to array, run:
 
 ```julia
-julia> convert(Array, st::SymmetricTensors{T, m})
+julia> convert(Array, st::SymmetricTensors{T, d})
 ```
 to convert back, run:
 
 ```julia
-julia>  convert(SymmetricTensor, a::Array{T,m})
+julia>  convert(SymmetricTensor, a::Array{T,d})
 ```
 Requires [Cumulants.jl](https://github.com/ZKSI/Cumulants.jl).
 
@@ -46,11 +47,11 @@ julia> @everywhere using CumulantsUpdates
 
 ### Data update
 
-To update data `X ∈ ℜᵗˣⁿ` by the update `Xᵤₚ ∈ ℜᵘˣⁿ` in the observation
-window of size `t` and get `ℜᵗˣⁿ ∋ X' = vcat(X,Xᵤₚ)[1+u:end, :]` run:
+To update data `X ∈ ℜᵗˣⁿ` by the update `X+ ∈ ℜᵘˣⁿ` in the observation
+window of size `t` and get `ℜᵗˣⁿ ∋ X' = vcat(X,X+)[1+u:end, :]` run:
 
 ```julia
-julia> dataupdat(X::Matrix{T}, Xup::Matrix{T}) where T<:AbstractFloat
+julia> dataupdat(X::Matrix{T}, Xplus::Matrix{T}) where T<:AbstractFloat
 ```
 the condition `u < t` must be fulfilled.
 
@@ -77,130 +78,111 @@ julia> dataupdat(a,b)
 
 ### Moment update
 
-To update the moment tensor `M::SymmetricTensor{T, m}` for  data `X ∈ ℜᵗˣⁿ`, given the update `Xᵤₚ ∈ ℜᵘˣⁿ` where `u < t` run
+To update the moment tensor `M::SymmetricTensor{T, d}` for  data `X ∈ ℜᵗˣⁿ`, given the update `X+ ∈ ℜᵘˣⁿ` where `u < t` run
 
 ```julia
-julia> momentupdat(M::SymmetricTensor{T, m}, X::Matrix{T}, Xᵤₚ::Matrix{T}) where {T<:AbstractFloat, m}
+julia> momentupdat(M::SymmetricTensor{T, d}, X::Matrix{T}, Xplus::Matrix{T}) where {T<:AbstractFloat, d}
 ```
 
-Returns a `SymmetricTensor{T, m}` of the moment tensor of updated multivariate data:
-`ℜᵗˣⁿ ∈ X' = dataupdat(X,Xᵤₚ)`, i.e.: `M = moment(X, m)`, `momentupdat(M, X, Xᵤₚ) = moment(X', m)`. If `u ≪ t` `momentupdat()` is much faster than a recalculation.
+Returns a `SymmetricTensor{T, d}` of the moment tensor of updated multivariate data:
+`ℜᵗˣⁿ ∈ X' = dataupdat(X,X+)`, i.e.: `M = moment(X, d)`, `momentupdat(M, X, X+) = moment(X', d)`. If `u ≪ t` `momentupdat()` is much faster than a recalculation.
 
 ```julia
 julia> x = ones(6, 2);
 
-julia> m = moment(x, 3)
-SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
+julia> julia> m = moment(x, 3)
+SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[1.0 1.0; 1.0 1.0]
 
-[1.0 1.0; 1.0 1.0]],2,1,2,true)
+[1.0 1.0; 1.0 1.0]], 2, 1, 2, true)
 
 julia> y = 2*ones(2,2);
 
 julia> momentupdat(m, x, y)
-SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
+SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[3.33333 3.33333; 3.33333 3.33333]
 
-[3.33333 3.33333; 3.33333 3.33333]],2,1,2,true)
+[3.33333 3.33333; 3.33333 3.33333]], 2, 1, 2, true)
 
 julia> moment(vcat(x,y)[3:end,:],3)
-SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
+SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[3.33333 3.33333; 3.33333 3.33333]
 
-[3.33333 3.33333; 3.33333 3.33333]],2,1,2,true)
-
+[3.33333 3.33333; 3.33333 3.33333]], 2, 1, 2, true)
 ```
 
-Function `momentarray(X, m)` can be used to compute an array of moments of order `1, ..., m`
+Function `momentarray(X, d)` can be used to compute an array of moments of order `1, ..., d`
 of data `X ∈ ℜᵗˣⁿ`
 
 ```julia
-julia> momentarray(X::Matrix{T}, m::Int, b::Int) where {T<:AbstractFloat, m}
+julia> momentarray(X::Matrix{T}, d::Int, b::Int) where {T<:AbstractFloat, d}
 ```
 `b` - is a `SymmetricTensor` parameter, a block size.
 
 One can update an array of moments by calling:
 
 ```julia
-julia> momentupdat(M::Array{SymmetricTensor{T, m}}, X::Matrix{T}, Xᵤₚ::Matrix{T}) where {T<:AbstractFloat, m}
+julia> momentupdat(M::Array{SymmetricTensor{T, m}}, X::Matrix{T}, Xplus::Matrix{T}) where {T<:AbstractFloat, d}
 ```
 
-Returns an `Array{SymmetricTensor{T, m}}` of moment tensors of order `1, ..., m` of updated multivariate data: `ℜᵗˣⁿ ∋ X' = dataupdat(X,Xᵤₚ)`, i.e. `Mₐᵣ = momentarray(X, m)`, `momentupdat(Mₐᵣ, X, Xᵤₚ) = momentarray(X', m)`.  
+Returns an `Array{SymmetricTensor{T, d}}` of moment tensors of order `1, ..., d` of updated multivariate data: `ℜᵗˣⁿ ∋ X' = dataupdat(X,X+)`, i.e. `Mₐᵣ = momentarray(X, d)`, `momentupdat(Mₐᵣ, X, X+) = momentarray(X', d)`. 
 
 ### Cumulants update
 
 Presented functions are design for sequent update of multivariate cumulant tensors.
 Hence it can be applied in a data streaming scheme. Suppose one has data `X ∈ ℜᵗˣⁿ`
-and subsequent coming updates `Xᵤₚ ∈ ℜᵘˣⁿ` such that `u ≪ t`. Suppose one want to compute cumulant tensors in an observation window of size `t` each time the update comes.
-One can first compute cumulants of order `1, ..., m` and cache moments of order `1, ..., m`
-for further fast cumulants updates.
+and subsequent coming updates `X+ ∈ ℜᵘˣⁿ` such that `u ≪ t`. Suppose one want to compute cumulant tensors in an observation window of size `t` each time the update comes.
+To store data amd moments we use the following structure `mutable struct DataMoments{T <: AbstractFloat}`
+with following fields: `X` - data, `d` - maximal order of a moment series, `b` - a block size, `M` - moment series. To initialise, we can use the following constructor:
 
 ```julia
-julia> cumulantscache(X::Matrix{T}, m::Int = 4, b::Int = 4) where {T<:AbstractFloat, m}
+julia> DataMoments(X::Matrix{T}, d::Int, b::Int) where T <: AbstractFloat
 ```
+here an array of moments will be computed. To update a DataMoments structure and compute updated cumulants run:
 
 ```julia
-julia> X = ones(10,3);
 
-julia> cumulantscache(X, 2,2)[1]
-
-SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                         
+julia> cumulantsupdate!(dm::DataMoments{T}, Xplus::Matrix{T}) where T <: AbstractFloat
 
 ```
-
-The function returns a vector `[SymmetricTensor{T, 1}, ...,SymmetricTensor{T, m}]` of cumulant tensors of order `1,...,m` of `X` and caches the array of moments of `X` in `tmp/cumdata.jld` for further fast cumulants updates.
-
-
-If the subsequent update `Xᵤₚ ∈ ℜᵘˣⁿ` of `X ∈ ℜᵗˣⁿ` is recorded, to compute
-cumulants vector `c = [C₁(X'), ..., Cₘ(X')]` of updated `ℜᵗˣⁿ ∋ X'ₖ = dataupdat(Xₖ, Xᵤₚ_ₖ)` run:
+The function updates a DataMoment structure and returns a series of cumulants of order `1, ..., dm.d` for updated data. See:
 
 ```julia
-julia> c, X' = cumulantsupdat(X::Matrix{T}, Xᵤₚ::Matrix{T}, m::Int = 4, b::Int = 4) where {T<:AbstractFloat, m}
-```
 
-The function caches the array of updated moments in `tmp/cumdata.jld`, for next update cycle. Now set `X = X'` and wait for another update. If `u ≪ t`  `cumulantsupdat()` is much faster that a cumulants recalculation using `Cumulants.jl`. If `cumulantscache()` is not used first run of `cumulantsupdat()` would compute whole moments tensors in a classical
-way and cache updated moments for another fast round.
-
-```julia
 julia> x = ones(10,2);
 
-julia> y = 2*ones(2,2);
+julia> s = DataMoments(x, 4, 2);
 
-julia> cumulantscache(x, 3, 2)
+julia> y = zeros(4,2);
 
-julia> c, X' = cumulantsupdat(x, y, 3, 2)
+julia> cumulantsupdate!(s,y)[4]
+SymmetricTensors{Float64,4}(Union{Array{Float64,4}, Void}[[0.0064 0.0064; 0.0064 0.0064]
 
-julia> c
+[0.0064 0.0064; 0.0064 0.0064]
 
-3-element Array{SymmetricTensor{Float64,N} where N,1}:
- SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.2, 1.2]], 2, 1, 2, true)                                            
- SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.16 0.16; 0.16 0.16]], 2, 1, 2, true)                                
- SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.096 0.096; 0.096 0.096]
-[0.096 0.096; 0.096 0.096]], 2, 1, 2, true)
+[0.0064 0.0064; 0.0064 0.0064]
 
+[0.0064 0.0064; 0.0064 0.0064]], 2, 1, 2, true)
+                 
 ```
 
-Record that `cumulantsupdat(x, y, m, b) = cumulants(dataupdat(x, y), m, b)`, but
-if `u ≪ t` `cumulantsupdat()` is much faster. The update scheme where `X ∈ ℜᵗˣⁿ`
-original data, `U` - array of updates with elements `Xᵤₚ_ᵢ ∈ ℜᵘⁱ ˣ ⁿ`
+To save the DataMoments structure use:
 
 ```julia
-julia> Xp = X;
 
-julia> c = cumulantscache(X, m, b)
-
-julia>f(c)
-
-julia> for Xᵤₚ in U
-        c, Xp =cumulantsupdat(Xp, Xᵤₚ, m, b)
-        f(c)
-       end
-
+julia> savedm(dm::DataMoments, dir::String)
 ```
-Here `f(c)` is some function that extracts information form cumulants, for presentation
-purpose we can use `f(c) = println(map(vecnorm, c))`
+
+To load it use
+
+```julia
+
+julia> loaddm(dir::String)
+```
+returns a DataMoments structure stored in a given directory.
+
 
 ### Vector norm
 
 ```julia
-julia> vecnorm(st::SymmetricTensor{T, m}, p::Union{Float64, Int}) where {T<:AbstractFloat, m}
+julia> vecnorm(st::SymmetricTensor{T, d}, p::Union{Float64, Int}) where {T<:AbstractFloat, d}
 ```
 
 Returns a `p`-norm of the tensor stored as `SymmetricTensors`, supported for `k ≠ 0`. The output of `vecnorm(st, p) = vecnorn(convert(Array, st),p)`. However
@@ -222,8 +204,8 @@ julia> vecnorm(st, 1)
 ```
 ### Convert cumulants to moments and moments to cumulants
 
-Given `M` a vector of moments of order `1, ..., m` to change it to a vector
-of cumulants of order `1, ..., m` using
+Given `M` a vector of moments of order `1, ..., d` to change it to a vector
+of cumulants of order `1, ..., d` using
 
 ```julia
 julia> function moms2cums!(M::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
@@ -236,36 +218,40 @@ julia> function cums2moms(c::Vector{SymmetricTensor{T}}) where T <: AbstractFloa
 
 ```julia
 
-julia> m = momentarray(ones(20,3), 3)
-3-element Array{SymmetricTensor{Float64,N} where N,1}:
- SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                
- SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #NULL [1.0]], 2, 2, 3, false)                                                                                       
- SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
-[1.0 1.0; 1.0 1.0] #NULL; #NULL #NULL] Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #NULL [1.0]], 2, 2, 3, false)
+julia> m = momentarray(ones(20,3), 3, 2)
+3-element Array{SymmetricTensors.SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensors.SymmetricTensor{Float64,1}(Union{Array{Float64,1}, Void}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                           
+ SymmetricTensors.SymmetricTensor{Float64,2}(Union{Array{Float64,2}, Void}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; nothing [1.0]], 2, 2, 3, false)                                                                                                
+ SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[1.0 1.0; 1.0 1.0]
+[1.0 1.0; 1.0 1.0] nothing; nothing nothing]
+Union{Array{Float64,3}, Void}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; nothing [1.0]], 2, 2, 3, false)
+
 
 julia> moms2cums!(m)
 
 julia> m
-3-element Array{SymmetricTensor{Float64,N} where N,1}:
- SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                
- SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #NULL [0.0]], 2, 2, 3, false)                                                                                     
- SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[0.0 0.0; 0.0 0.0]
-[0.0 0.0; 0.0 0.0] #NULL; #NULL #NULL]
-Nullable{Array{Float64,3}}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #NULL [0.0]], 2, 2, 3, false)
+3-element Array{SymmetricTensors.SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensors.SymmetricTensor{Float64,1}(Union{Array{Float64,1}, Void}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                       
+ SymmetricTensors.SymmetricTensor{Float64,2}(Union{Array{Float64,2}, Void}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #undef [0.0]], 2, 2, 3, false)                                                                                             
+ SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[0.0 0.0; 0.0 0.0]
+[0.0 0.0; 0.0 0.0] #undef; #undef #undef]
+Union{Array{Float64,3}, Void}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #undef [0.0]], 2, 2, 3, false)
+
 
 julia>  cums2moms(m)
-3-element Array{SymmetricTensor{Float64,N} where N,1}:
-SymmetricTensor{Float64,1}(Nullable{Array{Float64,1}}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                
- SymmetricTensor{Float64,2}(Nullable{Array{Float64,2}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #NULL [1.0]], 2, 2, 3, false)                                                                                       
-SymmetricTensor{Float64,3}(Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
-[1.0 1.0; 1.0 1.0] #NULL; #NULL #NULL]
-Nullable{Array{Float64,3}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #NULL [1.0]], 2, 2, 3, false)
+3-element Array{SymmetricTensors.SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensors.SymmetricTensor{Float64,1}(Union{Array{Float64,1}, Void}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                       
+ SymmetricTensors.SymmetricTensor{Float64,2}(Union{Array{Float64,2}, Void}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #undef [1.0]], 2, 2, 3, false)                                                                                             
+ SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[1.0 1.0; 1.0 1.0]
+[1.0 1.0; 1.0 1.0] #undef; #undef #undef]
+Union{Array{Float64,3}, Void}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #undef [1.0]], 2, 2, 3, false)
+
 
 ```
 # Performance tests
 
 To analyse the computational time of cumulants updates vs `Cumulants.jl` recalculation, we supply the executable script `comptimes.jl`. The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
-* `-m (Int)`: cumulant's maximum order, by default `m = 4`,
+* `-d (Int)`: cumulant's maximum order, by default `d = 4`,
 * `-n (vararg Int)`: numbers of marginal variables, by default `n = 40`,
 * `-t (Int)`: number of realisations of random variable, by default `t = 500000`,
 * `-u (vararg Int)`: number of realisations of update, by default `u = 10000, 15000, 20000`,
@@ -274,15 +260,15 @@ To analyse the computational time of cumulants updates vs `Cumulants.jl` recalcu
 
 To analyse the computational time of cumulants updates for different block sizes `1 < b ≤ Int(√n)+2`, we supply the executable script `comptimesblocks.jl`.
 The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
-* `-m (Int)`: cumulant's order, by default `m = 4`,
-* `-n (Int)`: numbers of marginal variables, by default `m = 48`,
+* `-d (Int)`: cumulant's order, by default `d = 4`,
+* `-n (Int)`: numbers of marginal variables, by default `n = 48`,
 * `-u (vararg Int)`: number of realisations of the update, by default `u = 10000, 20000`.
 * `-p (Int)`: numbers of processes, by default `p = 3`.
 
 To analyse the computational time of cumulants updates for different number of workers, we supply the executable script `comptimesprocs.jl`.
 The script saves computational times to the `res/*.jld` file. The scripts accept following parameters:
-* `-m (Int)`: cumulant's order, by default `m = 4`,
-* `-n (Int)`: numbers of marginal variables, by default `m = 48`,
+* `-d (Int)`: cumulant's order, by default `d = 4`,
+* `-n (Int)`: numbers of marginal variables, by default `n = 48`,
 * `-u (vararg Int)`: number of realisations of the update, by default `u = 10000, 20000`,
 * `-b (Int)`: blocks size, by default `b = 4`,
 * `-p (Int)`: maximal numbers of processes, by default `p = 6`.

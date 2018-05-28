@@ -7,30 +7,30 @@ using JLD
 using ArgParse
 
 
-function comptime(X::Matrix{Float64}, Xup::Matrix{Float64}, m::Int, b::Int)
+function comptime(dm::DataMoments{Float64}, Xup::Matrix{Float64})
   t = time_ns()
-  _, X = cumulantsupdat(X, Xup, m, b)
-  Float64(time_ns()-t)/1.0e9, X
+  _ = cumulantsupdate!(dm, Xup)
+  Float64(time_ns()-t)/1.0e9
 end
 
 function precomp(m::Int)
   X = randn(15, 10)
-  cumulantscache(X[1:10,:], m, 4)
-  cumulantsupdat(X[1:10,:], X[10:15,:], m, 4)
+  dm = DataMoments(X[1:10,:], m, 4)
+  cumulantsupdate!(dm, X[10:15,:])
 end
 
 function savect(u::Vector{Int}, n::Int, m::Int, p::Int)
-  maxb = round(Int, sqrt(n))+2
+  maxb = round(Int, sqrt(n))-1
   comptimes = zeros(maxb-1, length(u))
   println("max block size = ", maxb)
   precomp(m)
   for b in 2:maxb
     X = randn(maximum(u)+10, n)
     println("bloks size = ", b)
-    cumulantscache(X, m, b)
+    dm = DataMoments(X, m, b)
     for k in 1:length(u)
       Xup = randn(u[k], n)
-      comptimes[b-1, k], X = comptime(X, Xup, m, b)
+      comptimes[b-1, k] = comptime(dm, Xup)
       println("u = ", u[k])
     end
   end
@@ -51,8 +51,8 @@ end
 function main(args)
   s = ArgParseSettings("description")
   @add_arg_table s begin
-      "--order", "-m"
-        help = "m, the order of cumulant, ndims of cumulant's tensor"
+      "--order", "-d"
+        help = "d, the order of cumulant, ndims of cumulant's tensor"
         default = 4
         arg_type = Int
       "--nvar", "-n"

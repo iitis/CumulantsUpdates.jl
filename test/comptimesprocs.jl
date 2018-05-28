@@ -6,17 +6,16 @@ using CumulantsUpdates
 using JLD
 using ArgParse
 
-
-function comptime(X::Matrix{Float64}, Xup::Matrix{Float64}, m::Int, b::Int)
+function comptime(dm::DataMoments{Float64}, Xup::Matrix{Float64})
   t = time_ns()
-  _, X = cumulantsupdat(X, Xup, m, b)
-  Float64(time_ns()-t)/1.0e9, X
+  _ = cumulantsupdate!(dm, Xup)
+  Float64(time_ns()-t)/1.0e9
 end
 
 function precomp(m::Int)
   X = randn(15, 10)
-  cumulantscache(X[1:10,:], m, 4)
-  cumulantsupdat(X[1:10,:], X[10:15,:], m, 4)
+  dm = DataMoments(X[1:10,:], m, 4)
+  cumulantsupdate!(dm, X[10:15,:])
 end
 
 function savect(u::Vector{Int}, p::Int, n::Int, m::Int, b::Int)
@@ -25,7 +24,7 @@ function savect(u::Vector{Int}, p::Int, n::Int, m::Int, b::Int)
   precomp(m)
   addprocs(p)
   eval(Expr(:toplevel, :(@everywhere using CumulantsUpdates)))
-  cumulantscache(X, m, b)
+  dm = DataMoments(X, m, b)
   for i in 1:p
     rmprocs(procs()[2:end])
     addprocs(i)
@@ -33,7 +32,7 @@ function savect(u::Vector{Int}, p::Int, n::Int, m::Int, b::Int)
     println("number of workers = ", nworkers())
     for k in 1:length(u)
       Xup = randn(u[k], n)
-      comptimes[i, k], X = comptime(X, Xup, m, b)
+      comptimes[i, k] = comptime(dm, Xup)
       println("u = ", u[k])
     end
   end
@@ -54,8 +53,8 @@ end
 function main(args)
   s = ArgParseSettings("description")
   @add_arg_table s begin
-      "--order", "-m"
-        help = "m, the order of cumulant, ndims of cumulant's tensor"
+      "--order", "-d"
+        help = "d, the order of cumulant, ndims of cumulant's tensor"
         default = 4
         arg_type = Int
       "--nvar", "-n"

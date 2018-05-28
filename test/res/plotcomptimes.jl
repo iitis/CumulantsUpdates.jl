@@ -21,10 +21,13 @@ function singleplot(filename::String)
   col = ["red", "blue", "green", "gray", "brown", "orange"]
   marker = [":s", ":o", ":v", ":<", ":>", ":d"]
   for i in 1:size(d["cumulants"], 2)
-    if contains(filename, "nblocks") | contains(filename, "nprocs") | contains(filename, "maxf")
+    if contains(filename, "nblocks")  | contains(filename, "maxf")
       str = replace(@sprintf("%.1e", t[i]), "0", "")
       tt = "\$"*replace(str, "e+", "\\times 10^{")*"}\$"
       ax[:plot](d[x], d["cumulants"][:,i], marker[i], label= "\$ t_{up} \$ = $tt", color = col[i], markersize=2.5, linewidth = 1)
+    elseif contains(filename, "nprocs")
+      y = d["cumulants"][:,i].\d["cumulants"][1,i]
+      ax[:plot](d[x][1:6], y[1:6], marker[i], label= "\$ t_{up} \$ = $(t[i])", color = col[i], markersize=2.5, linewidth = 1)
     else
       tt =  n[i]
       comptimes = d["cumulants"][:,i]./d["cumulants updat"][:,i]
@@ -36,12 +39,18 @@ function singleplot(filename::String)
   fx = matplotlib[:ticker][:ScalarFormatter]()
   fx[:set_powerlimits]((-1, 4))
   ax[:xaxis][:set_major_formatter](fx)
-  if contains(filename, "nblocks") | contains(filename, "nprocs")
+  if contains(filename, "nblocks")
     subplots_adjust(left = 0.15)
     PyPlot.ylabel("computional time [s]", labelpad = 0.6)
     PyPlot.xlabel(x, labelpad = 0.6)
     ax[:xaxis][:set_major_locator](mti.MaxNLocator(integer=true))
     ax[:legend](fontsize = 5, loc = 9, ncol = 1)
+  elseif contains(filename, "nprocs")
+    subplots_adjust(left = 0.15)
+    PyPlot.ylabel("computional speedup [s]", labelpad = 0)
+    PyPlot.xlabel(x, labelpad = 0.6)
+    ax[:xaxis][:set_major_locator](mti.MaxNLocator(integer=true))
+    ax[:legend](fontsize = 5, loc = 2, ncol = 1)
   elseif contains(filename, "maxf")
     subplots_adjust(left = 0.18)
     PyPlot.ylabel("frequency [Hz]", labelpad = 0.)
