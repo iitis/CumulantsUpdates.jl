@@ -15,10 +15,10 @@ script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia --depwarn=no -e 'Pkg.clone("https://github.com/ZKSI/SymmetricTensors.jl.git")'
   - julia --depwarn=no -e 'Pkg.clone("https://github.com/ZKSI/Cumulants.jl.git")'
-  - julia --depwarn=no -e 'Pkg.build("HDF5")'
   - julia --depwarn=no -e 'Pkg.add("StatsBase")'
   - julia --depwarn=no -e 'Pkg.add("JLD")'
   - julia -e 'Pkg.clone("https://github.com/ZKSI/CumulantsUpdates.jl.git")'
+  - julia --depwarn=no -e 'Pkg.build("HDF5")'
   - julia -e 'Pkg.build("CumulantsUpdates"); Pkg.test("CumulantsUpdates"; coverage=true)'
 after_success:
   - julia -e 'cd(Pkg.dir("CumulantsUpdates")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
