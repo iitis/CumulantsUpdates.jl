@@ -40,7 +40,7 @@ julia> vecnorm(st, 1)
 ```
 """
 
-function vecnorm(bt::SymmetricTensor{T, m}, p::Union{Float64, Int}=2) where {T<:AbstractFloat, m}
+function vecnorm(bt::SymmetricTensornew{T, m}, p::Union{Float64, Int}=2) where {T<:AbstractFloat, m}
   p != 0 || throw(AssertionError("0-norm not supported"))
   ret = 0.
   for i in pyramidindices(m, bt.bln)
@@ -57,7 +57,7 @@ by √||C₂||ᵏ
 .....
 
 """
-function cnorms(c::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
+function cnorms(c::Vector{SymmetricTensornew{T}}) where T <: AbstractFloat
   n = vecnorm(c[2])
   [vecnorm(c[k])/(n)^(k/2) for k in 3:length(c)]
 end

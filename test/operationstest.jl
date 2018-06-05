@@ -1,5 +1,5 @@
 te = [-0.112639 0.124715 0.124715 0.268717 0.124715 0.268717 0.268717 0.046154]
-st = convert(SymmetricTensor, (reshape(te, (2,2,2))))
+st = convert(SymmetricTensornew, (reshape(te, (2,2,2))))
 srand(43)
 c = cumulants(randn(1000, 20), 4)
 

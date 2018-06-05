@@ -46,7 +46,7 @@ SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[3.333
 ```
 """
 
-function momentupdat(M::SymmetricTensor{T, d}, X::Matrix{T}, Xplus::Matrix{T}) where {T<:AbstractFloat, d}
+function momentupdat(M::SymmetricTensornew{T, d}, X::Matrix{T}, Xplus::Matrix{T}) where {T<:AbstractFloat, d}
   tup = size(Xplus,1)
   if tup == 0
     return M
@@ -63,7 +63,7 @@ end
 
 """
 
-momentupdat(M::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xplus::Matrix{T}) where T <: AbstractFloat =
+momentupdat(M::Vector{SymmetricTensornew{T}}, X::Matrix{T}, Xplus::Matrix{T}) where T <: AbstractFloat =
     [momentupdat(M[i], X, Xplus) for i in 1:length(M)]
 
 
@@ -96,7 +96,7 @@ SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[0.0 0
 """
 
 
-function moms2cums!(M::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
+function moms2cums!(M::Vector{SymmetricTensornew{T}}) where T <: AbstractFloat
   d = length(M)
   for i in 1:d
     f(σ::Int) = outerprodcum(i, σ, M...; exclpartlen = 0)
@@ -109,16 +109,16 @@ end
 
 """
 
-  cums2moms(cum::Vector{SymmetricTensor})
+  cums2moms(cum::Vector{SymmetricTensornew})
 
 Returns vector of Symmetric Tensors of moments given vector of Symmetric Tensors
 of cumulants
 """
 
 
-function cums2moms(cum::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
+function cums2moms(cum::Vector{SymmetricTensornew{T}}) where T <: AbstractFloat
   m = length(cum)
-  Mvec = Array{SymmetricTensor{T}}(m)
+  Mvec = Array{SymmetricTensornew{T}}(m)
   for i in 1:m
     f(σ::Int) = outerprodcum(i, σ, cum...; exclpartlen = 0)
     @inbounds Mvec[i] = cum[i]
@@ -141,7 +141,7 @@ mutable struct DataMoments{T <: AbstractFloat}
     X::Matrix{T}
     d::Int
     b::Int
-    M::Vector{SymmetricTensor{T}}
+    M::Vector{SymmetricTensornew{T}}
 end
 
 """
