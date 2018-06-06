@@ -30,7 +30,7 @@ As of 01/01/2017 [kdomino](https://github.com/kdomino) is the lead maintainer of
 Within Julia, run
 
 ```julia
-julia> Pkg.clone("https://github.com/ZKSI/CumulantsUpdates.jl")
+julia> Pkg.add("CumulantsUpdates") 
 ```
 
 to install the files.  Julia 0.6 is required.
