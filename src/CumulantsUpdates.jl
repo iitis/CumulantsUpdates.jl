@@ -2,14 +2,17 @@ module CumulantsUpdates
   using Cumulants
   using SymmetricTensors
   using StatsBase
-  using JLD
+  using FileIO
+  using JLD2
+  using Distributed
+  using LinearAlgebra
   import Cumulants: outerprodcum
   import SymmetricTensors: pyramidindices, getblockunsafe
-  import Base: vecnorm
+  import LinearAlgebra: norm
 
   include("updates.jl")
   include("operations.jl")
 
   export dataupdat, momentupdat, momentarray
-  export vecnorm, moms2cums!, cums2moms, cumulantsupdate!, DataMoments, savedm, loaddm
+  export norm, moms2cums!, cums2moms, cumulantsupdate!, DataMoments, savedm, loaddm
 end

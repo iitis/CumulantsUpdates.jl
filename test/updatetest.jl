@@ -1,4 +1,4 @@
-srand(43)
+Random.seed!(43)
 
 X = randn(100, 20)
 Xup = rand(25, 20)
@@ -17,14 +17,14 @@ end
   M3up = momentupdat(M3, x, y)
   @testset "simple test" begin
     Mup = moment(dataupdat(x,y),3)
-    @test convert(Array, Mup) ≈ convert(Array, M3up)
+    @test Array(Mup) ≈ Array(M3up)
   end
   @testset "moment array" begin
     Ma = momentarray(x, 4, 2)
-    @test convert(Array, Ma[3]) ≈ convert(Array, M3)
-    @test convert(Array, Ma[4]) ≈ convert(Array, M4)
+    @test Array(Ma[3]) ≈ Array(M3)
+    @test Array(Ma[4]) ≈ Array(M4)
     MM = momentupdat(Ma, x, y)
-    @test convert(Array, M3up) ≈convert(Array, MM[3])
+    @test Array(M3up) ≈Array(MM[3])
   end
 end
 
@@ -49,19 +49,19 @@ end
   m2c = [m1, m2, m3, m4, m5]
   @testset "moms2cums!" begin
     moms2cums!(m2c)
-    @test convert(Array, c[1]) ≈ convert(Array, m2c[1])
-    @test convert(Array, c[2]) ≈ convert(Array, m2c[2])
-    @test convert(Array, c[3]) ≈ convert(Array, m2c[3])
-    @test convert(Array, c[4]) ≈ convert(Array, m2c[4])
-    @test convert(Array, c[5]) ≈ convert(Array, m2c[5])
+    @test Array(c[1]) ≈ Array(m2c[1])
+    @test Array(c[2]) ≈ Array(m2c[2])
+    @test Array(c[3]) ≈ Array(m2c[3])
+    @test Array(c[4]) ≈ Array(m2c[4])
+    @test Array(c[5]) ≈ Array(m2c[5])
   end
   @testset "cums2moms" begin
     mm = cums2moms(c);
-    @test convert(Array, mm[1]) ≈ convert(Array, m1)
-    @test convert(Array, mm[2]) ≈ convert(Array, m2)
-    @test convert(Array, mm[3]) ≈ convert(Array, m3)
-    @test convert(Array, mm[4]) ≈ convert(Array, m4)
-    @test convert(Array, mm[5]) ≈ convert(Array, m5)
+    @test Array(mm[1]) ≈ Array(m1)
+    @test Array(mm[2]) ≈ Array(m2)
+    @test Array(mm[3]) ≈ Array(m3)
+    @test Array(mm[4]) ≈ Array(m4)
+    @test Array(mm[5]) ≈ Array(m5)
   end
 end
 
@@ -72,12 +72,12 @@ end
   c2 = cumulantsupdate!(s, y)
   xx = dataupdat(x,y)
   c3 = cumulants(xx, 6)
-  @test convert(Array, c2[1]) ≈ convert(Array, c3[1])
-  @test convert(Array, c2[2]) ≈ convert(Array, c3[2])
-  @test convert(Array, c2[3]) ≈ convert(Array, c3[3])
-  @test convert(Array, c2[4]) ≈ convert(Array, c3[4])
-  @test convert(Array, c2[5]) ≈ convert(Array, c3[5])
-  @test convert(Array, c2[6]) ≈ convert(Array, c3[6])
+  @test Array(c2[1]) ≈ Array(c3[1])
+  @test Array(c2[2]) ≈ Array(c3[2])
+  @test Array(c2[3]) ≈ Array(c3[3])
+  @test Array(c2[4]) ≈ Array(c3[4])
+  @test Array(c2[5]) ≈ Array(c3[5])
+  @test Array(c2[6]) ≈ Array(c3[6])
 end
 
 
@@ -126,8 +126,8 @@ end
 @testset "save and load" begin
   x = ones(10,4);
   s = DataMoments(x, 4, 2)
-  @test savedm(s, "/tmp/cumdata.jld") == nothing
-  s1 = loaddm("/tmp/cumdata.jld")
+  @test savedm(s, "/tmp/cumdata.jld2") == nothing
+  s1 = loaddm("/tmp/cumdata.jld2")
   @test s1.X == s.X
   @test s1.d == s.d
   @test s1.b == s.b

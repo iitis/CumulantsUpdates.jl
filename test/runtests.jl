@@ -1,8 +1,12 @@
-using Base.Test
+using Test
 using Cumulants
+using Distributed
 using SymmetricTensors
 using CumulantsUpdates
-using JLD
+using FileIO
+using JLD2
+using Random
+
 import CumulantsUpdates: rep, cnorms
 
 include("updatetest.jl")

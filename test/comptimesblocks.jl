@@ -34,9 +34,9 @@ function savect(u::Vector{Int}, n::Int, m::Int, p::Int)
       println("u = ", u[k])
     end
   end
-  filename = replace("res/$(m)_$(u)_$(n)_$(p)_nblocks.jld", "[", "")
-  filename = replace(filename, "]", "")
-  filename = replace(filename, " ", "")
+  filename = replace("res/$(m)_$(u)_$(n)_$(p)_nblocks.jld2", "["=>"")
+  filename = replace(filename, "]"=>"")
+  filename = replace(filename, " "=>"")
   compt = Dict{String, Any}("cumulants"=> comptimes)
   push!(compt, "t" => u)
   push!(compt, "n" => n)

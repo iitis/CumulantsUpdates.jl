@@ -8,7 +8,7 @@ using ArgParse
 import CumulantsUpdates: cnorms
 
 function cumnorms(c::Vector{SymmetricTensor{Float64}})
-  map(vecnorm, c[1:2])..., cnorms(c)...
+  map(norm, c[1:2])..., cnorms(c)...
 end
 
 function comptime(dm::DataMoments{Float64}, Xup::Matrix{Float64})
@@ -40,7 +40,7 @@ function savect(u::Vector{Int}, nvec::Vector{Int}, m::Int, p::Int, b::Int)
     end
     i += 1
   end
-  filename = replace("res/$(m)_$(u)_$(nvec)_$(p)_$(b)_maxf.jld", "[", "")
+  filename = replace("res/$(m)_$(u)_$(nvec)_$(p)_$(b)_maxf.jld2", "["=>"")
   filename = replace(filename, "]", "")
   filename = replace(filename, " ", "")
   compt = Dict{String, Any}("cumulants"=> comptimes)

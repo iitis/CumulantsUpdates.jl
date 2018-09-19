@@ -36,7 +36,7 @@ function savect(u::Vector{Int}, p::Int, n::Int, m::Int, b::Int)
       println("u = ", u[k])
     end
   end
-  filename = replace("res/$(m)_$(u)_$(n)_$(b)_nprocs.jld", "[", "")
+  filename = replace("res/$(m)_$(u)_$(n)_$(b)_nprocs.jld2", "["=>"")
   filename = replace(filename, "]", "")
   filename = replace(filename, " ", "")
   compt = Dict{String, Any}("cumulants"=> comptimes)

@@ -1,6 +1,7 @@
 #!/usr/bin/env julia
 
-using JLD
+using FileIO
+using JLD2
 using ArgParse
 using CumulantsUpdates
 using SymmetricTensors
@@ -50,11 +51,11 @@ end
 """
   savecomptime(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int, p::Int)
 
-Saves comptime parameters into a .jld file
+Saves comptime parameters into a .jld2 file
 """
 
 function savecomptime(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int, p::Int)
-  filename = replace("res/$(m)_$(t)_$(n)_$(tup)_$(p).jld", "[", "")
+  filename = replace("res/$(m)_$(t)_$(n)_$(tup)_$(p).jld2", "["=>"")
   filename = replace(filename, "]", "")
   filename = replace(filename, " ", "")
   compt = Dict{String, Any}()

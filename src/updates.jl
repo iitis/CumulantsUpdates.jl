@@ -20,7 +20,6 @@ julia> dataupdat(a,b)
 
 ```
 """
-
 dataupdat(X::Matrix{T}, Xplus::Matrix{T}) where T<:AbstractFloat =
   vcat(X,Xplus)[1+size(Xplus, 1):end, :]
 
@@ -45,7 +44,6 @@ SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[3.333
 
 ```
 """
-
 function momentupdat(M::SymmetricTensor{T, d}, X::Matrix{T}, Xplus::Matrix{T}) where {T<:AbstractFloat, d}
   tup = size(Xplus,1)
   if tup == 0
@@ -62,7 +60,6 @@ end
   Returns Vector{SymmetricTensor} of updated moments
 
 """
-
 momentupdat(M::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xplus::Matrix{T}) where T <: AbstractFloat =
     [momentupdat(M[i], X, Xplus) for i in 1:length(M)]
 
@@ -72,7 +69,6 @@ momentupdat(M::Vector{SymmetricTensor{T}}, X::Matrix{T}, Xplus::Matrix{T}) where
 
 Returns an array of Symmetric Tensors of moments given data and maximum moment order - d
 """
-
 momentarray(X::Matrix{T}, d::Int = 4, b::Int = 4) where T <: AbstractFloat =
     [moment(X, i, b) for i in 1:d]
 
@@ -94,8 +90,6 @@ SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[0.0 0
 ```
 
 """
-
-
 function moms2cums!(M::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
   d = length(M)
   for i in 1:d
@@ -114,11 +108,9 @@ end
 Returns vector of Symmetric Tensors of moments given vector of Symmetric Tensors
 of cumulants
 """
-
-
 function cums2moms(cum::Vector{SymmetricTensor{T}}) where T <: AbstractFloat
   m = length(cum)
-  Mvec = Array{SymmetricTensor{T}}(m)
+  Mvec = Array{SymmetricTensor{T}}(undef, m)
   for i in 1:m
     f(σ::Int) = outerprodcum(i, σ, cum...; exclpartlen = 0)
     @inbounds Mvec[i] = cum[i]
@@ -149,7 +141,6 @@ end
 
 a constructor, claculates an Array of moments given data and parameters
 """
-
 DataMoments(X::Matrix{T}, d::Int, b::Int) where T <: AbstractFloat =
   DataMoments(X, d, b, momentarray(X, d, b))
 
@@ -178,7 +169,6 @@ SymmetricTensors{Float64,4}(Union{Array{Float64,4}, Void}[[0.0064 0.0064; 0.0064
 
 ```
 """
-
 function cumulantsupdate!(dm::DataMoments{T}, Xplus::Matrix{T}) where T <: AbstractFloat
   Mup = momentupdat(dm.M, dm.X, Xplus)
   Xup = dataupdat(dm.X, Xplus)
@@ -194,7 +184,6 @@ end
 
 saves a DataMoment structure at a given direcory
 """
-
 savedm(dm::DataMoments, dir::String) = save(dir, Dict("dm" => dm))
 
 """
@@ -202,5 +191,4 @@ savedm(dm::DataMoments, dir::String) = save(dir, Dict("dm" => dm))
 
 loads a DataMoment structure from a given direcory
 """
-
 loaddm(dir::String) = load(dir)["dm"]
