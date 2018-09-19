@@ -1,7 +1,7 @@
 language: julia
 os:
   - linux
-  - oss
+  - osx
 julia:
   - 0.7 
   - 1.0
