@@ -16,6 +16,7 @@ function singleplot(filename::String)
   t = d["t"]
   n = d["n"]
   m = d["m"]
+  println(m)
   mpl.rc("font", family="serif", size = 7)
   fig, ax = subplots(figsize = (2.5, 2.))
   col = ["red", "blue", "green", "gray", "brown", "orange"]
@@ -26,8 +27,10 @@ function singleplot(filename::String)
       tt = "\$"*replace(str, "e+", "\\times 10^{")*"}\$"
       ax[:plot](d[x], d["cumulants"][:,i], marker[i], label= "\$ t_{up} \$ = $tt", color = col[i], markersize=2.5, linewidth = 1)
     elseif contains(filename, "nprocs")
+      str = replace(@sprintf("%.1e", t[i]), "0", "")
+      tt = "\$"*replace(str, "e+", "\\times 10^{")*"}\$"
       y = d["cumulants"][:,i].\d["cumulants"][1,i]
-      ax[:plot](d[x][1:6], y[1:6], marker[i], label= "\$ t_{up} \$ = $(t[i])", color = col[i], markersize=2.5, linewidth = 1)
+      ax[:plot](d[x][1:6], y[1:6], marker[i], label= "\$ t_{up} \$ = $tt", color = col[i], markersize=2.5, linewidth = 1)
     else
       tt =  n[i]
       comptimes = d["cumulants"][:,i]./d["cumulants updat"][:,i]
@@ -41,13 +44,13 @@ function singleplot(filename::String)
   ax[:xaxis][:set_major_formatter](fx)
   if contains(filename, "nblocks")
     subplots_adjust(left = 0.15)
-    PyPlot.ylabel("computional time [s]", labelpad = 0.6)
+    PyPlot.ylabel("computational time [s]", labelpad = 0.6)
     PyPlot.xlabel(x, labelpad = 0.6)
     ax[:xaxis][:set_major_locator](mti.MaxNLocator(integer=true))
     ax[:legend](fontsize = 5, loc = 9, ncol = 1)
   elseif contains(filename, "nprocs")
     subplots_adjust(left = 0.15)
-    PyPlot.ylabel("computional speedup [s]", labelpad = 0)
+    PyPlot.ylabel("computational speedup", labelpad = 0)
     PyPlot.xlabel(x, labelpad = 0.6)
     ax[:xaxis][:set_major_locator](mti.MaxNLocator(integer=true))
     ax[:legend](fontsize = 5, loc = 2, ncol = 1)
@@ -57,8 +60,12 @@ function singleplot(filename::String)
     PyPlot.xlabel(x, labelpad = 0.6)
     ax[:legend](fontsize = 5, loc = 1, ncol = 1)
   else
-    PyPlot.ylabel("speedup", labelpad = -1.0)
+    PyPlot.ylabel("computational speedup", labelpad = -0.5)
     PyPlot.xlabel("\$ t_{up} \$", labelpad = 0.6)
+    subplots_adjust(bottom = 0.16, top=0.92, left = 0.14, right = 0.92)
+    if m == 6
+      ax[:yaxis][:set_major_locator](mti.MaxNLocator(integer=true))
+    end
     ax[:legend](fontsize = 6, loc = 1, ncol = 1)
   end
   f = matplotlib[:ticker][:ScalarFormatter]()
