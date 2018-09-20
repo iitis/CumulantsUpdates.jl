@@ -14,12 +14,12 @@ returns array of updated cumulant tensors of order `1,2,...,d`.
 To store symmetric tensors uses a `SymmetricTensors` type, requires [SymmetricTensors.jl](https://github.com/ZKSI/SymmetricTensors.jl). To convert to array, run:
 
 ```julia
-julia> convert(Array, st::SymmetricTensors{T, d})
+julia> Array(st::SymmetricTensors{T, d})
 ```
 to convert back, run:
 
 ```julia
-julia>  convert(SymmetricTensor, a::Array{T,d})
+julia>  SymmetricTensor(a::Array{T,d})
 ```
 Requires [Cumulants.jl](https://github.com/ZKSI/Cumulants.jl).
 
