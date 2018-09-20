@@ -33,7 +33,7 @@ Within Julia, run
 pkg> add CumulantsUpdates
 ```
 
-to install the files.  Julia 0.7 is required.
+to install the files.  Julia 0.7 or later is required.
 
 ## Parallel computation
 
