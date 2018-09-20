@@ -30,10 +30,10 @@ As of 01/01/2017 [kdomino](https://github.com/kdomino) is the lead maintainer of
 Within Julia, run
 
 ```julia
-julia> Pkg.add("CumulantsUpdates") 
+pkg> add CumulantsUpdates
 ```
 
-to install the files.  Julia 0.6 is required.
+to install the files.  Julia 0.7 is required.
 
 ## Parallel computation
 
@@ -90,22 +90,18 @@ Returns a `SymmetricTensor{T, d}` of the moment tensor of updated multivariate d
 ```julia
 julia> x = ones(6, 2);
 
-julia> julia> m = moment(x, 3)
-SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[1.0 1.0; 1.0 1.0]
+julia> SymmetricTensor{Float64,3}(Union{Nothing, Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
 
 [1.0 1.0; 1.0 1.0]], 2, 1, 2, true)
+
 
 julia> y = 2*ones(2,2);
 
 julia> momentupdat(m, x, y)
-SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[3.33333 3.33333; 3.33333 3.33333]
+SymmetricTensor{Float64,3}(Union{Nothing, Array{Float64,3}}[[3.33333 3.33333; 3.33333 3.33333]
 
 [3.33333 3.33333; 3.33333 3.33333]], 2, 1, 2, true)
 
-julia> moment(vcat(x,y)[3:end,:],3)
-SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[3.33333 3.33333; 3.33333 3.33333]
-
-[3.33333 3.33333; 3.33333 3.33333]], 2, 1, 2, true)
 ```
 
 Function `momentarray(X, d)` can be used to compute an array of moments of order `1, ..., d`
@@ -119,7 +115,7 @@ julia> momentarray(X::Matrix{T}, d::Int, b::Int) where {T<:AbstractFloat, d}
 One can update an array of moments by calling:
 
 ```julia
-julia> momentupdat(M::Array{SymmetricTensor{T, m}}, X::Matrix{T}, Xplus::Matrix{T}) where {T<:AbstractFloat, d}
+julia> momentupdat(M::Array{SymmetricTensor{T, d}}, X::Matrix{T}, Xplus::Matrix{T}) where {T<:AbstractFloat, d}
 ```
 
 Returns an `Array{SymmetricTensor{T, d}}` of moment tensors of order `1, ..., d` of updated multivariate data: `ℜᵗˣⁿ ∋ X' = dataupdat(X,X+)`, i.e. `Mₐᵣ = momentarray(X, d)`, `momentupdat(Mₐᵣ, X, X+) = momentarray(X', d)`. 
@@ -153,13 +149,13 @@ julia> s = DataMoments(x, 4, 2);
 julia> y = zeros(4,2);
 
 julia> cumulantsupdate!(s,y)[4]
-SymmetricTensors{Float64,4}(Union{Array{Float64,4}, Void}[[0.0064 0.0064; 0.0064 0.0064]
+SymmetricTensor{Float64,4}(Union{Nothing, Array{Float64,4}}[[-0.1056 -0.1056; -0.1056 -0.1056]
 
-[0.0064 0.0064; 0.0064 0.0064]
+[-0.1056 -0.1056; -0.1056 -0.1056]
 
-[0.0064 0.0064; 0.0064 0.0064]
+[-0.1056 -0.1056; -0.1056 -0.1056]
 
-[0.0064 0.0064; 0.0064 0.0064]], 2, 1, 2, true)
+[-0.1056 -0.1056; -0.1056 -0.1056]], 2, 1, 2, true)
                  
 ```
 
@@ -179,27 +175,27 @@ julia> loaddm(dir::String)
 returns a DataMoments structure stored in a given directory.
 
 
-### Vector norm
+### The p-norm
 
 ```julia
-julia> vecnorm(st::SymmetricTensor{T, d}, p::Union{Float64, Int}) where {T<:AbstractFloat, d}
+julia> norm(st::SymmetricTensor{T, d}, p::Union{Float64, Int}) where {T<:AbstractFloat, d}
 ```
 
-Returns a `p`-norm of the tensor stored as `SymmetricTensors`, supported for `k ≠ 0`. The output of `vecnorm(st, p) = vecnorn(convert(Array, st),p)`. However
-`vecnorm(st::SymmetricTensor, p)` uses the block structure implemented in `SymmetricTensors`, hence is faster and decreases the computer memory requirement.
+Returns a `p`-norm of the tensor stored as `SymmetricTensors`, supported for `k ≠ 0`. The output of `norm(st, p) = norn(convert(Array, st),p)`. However
+`norm(st::SymmetricTensor, p)` uses the block structure implemented in `SymmetricTensors`, hence is faster and decreases the computer memory requirement.
 
 ```julia
 julia> te = [-0.112639 0.124715 0.124715 0.268717 0.124715 0.268717 0.268717 0.046154];
 
-julia> st = convert(SymmetricTensor, (reshape(te, (2,2,2))));
+julia> st = SymmetricTensor(reshape(te, (2,2,2)));
 
-julia> vecnorm(st)
+julia> norm(st)
 0.5273572868359742
 
-julia> vecnorm(st, 2.5)
+julia> norm(st, 2.5)
 0.4468668679541424
 
-julia> vecnorm(st, 1)
+julia> norm(st, 1)
 1.339089
 ```
 ### Convert cumulants to moments and moments to cumulants
@@ -219,32 +215,33 @@ julia> function cums2moms(c::Vector{SymmetricTensor{T}}) where T <: AbstractFloa
 ```julia
 
 julia> m = momentarray(ones(20,3), 3, 2)
-3-element Array{SymmetricTensors.SymmetricTensor{Float64,N} where N,1}:
- SymmetricTensors.SymmetricTensor{Float64,1}(Union{Array{Float64,1}, Void}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                           
- SymmetricTensors.SymmetricTensor{Float64,2}(Union{Array{Float64,2}, Void}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; nothing [1.0]], 2, 2, 3, false)                                                                                                
- SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[1.0 1.0; 1.0 1.0]
+3-element Array{SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensor{Float64,1}(Union{Nothing, Array{Float64,1}}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                              
+ SymmetricTensor{Float64,2}(Union{Nothing, Array{Float64,2}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; nothing [1.0]], 2, 2, 3, false)                                                                                                   
+ SymmetricTensor{Float64,3}(Union{Nothing, Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
 [1.0 1.0; 1.0 1.0] nothing; nothing nothing]
-Union{Array{Float64,3}, Void}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; nothing [1.0]], 2, 2, 3, false)
+Union{Nothing, Array{Float64,3}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; nothing [1.0]], 2, 2, 3, false)
 
 
 julia> moms2cums!(m)
 
 julia> m
-3-element Array{SymmetricTensors.SymmetricTensor{Float64,N} where N,1}:
- SymmetricTensors.SymmetricTensor{Float64,1}(Union{Array{Float64,1}, Void}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                       
- SymmetricTensors.SymmetricTensor{Float64,2}(Union{Array{Float64,2}, Void}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #undef [0.0]], 2, 2, 3, false)                                                                                             
- SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[0.0 0.0; 0.0 0.0]
+3-element Array{SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensor{Float64,1}(Union{Nothing, Array{Float64,1}}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                          
+ SymmetricTensor{Float64,2}(Union{Nothing, Array{Float64,2}}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #undef [0.0]], 2, 2, 3, false)                                                                                                
+ SymmetricTensor{Float64,3}(Union{Nothing, Array{Float64,3}}[[0.0 0.0; 0.0 0.0]
 [0.0 0.0; 0.0 0.0] #undef; #undef #undef]
-Union{Array{Float64,3}, Void}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #undef [0.0]], 2, 2, 3, false)
+Union{Nothing, Array{Float64,3}}[[0.0 0.0; 0.0 0.0] [0.0; 0.0]; #undef [0.0]], 2, 2, 3, false)
 
 
-julia>  cums2moms(m)
-3-element Array{SymmetricTensors.SymmetricTensor{Float64,N} where N,1}:
- SymmetricTensors.SymmetricTensor{Float64,1}(Union{Array{Float64,1}, Void}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                       
- SymmetricTensors.SymmetricTensor{Float64,2}(Union{Array{Float64,2}, Void}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #undef [1.0]], 2, 2, 3, false)                                                                                             
- SymmetricTensors.SymmetricTensor{Float64,3}(Union{Array{Float64,3}, Void}[[1.0 1.0; 1.0 1.0]
+julia> cums2moms(m)
+3-element Array{SymmetricTensor{Float64,N} where N,1}:
+ SymmetricTensor{Float64,1}(Union{Nothing, Array{Float64,1}}[[1.0, 1.0], [1.0]], 2, 2, 3, false)                                                                                                                          
+ SymmetricTensor{Float64,2}(Union{Nothing, Array{Float64,2}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #undef [1.0]], 2, 2, 3, false)                                                                                                
+ SymmetricTensor{Float64,3}(Union{Nothing, Array{Float64,3}}[[1.0 1.0; 1.0 1.0]
 [1.0 1.0; 1.0 1.0] #undef; #undef #undef]
-Union{Array{Float64,3}, Void}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #undef [1.0]], 2, 2, 3, false)
+Union{Nothing, Array{Float64,3}}[[1.0 1.0; 1.0 1.0] [1.0; 1.0]; #undef [1.0]], 2, 2, 3, false)
+
 
 
 ```
