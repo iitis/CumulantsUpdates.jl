@@ -6,6 +6,7 @@ using ArgParse
 using CumulantsUpdates
 using SymmetricTensors
 using Combinatorics
+using Distributed
 import CumulantsUpdates: cumulants, moment
 
 """
@@ -13,7 +14,6 @@ import CumulantsUpdates: cumulants, moment
 
 Returns Vector, a computional speedup of m'th cumulant update of n[i] variate data
 """
-
 function cumspeedups(m::Int, n::Vector{Int}, t::Int, u::Vector{Int}, b::Int, bc::Int = 2)
   compt = zeros(length(u), length(n))
   updt = copy(compt)
@@ -23,7 +23,7 @@ function cumspeedups(m::Int, n::Vector{Int}, t::Int, u::Vector{Int}, b::Int, bc:
     X = randn(t, n[i])
     t1 = Float64(time_ns())
     cumulants(X, m, bc)
-    compt[:,i] = Float64(time_ns())-t1
+    compt[:,i] .= Float64(time_ns())-t1
     dm = DataMoments(X, m, b)
     for j in 1:length(u)
       println("update u = ", u[j])
@@ -53,16 +53,15 @@ end
 
 Saves comptime parameters into a .jld2 file
 """
-
 function savecomptime(m::Int, n::Vector{Int}, t::Int, tup::Vector{Int}, b::Int, p::Int)
   filename = replace("res/$(m)_$(t)_$(n)_$(tup)_$(p).jld2", "["=>"")
-  filename = replace(filename, "]", "")
-  filename = replace(filename, " ", "")
+  filename = replace(filename, "]"=>"")
+  filename = replace(filename, " "=>"")
   compt = Dict{String, Any}()
   cumtime = cumspeedups(m, n, t, tup, b)
   push!(compt, "cumulants" => cumtime[1])
   push!(compt, "cumulants updat" => cumtime[2])
-  push!(compt, "tm" => t./(2*tup+bellnum(m)))
+  push!(compt, "tm" => t./(2*tup.+bellnum(m)))
   push!(compt, "t" => t)
   push!(compt, "n" => n)
   push!(compt, "m" => m)

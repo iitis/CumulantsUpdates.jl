@@ -6,12 +6,13 @@ mpl.rc("text", usetex=true)
 mpl.use("Agg")
 @pyimport matplotlib.ticker as mti
 using PyPlot
-using JLD
+using JLD2
+using FileIO
 using ArgParse
 
 o = 1
 function singleplot(filename::String)
-  d = load(filename*".jld")
+  d = load(filename*".jld2")
   x = d["x"]
   t = d["t"]
   n = d["n"]
@@ -22,13 +23,11 @@ function singleplot(filename::String)
   col = ["red", "blue", "green", "gray", "brown", "orange"]
   marker = [":s", ":o", ":v", ":<", ":>", ":d"]
   for i in 1:size(d["cumulants"], 2)
-    if contains(filename, "nblocks")  | contains(filename, "maxf")
-      str = replace(@sprintf("%.1e", t[i]), "0", "")
-      tt = "\$"*replace(str, "e+", "\\times 10^{")*"}\$"
+    if occursin("nblocks", filename)  | occursin("maxf", filename)
+      tt = t[i]
       ax[:plot](d[x], d["cumulants"][:,i], marker[i], label= "\$ t_{up} \$ = $tt", color = col[i], markersize=2.5, linewidth = 1)
-    elseif contains(filename, "nprocs")
-      str = replace(@sprintf("%.1e", t[i]), "0", "")
-      tt = "\$"*replace(str, "e+", "\\times 10^{")*"}\$"
+    elseif occursin("nprocs", filename)
+      tt = t[i]
       y = d["cumulants"][:,i].\d["cumulants"][1,i]
       ax[:plot](d[x][1:6], y[1:6], marker[i], label= "\$ t_{up} \$ = $tt", color = col[i], markersize=2.5, linewidth = 1)
     else
@@ -42,19 +41,19 @@ function singleplot(filename::String)
   fx = matplotlib[:ticker][:ScalarFormatter]()
   fx[:set_powerlimits]((-1, 4))
   ax[:xaxis][:set_major_formatter](fx)
-  if contains(filename, "nblocks")
+  if occursin("nblocks", filename)
     subplots_adjust(left = 0.15)
     PyPlot.ylabel("computational time [s]", labelpad = 0.6)
     PyPlot.xlabel(x, labelpad = 0.6)
     ax[:xaxis][:set_major_locator](mti.MaxNLocator(integer=true))
     ax[:legend](fontsize = 5, loc = 9, ncol = 1)
-  elseif contains(filename, "nprocs")
+  elseif occursin("nprocs", filename)
     subplots_adjust(left = 0.15)
     PyPlot.ylabel("computational speedup", labelpad = 0)
     PyPlot.xlabel(x, labelpad = 0.6)
     ax[:xaxis][:set_major_locator](mti.MaxNLocator(integer=true))
     ax[:legend](fontsize = 5, loc = 2, ncol = 1)
-  elseif contains(filename, "maxf")
+  elseif occursin("maxf", filename)
     subplots_adjust(left = 0.18)
     PyPlot.ylabel("frequency [Hz]", labelpad = 0.)
     PyPlot.xlabel(x, labelpad = 0.6)
@@ -71,7 +70,7 @@ function singleplot(filename::String)
   f = matplotlib[:ticker][:ScalarFormatter]()
   f[:set_powerlimits]((-3, 2))
   ax[:yaxis][:set_major_formatter](f)
-  fig[:savefig]("cumulants"*filename*".eps")
+  fig[:savefig]("cumulants"*filename*".pdf")
 end
 
 
@@ -84,7 +83,7 @@ function main(args)
   end
   parsed_args = parse_args(s)
   filename = parsed_args["file"]
-  singleplot(replace(filename, ".jld", ""))
+  singleplot(replace(filename, ".jld2"=>""))
 end
 
 main(ARGS)

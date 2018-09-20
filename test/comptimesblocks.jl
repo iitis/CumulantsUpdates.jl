@@ -3,8 +3,10 @@
 using Cumulants
 using SymmetricTensors
 using CumulantsUpdates
-using JLD
+using JLD2
+using FileIO
 using ArgParse
+using Distributed
 
 
 function comptime(dm::DataMoments{Float64}, Xup::Matrix{Float64})

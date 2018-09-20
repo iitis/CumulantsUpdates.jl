@@ -4,7 +4,7 @@ module CumulantsUpdates
   using StatsBase
   using FileIO
   using JLD2
-  using Distributed
+  #using Distributed
   import Cumulants: outerprodcum
   import SymmetricTensors: pyramidindices, getblockunsafe
   import LinearAlgebra: norm

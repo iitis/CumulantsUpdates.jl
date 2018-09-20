@@ -3,8 +3,10 @@
 using Cumulants
 using SymmetricTensors
 using CumulantsUpdates
-using JLD
+using JLD2
+using FileIO
 using ArgParse
+using Distributed
 
 function comptime(dm::DataMoments{Float64}, Xup::Matrix{Float64})
   t = time_ns()
@@ -37,8 +39,8 @@ function savect(u::Vector{Int}, p::Int, n::Int, m::Int, b::Int)
     end
   end
   filename = replace("res/$(m)_$(u)_$(n)_$(b)_nprocs.jld2", "["=>"")
-  filename = replace(filename, "]", "")
-  filename = replace(filename, " ", "")
+  filename = replace(filename, "]"=>"")
+  filename = replace(filename, " "=>"")
   compt = Dict{String, Any}("cumulants"=> comptimes)
   push!(compt, "t" => u)
   push!(compt, "n" => n)
