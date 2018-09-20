@@ -5,7 +5,6 @@ module CumulantsUpdates
   using FileIO
   using JLD2
   using Distributed
-  using LinearAlgebra
   import Cumulants: outerprodcum
   import SymmetricTensors: pyramidindices, getblockunsafe
   import LinearAlgebra: norm

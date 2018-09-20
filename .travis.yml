@@ -3,7 +3,7 @@ os:
   - linux
   - osx
 julia:
-  - 0.7 
+  - 0.7
 # - nightly
 notifications:
   email: false
@@ -13,8 +13,7 @@ addons:
       - hdf5-tools
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'using Pkg; Pkg.add("Distributed")'
-  - julia -e 'using Pkg; Pkg.add("LinearAlgebra")'
+  # - julia -e 'using Pkg; Pkg.add("Distributed")'
   - julia -e 'using Pkg; Pkg.clone(pwd())'
   - julia -e 'using Pkg; Pkg.build("CumulantsUpdates"); Pkg.test("CumulantsUpdates"; coverage=true)'
 after_success:
