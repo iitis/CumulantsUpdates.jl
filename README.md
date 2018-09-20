@@ -8,7 +8,7 @@ Updates following statistics of `n`-variate data
 * `d`'th moment tensor,
 * an array of moment tensors of order `1,2,...,d`.
 
-Given `t` realisations of `n`-variate data: `X ∈ ℜᵗˣⁿ`, and the update `X+ ∈ ℜᵘˣⁿ`
+Given `t` realisations of `n`-variate data: `X ∈ ℜᵗˣⁿ`, and the update `X + ∈ ℜᵘˣⁿ`
 returns array of updated cumulant tensors of order `1,2,...,d`.
 
 To store symmetric tensors uses a `SymmetricTensors` type, requires [SymmetricTensors.jl](https://github.com/ZKSI/SymmetricTensors.jl). To convert to array, run:
@@ -33,7 +33,7 @@ Within Julia, run
 pkg> add CumulantsUpdates
 ```
 
-to install the files.  Julia 0.7 or later is required.
+to install the files. Julia 0.7 or later is required.
 
 ## Parallel computation
 
