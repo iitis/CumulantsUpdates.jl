@@ -1,6 +1,6 @@
 julia 0.7 1.0-
 SymmetricTensors 1.0.0
-Cumulants 1.0.0
+Cumulants
 StatsBase
 FileIO
 Distributed
