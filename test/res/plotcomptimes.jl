@@ -9,6 +9,7 @@ using PyPlot
 using JLD2
 using FileIO
 using ArgParse
+using Printf
 
 o = 1
 function singleplot(filename::String)
@@ -20,14 +21,16 @@ function singleplot(filename::String)
   println(m)
   mpl.rc("font", family="serif", size = 7)
   fig, ax = subplots(figsize = (2.5, 2.))
-  col = ["red", "blue", "green", "gray", "brown", "orange"]
+  col = ["black", "gray", "silver", "gray", "brown", "orange"]
   marker = [":s", ":o", ":v", ":<", ":>", ":d"]
   for i in 1:size(d["cumulants"], 2)
     if occursin("nblocks", filename)  | occursin("maxf", filename)
-      tt = t[i]
+      str = replace(@sprintf("%.1e", t[i]), "0"=>"")
+      tt = "\$"*replace(str, "e+"=>"\\times 10^{")*"}\$"
       ax[:plot](d[x], d["cumulants"][:,i], marker[i], label= "\$ t_{up} \$ = $tt", color = col[i], markersize=2.5, linewidth = 1)
     elseif occursin("nprocs", filename)
-      tt = t[i]
+      str = replace(@sprintf("%.1e", t[i]), "0"=>"")
+      tt = "\$"*replace(str, "e+"=>"\\times 10^{")*"}\$"
       y = d["cumulants"][:,i].\d["cumulants"][1,i]
       ax[:plot](d[x][1:6], y[1:6], marker[i], label= "\$ t_{up} \$ = $tt", color = col[i], markersize=2.5, linewidth = 1)
     else
@@ -46,7 +49,7 @@ function singleplot(filename::String)
     PyPlot.ylabel("computational time [s]", labelpad = 0.6)
     PyPlot.xlabel(x, labelpad = 0.6)
     ax[:xaxis][:set_major_locator](mti.MaxNLocator(integer=true))
-    ax[:legend](fontsize = 5, loc = 9, ncol = 1)
+    ax[:legend](fontsize = 5, loc = (m==5) ? 2 : 9, ncol = 1)
   elseif occursin("nprocs", filename)
     subplots_adjust(left = 0.15)
     PyPlot.ylabel("computational speedup", labelpad = 0)
@@ -70,7 +73,7 @@ function singleplot(filename::String)
   f = matplotlib[:ticker][:ScalarFormatter]()
   f[:set_powerlimits]((-3, 2))
   ax[:yaxis][:set_major_formatter](f)
-  fig[:savefig]("cumulants"*filename*".pdf")
+  fig[:savefig]("cumulants"*filename*".eps")
 end
 
 
