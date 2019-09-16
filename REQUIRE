@@ -5,3 +5,5 @@ LinearAlgebra
 StatsBase
 FileIO
 JLD2
+Distributed
+Random
