@@ -118,7 +118,7 @@ One can update an array of moments by calling:
 julia> momentupdat(M::Array{SymmetricTensor{T, d}}, X::Matrix{T}, Xplus::Matrix{T}) where {T<:AbstractFloat, d}
 ```
 
-Returns an `Array{SymmetricTensor{T, d}}` of moment tensors of order `1, ..., d` of updated multivariate data: `ℜᵗˣⁿ ∋ X' = dataupdat(X,X+)`, i.e. `Mₐᵣ = momentarray(X, d)`, `momentupdat(Mₐᵣ, X, X+) = momentarray(X', d)`. 
+Returns an `Array{SymmetricTensor{T, d}}` of moment tensors of order `1, ..., d` of updated multivariate data: `ℜᵗˣⁿ ∋ X' = dataupdat(X,X+)`, i.e. `Mₐᵣ = momentarray(X, d)`, `momentupdat(Mₐᵣ, X, X+) = momentarray(X', d)`.
 
 ### Cumulants update
 
@@ -156,7 +156,7 @@ SymmetricTensor{Float64,4}(Union{Nothing, Array{Float64,4}}[[-0.1056 -0.1056; -0
 [-0.1056 -0.1056; -0.1056 -0.1056]
 
 [-0.1056 -0.1056; -0.1056 -0.1056]], 2, 1, 2, true)
-                 
+
 ```
 
 To save the DataMoments structure use:
@@ -275,6 +275,7 @@ To plot computational times run executable `res/plotcomptimes.jl` on chosen `*.j
 
 # Citing this work
 
-Krzysztof Domino, Piotr Gawron, *Sliding window high order cumulant tensors calculation algorithm*, [arXiv:1701.06446](https://arxiv.org/abs/1701.06446)
+Krzysztof Domino, Piotr Gawron, *An algorithm for arbitrary–order cumulant tensor calculation in a sliding window of data streams*,
+International Journal of Applied Mathematics and Computer Science, vol. 29, issue 1, pp. 206, 2019  (https://doi.org/10.2478/amcs-2019-0015 )
 
 This project was partially financed by the National Science Centre, Poland – project number 2014/15/B/ST6/05204.
