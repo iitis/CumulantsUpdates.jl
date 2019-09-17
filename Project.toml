@@ -1,5 +1,6 @@
 name = "CumulantsUpdates"
 uuid = "d4707d7b-0fe1-5399-a86f-c75188857573"
+authors = ["Krzysztof Domino <kdomino@iitis.pl>", "Piotr Gawron <gawron@iitis.pl>"]
 version = "1.0.1"
 
 [deps]
