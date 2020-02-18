@@ -18,6 +18,9 @@ end
   @testset "simple test" begin
     Mup = moment(dataupdat(x,y),3)
     @test Array(Mup) ≈ Array(M3up)
+    x0 = Array{Float64}(undef, (0,0))
+    y0 = Array{Float64}(undef, (0,0))
+    @test M3 == momentupdat(M3, x0, y0)
   end
   @testset "moment array" begin
     Ma = momentarray(x, 4, 2)
