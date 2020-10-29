@@ -1,7 +1,7 @@
 name = "CumulantsUpdates"
 uuid = "d4707d7b-0fe1-5399-a86f-c75188857573"
 authors = ["Krzysztof Domino <kdomino@iitis.pl>", "Piotr Gawron <gawron@iitis.pl>"]
-version = "1.0.2"
+version = "1.0.3"
 
 [deps]
 SymmetricTensors = "1ab33d94-6c6c-50cc-93f0-e3f623a46aa0"
