@@ -4,30 +4,30 @@ authors = ["Krzysztof Domino <kdomino@iitis.pl>", "Piotr Gawron <gawron@iitis.pl
 version = "1.0.3"
 
 [deps]
-SymmetricTensors = "1ab33d94-6c6c-50cc-93f0-e3f623a46aa0"
 Cumulants = "01e79fc4-f247-5fa3-af0e-2bd1d4cc767f"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
-LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
-StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+SymmetricTensors = "1ab33d94-6c6c-50cc-93f0-e3f623a46aa0"
+
+[compat]
+Cumulants = "1"
+Distributions = "0.24"
+FileIO = "1"
+JLD2 = "0.2, 0.3"
+StatsBase = "0.32, 0.33"
+SymmetricTensors = "1"
+julia = "1.0, 1.1, 1.2, 1.3, 1.4, 1.5"
 
 [extras]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[compat]
-julia = "1.0, 1.1, 1.2, 1.3, 1.4, 1.5"
-SymmetricTensors = "1"
-Cumulants = "1"
-Distributions = "0.24"
-StatsBase = "0.32, 0.33"
-JLD2 =  "0.2"
-FileIO = "1"
 
 [targets]
 test = ["ArgParse", "PyCall", "PyPlot", "Test"]
