@@ -8,6 +8,9 @@ module CumulantsUpdates
   import Cumulants: outerprodcum
   import SymmetricTensors: pyramidindices, getblockunsafe
   import LinearAlgebra: norm
+  if VERSION >= v"1.3"
+    using CompilerSupportLibraries_jll
+  end
 
   include("updates.jl")
   include("operations.jl")
