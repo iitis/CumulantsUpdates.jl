@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/iitis/CumulantsUpdates.jl.svg?branch=master)](https://travis-ci.org/iitis/CumulantsUpdates.jl)
 [![Coverage Status](https://coveralls.io/repos/github/iitis/CumulantsUpdates.jl/badge.svg?branch=master)](https://coveralls.io/github/iitis/CumulantsUpdates.jl?branch=master)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3446207.svg)](https://doi.org/10.5281/zenodo.3446207)
 
