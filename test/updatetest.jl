@@ -130,7 +130,7 @@ end
   x = ones(10,4);
   s = DataMoments(x, 4, 2)
   @test savedm(s, "/tmp/cumdata.jld2") == nothing
-  println(load("/tmp/cumdata.jld2"))
+  #println(load("/tmp/cumdata.jld2"))
   s1 = loaddm("/tmp/cumdata.jld2")
   @test s1.X == s.X
   @test s1.d == s.d
