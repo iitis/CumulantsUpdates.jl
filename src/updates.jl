@@ -184,7 +184,7 @@ end
 
 saves a DataMoment structure at a given direcory
 """
-savedm(dm::DataMoments, dir::String) = save(dir, Dict("dm" => dm))
+savedm(dm::DataMoments, dir::String) = save(dir, Dict{String, Any}("dm" => dm))
 
 """
   loaddm(str::String)
