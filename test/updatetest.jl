@@ -126,8 +126,8 @@ end
   @test_throws UndefVarError cumulantsupdat(s1, y)
 end
 
-
-if VERSION > v"1.6"
+println(VERSION)
+if VERSION <= v"1.6.1"
   @testset "save and load" begin
     x = ones(10,4);
     s = DataMoments(x, 4, 2)
