@@ -127,7 +127,7 @@ end
 end
 
 println(VERSION)
-if VERSION < v"1.7"
+if VERSION <= v"1.6.1"
   @testset "save and load" begin
     x = ones(10,4);
     s = DataMoments(x, 4, 2)
