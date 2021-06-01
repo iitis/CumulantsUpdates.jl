@@ -19,10 +19,10 @@ SymmetricTensors = "1ab33d94-6c6c-50cc-93f0-e3f623a46aa0"
 Cumulants = "1"
 Distributions = "0.24, 0.25"
 FileIO = "1"
-JLD2 = "0.2, 0.3, 0.4"
+JLD2 = "0.3, 0.4"
 StatsBase = "0.32, 0.33"
 SymmetricTensors = "1"
-julia = "1.0, 1.1, 1.2, 1.3, 1.4, 1.5"
+julia = "1.5, 1.6"
 
 [extras]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
