@@ -126,14 +126,17 @@ end
   @test_throws UndefVarError cumulantsupdat(s1, y)
 end
 
-@testset "save and load" begin
-  x = ones(10,4);
-  s = DataMoments(x, 4, 2)
-  @test savedm(s, "/tmp/cumdata.jld2") == nothing
-  #println(load("/tmp/cumdata.jld2"))
-  s1 = loaddm("/tmp/cumdata.jld2")
-  @test s1.X == s.X
-  @test s1.d == s.d
-  @test s1.b == s.b
-  @test Array(s1.M[4]) == Array(s.M[4])
+
+if VERSION > v"1.6"
+  @testset "save and load" begin
+    x = ones(10,4);
+    s = DataMoments(x, 4, 2)
+    @test savedm(s, "/tmp/cumdata.jld2") == nothing
+    #println(load("/tmp/cumdata.jld2"))
+    s1 = loaddm("/tmp/cumdata.jld2")
+    @test s1.X == s.X
+    @test s1.d == s.d
+    @test s1.b == s.b
+    @test Array(s1.M[4]) == Array(s.M[4])
+  end
 end
