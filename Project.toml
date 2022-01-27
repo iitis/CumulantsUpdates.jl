@@ -17,10 +17,10 @@ SymmetricTensors = "1ab33d94-6c6c-50cc-93f0-e3f623a46aa0"
 
 [compat]
 Cumulants = "1"
-Distributions = "0.24, 0.25"
-FileIO = "1"
-JLD2 = "0.3, 0.4"
-StatsBase = "0.32, 0.33"
+Distributions = "0.25"
+FileIO = "1.12"
+JLD2 = "0.4"
+StatsBase = "0.33"
 SymmetricTensors = "1"
 julia = "1"
 
