@@ -20,7 +20,7 @@ Cumulants = "1"
 Distributions = "0.25"
 FileIO = "1"
 JLD2 = "0.4"
-StatsBase = "0.33"
+StatsBase = "0.33, 0.34"
 SymmetricTensors = "1"
 julia = "1"
 
