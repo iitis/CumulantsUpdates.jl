@@ -23,16 +23,16 @@ end
 
 function savect(u::Vector{Int}, n::Int, m::Int, p::Int)
   maxb = round(Int, sqrt(n))-1
-  comptimes = zeros(maxb-1, length(u))
+  comptimes = zeros(maxb, length(u))
   println("max block size = ", maxb)
   precomp(m)
-  for b in 2:maxb
+  for b in 1:maxb
     X = randn(maximum(u)+10, n)
     println("bloks size = ", b)
     dm = DataMoments(X, m, b)
     for k in 1:length(u)
       Xup = randn(u[k], n)
-      comptimes[b-1, k] = comptime(dm, Xup)
+      comptimes[b, k] = comptime(dm, Xup)
       println("u = ", u[k])
     end
   end
@@ -44,7 +44,7 @@ function savect(u::Vector{Int}, n::Int, m::Int, p::Int)
   push!(compt, "n" => n)
   push!(compt, "m" => m)
   push!(compt, "x" => "block size")
-  push!(compt, "block size" => [collect(2:maxb)...])
+  push!(compt, "block size" => [collect(1:maxb)...])
   push!(compt, "functions" => [["cumulants"]])
   save(filename, compt)
 end
